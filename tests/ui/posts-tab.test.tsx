@@ -16,7 +16,7 @@ const run = {
   skipped: [],
   videosFound: { alpha: 40, beta: 22, client: 9 },
   remaining: 0,
-  createdAt: '2026-11-25T00:00:00Z',
+  createdAt: '2026-11-25T00:00:00Z', rangeSince: null, rangeUntil: null,
 };
 
 function mk(id: string, handle: string, over: Partial<Post> = {}, text = `reel ${id} about editing`): PostWithTranscript {

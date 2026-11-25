@@ -1,4 +1,5 @@
 import type { Deps } from '@/lib/pipeline/deps';
+import { defaultWindow, validateWindow } from '@/lib/date-range';
 import { validateRunInput } from '@/lib/handles';
 import { failStaleRuns } from '@/lib/pipeline/stale';
 import { ActiveRunExistsError } from '@/lib/store/types';
@@ -18,7 +19,14 @@ const FETCH_FAILED = 'Could not start fetching posts. Try again.';
 
 export async function startRun(deps: Deps, input: unknown, ipHash: string): Promise<StartResult> {
   const v = validateRunInput(input);
-  if (!v.ok) return { status: 400, errors: v.errors as Record<string, string> };
+  const rawRange = typeof input === 'object' && input !== null ? (input as { range?: unknown }).range : undefined;
+  // No range sent (older clients): use the last 90 days, as before.
+  const w = rawRange === undefined ? { ok: true as const, value: defaultWindow(deps.now()) } : validateWindow(rawRange, deps.now());
+  if (!v.ok || !w.ok) {
+    const errors = { ...(v.ok ? {} : v.errors), ...(w.ok ? {} : { range: w.error }) };
+    return { status: 400, errors: errors as Record<string, string> };
+  }
+  const window = w.value;
   const { store, progress, apify } = deps;
   await failStaleRuns(deps);
 
@@ -35,7 +43,13 @@ export async function startRun(deps: Deps, input: unknown, ipHash: string): Prom
   const { niche, client, competitors } = v.value;
   let run;
   try {
-    run = await store.createRun({ niche, clientHandle: client, competitorHandles: competitors });
+    run = await store.createRun({
+      niche,
+      clientHandle: client,
+      competitorHandles: competitors,
+      rangeSince: window.since,
+      rangeUntil: window.until,
+    });
   } catch (err) {
     if (err instanceof ActiveRunExistsError) return BUSY;
     throw err;
@@ -43,7 +57,7 @@ export async function startRun(deps: Deps, input: unknown, ipHash: string): Prom
 
   const handles = [client, ...competitors];
   try {
-    const apifyRunId = await apify.start(handles, run.id);
+    const apifyRunId = await apify.start(handles, run.id, window);
     await store.updateRun(run.id, { apifyRunId });
   } catch {
     await store.updateRun(run.id, {

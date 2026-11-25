@@ -236,3 +236,10 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--sunk)}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
+/* Date range field */
+.range-field{border:0;margin:0;padding:0;min-width:0}
+.range-field legend{padding:0;margin-bottom:8px;font-weight:500;font-size:14px}
+.range-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.range-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.range-date{display:flex;flex-direction:column;gap:4px}
+@media (max-width:480px){.range-inputs{grid-template-columns:1fr}}

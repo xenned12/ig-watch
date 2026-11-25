@@ -17,6 +17,9 @@ export type Run = {
   apifyRunId: string | null;
   createdAt: string;
   startedAt: string;
+  /** Chosen date range (ISO); null on runs made before ranges existed. */
+  rangeSince: string | null;
+  rangeUntil: string | null;
 };
 
 export type Post = {

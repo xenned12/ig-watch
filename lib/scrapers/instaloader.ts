@@ -31,11 +31,13 @@ export function instaloaderScraper(o: Options): Scraper {
   const delay = o.delayMs ?? 2_000;
 
   return {
-    async start(handles, runId) {
+    async start(handles, runId, window) {
+      // The script counts days back from today; ranking drops posts after `until`.
+      const days = Math.max(1, Math.ceil((Date.now() - Date.parse(window.since) - 60_000) / 86_400_000));
       mkdirSync(o.dir, { recursive: true });
       const id = newId();
       const out = join(o.dir, id + '.json');
-      const args = [o.script, '--out', out, ...(o.login ? ['--login', o.login] : []), ...handles];
+      const args = [o.script, '--out', out, ...(o.login ? ['--login', o.login] : []), '--days', String(days), ...handles];
       const child = spawn(o.python, args, {
         cwd: o.cwd,
         stdio: ['ignore', 'ignore', 'pipe'],

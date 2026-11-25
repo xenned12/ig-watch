@@ -39,6 +39,8 @@ export function memoryStore(): Store {
         apifyRunId: null,
         createdAt: now,
         startedAt: now,
+        rangeSince: r.rangeSince ?? null,
+        rangeUntil: r.rangeUntil ?? null,
       };
       runs.set(run.id, run);
       return { ...run };

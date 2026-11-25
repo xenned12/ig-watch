@@ -1,7 +1,13 @@
 import type { Niche } from '@/lib/handles';
 import type { Analysis, NicheAccounts, Post, Run, RunStatus, TopAccount, Transcript } from '@/lib/types';
 
-export type NewRun = { niche: Niche; clientHandle: string; competitorHandles: string[] };
+export type NewRun = {
+  niche: Niche;
+  clientHandle: string;
+  competitorHandles: string[];
+  rangeSince?: string;
+  rangeUntil?: string;
+};
 export type NewPost = Omit<Post, 'id' | 'runId'>;
 export type RunEvent = { at: string; message: string };
 

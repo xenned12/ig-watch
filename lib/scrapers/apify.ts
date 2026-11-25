@@ -16,13 +16,14 @@ const FINISHED: Record<string, string> = {
 export function apifyScraper(env: ServerEnv): Scraper {
   const client = new ApifyClient({ token: env.APIFY_TOKEN });
   return {
-    async start(handles, runId) {
+    async start(handles, runId, window) {
       const run = await client.actor('apify/instagram-scraper').start(
         {
           directUrls: handles.map((h) => 'https://www.instagram.com/' + h + '/'),
           resultsType: 'posts',
           resultsLimit: 60,
-          onlyPostsNewerThan: '90 days',
+          // Apify takes the oldest date; posts after `until` are dropped when ranking.
+          onlyPostsNewerThan: window.since.slice(0, 10),
         },
         {
           webhooks: [

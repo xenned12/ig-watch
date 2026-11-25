@@ -22,6 +22,8 @@ export function runFromRow(r: Row): Run {
     apifyRunId: (r.apify_run_id as string | null) ?? null,
     createdAt: r.created_at as string,
     startedAt: r.started_at as string,
+    rangeSince: (r.range_since as string | null) ?? null,
+    rangeUntil: (r.range_until as string | null) ?? null,
   };
 }
 
@@ -40,6 +42,8 @@ export function runPatchToRow(p: Partial<Run>): Row {
     apifyRunId: 'apify_run_id',
     createdAt: 'created_at',
     startedAt: 'started_at',
+    rangeSince: 'range_since',
+    rangeUntil: 'range_until',
   };
   const row: Row = {};
   for (const key of Object.keys(p) as (keyof Run)[]) {

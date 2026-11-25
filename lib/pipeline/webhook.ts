@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { Deps } from '@/lib/pipeline/deps';
 import { dispatchTranscribeJobs } from '@/lib/pipeline/dispatch';
 import { rankItems } from '@/lib/rank';
+import { runWindow } from '@/lib/run-window';
 
 const PayloadSchema = z.object({
   runId: z.string().uuid(),
@@ -25,7 +26,7 @@ function usabilityError(
     const reason = skipped.find((s) => s.handle === client)?.reason;
     // Only say "no video posts" when that is the actual reason.
     if (reason && !reason.startsWith('No video posts')) return `Your client @${client} could not be fetched: ${reason}.`;
-    return `Your client @${client} has no video posts in the last 90 days.`;
+    return `Your client @${client} has no video posts in the selected dates.`;
   }
   // Carry on with whichever competitors worked; fail only when none did.
   if (competitors.some((h) => (videosFound[h] ?? 0) > 0)) return null;
@@ -49,7 +50,7 @@ async function runPipeline(deps: Deps, runId: string, eventType: string, apifyRu
   const { posts, videosFound, skipped } = rankItems(
     items,
     { client: run.clientHandle, competitors: run.competitorHandles },
-    deps.now(),
+    runWindow(run, deps.now()),
   );
   const problem = usabilityError(run.clientHandle, run.competitorHandles, videosFound, skipped);
   if (problem) throw new FetchError(problem);

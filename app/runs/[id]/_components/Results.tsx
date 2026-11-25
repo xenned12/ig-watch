@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useRef, type KeyboardEvent } from 'react';
+import { runRangeLabel } from '@/lib/date-range';
 import { Icon } from '@/app/_components/Icon';
 import type { RunDetail } from '@/lib/pipeline/read';
 import { fmt, fmtDate, kpis } from '@/lib/view';
@@ -54,7 +55,7 @@ export function Results({ detail }: { detail: RunDetail }) {
           <p className="eyebrow">
             <span>{run.niche} niche</span><span>·</span>
             <span>{fmtDate(run.createdAt, true)}</span><span>·</span>
-            <span>last 90 days</span>
+            <span>{runRangeLabel(run)}</span>
           </p>
           <h1>@{run.clientHandle} vs {n} competitor{n === 1 ? '' : 's'}</h1>
         </div>

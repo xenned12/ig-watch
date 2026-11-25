@@ -29,20 +29,22 @@ function setup(login?: string) {
   return { dir, child, spawn, notify, scraper };
 }
 
+const W = { since: new Date(Date.now() - 30 * 86_400_000).toISOString(), until: new Date().toISOString() };
+
 describe('instaloaderScraper', () => {
   it('starts the script with the handles and an output file, and returns its id', async () => {
     const { dir, spawn, scraper } = setup('mylogin');
-    await expect(scraper.start(['me', 'alpha'], 'run-1')).resolves.toBe('il_0f3a');
+    await expect(scraper.start(['me', 'alpha'], 'run-1', W)).resolves.toBe('il_0f3a');
     expect(spawn).toHaveBeenCalledWith(
       '/venv/bin/python',
-      ['/app/scripts/instaloader_scrape.py', '--out', join(dir, 'il_0f3a.json'), '--login', 'mylogin', 'me', 'alpha'],
+      ['/app/scripts/instaloader_scrape.py', '--out', join(dir, 'il_0f3a.json'), '--login', 'mylogin', '--days', '30', 'me', 'alpha'],
       expect.objectContaining({ stdio: ['ignore', 'ignore', 'pipe'] }),
     );
   });
 
   it('reports success to the webhook when the script exits 0', async () => {
     const { child, notify, scraper } = setup();
-    await scraper.start(['me'], 'run-1');
+    await scraper.start(['me'], 'run-1', W);
     child.emit('close', 0);
     await vi.waitFor(() =>
       expect(notify).toHaveBeenCalledWith({ runId: 'run-1', eventType: 'ACTOR.RUN.SUCCEEDED', apifyRunId: 'il_0f3a' }),
@@ -51,12 +53,12 @@ describe('instaloaderScraper', () => {
 
   it('reports failure when the script exits non-zero or cannot start', async () => {
     const a = setup();
-    await a.scraper.start(['me'], 'run-1');
+    await a.scraper.start(['me'], 'run-1', W);
     a.child.emit('close', 2);
     await vi.waitFor(() => expect(a.notify).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'ACTOR.RUN.FAILED' })));
 
     const b = setup();
-    await b.scraper.start(['me'], 'run-2');
+    await b.scraper.start(['me'], 'run-2', W);
     b.child.emit('error', new Error('ENOENT'));
     await vi.waitFor(() => expect(b.notify).toHaveBeenCalledWith(expect.objectContaining({ runId: 'run-2', eventType: 'ACTOR.RUN.FAILED' })));
     expect(b.notify).toHaveBeenCalledTimes(1);

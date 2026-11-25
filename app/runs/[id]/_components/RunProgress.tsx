@@ -7,6 +7,7 @@ import { browserSupabase } from '@/lib/supabase-browser';
 import type { ProgressEvent } from '@/lib/progress';
 import type { RunDetail } from '@/lib/pipeline/read';
 import { crawlProgress } from '@/lib/scrape-progress';
+import { runRangeLabel } from '@/lib/date-range';
 
 /** Broadcast payloads are untrusted input: they are validated before use. */
 type Subscribe = (onPayload: (payload: unknown) => void) => () => void;
@@ -128,7 +129,7 @@ export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
     <>
       <div className="pagehead">
         <div>
-          <p className="eyebrow">{run.niche} · last 90 days</p>
+          <p className="eyebrow">{run.niche} · {runRangeLabel(run)}</p>
           <h1>Analyzing @{run.clientHandle}</h1>
         </div>
       </div>

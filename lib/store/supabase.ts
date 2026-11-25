@@ -29,6 +29,8 @@ export function supabaseStore(): Store {
           niche: r.niche,
           client_handle: r.clientHandle,
           competitor_handles: r.competitorHandles,
+          range_since: r.rangeSince ?? null,
+          range_until: r.rangeUntil ?? null,
           status: 'fetching',
         })
         .select()

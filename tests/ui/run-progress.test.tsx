@@ -21,7 +21,7 @@ const baseRun: Run = {
   skipped: [],
   videosFound: {},
   remaining: 0,
-  createdAt: '2026-11-25T10:00:00Z',
+  createdAt: '2026-11-25T10:00:00Z', rangeSince: null, rangeUntil: null,
 };
 
 let emit: (e: ProgressEvent) => void = () => {};

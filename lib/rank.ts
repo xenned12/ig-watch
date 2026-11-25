@@ -1,5 +1,6 @@
 import { ApifyItemSchema, type ApifyItem } from '@/lib/apify/schema';
 import { normaliseHandle } from '@/lib/handles';
+import type { DateWindow } from '@/lib/date-range';
 import type { Post } from '@/lib/types';
 
 type RankedPost = Omit<Post, 'id' | 'runId'>;
@@ -10,10 +11,9 @@ type RankResult = {
   skipped: Skipped[];
 };
 
-const WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
 const TOP_N = 10;
 const NOT_FOUND = 'Account not found or private';
-const NO_VIDEOS = 'No video posts in the last 90 days';
+const NO_VIDEOS = 'No video posts in the selected dates';
 const BLOCKED = 'Instagram blocked the request. Sign in to Instaloader or try again later';
 // Error codes the Instaloader script uses when Instagram refuses the request.
 const BLOCKED_CODES = new Set(['login_required', 'fetch_failed']);
@@ -28,11 +28,11 @@ function isVideo(item: ApifyItem): boolean {
   return item.type === 'Video' || item.productType === 'clips';
 }
 
-function inWindow(item: ApifyItem, now: Date): boolean {
+function inWindow(item: ApifyItem, window: DateWindow): boolean {
   if (!item.timestamp) return false;
   const t = Date.parse(item.timestamp);
   if (Number.isNaN(t)) return false;
-  return t <= now.getTime() && now.getTime() - t <= WINDOW_MS;
+  return t >= Date.parse(window.since) && t <= Date.parse(window.until);
 }
 
 function sortKey(item: ApifyItem): number {
@@ -64,7 +64,7 @@ function toPost(item: ApifyItem, handle: string, isClient: boolean, rank: number
 export function rankItems(
   items: unknown[],
   handles: { client: string; competitors: string[] },
-  now: Date,
+  window: DateWindow,
 ): RankResult {
   const client = normaliseHandle(handles.client);
   const order = [client, ...handles.competitors.map(normaliseHandle)];
@@ -79,7 +79,7 @@ export function rankItems(
     const handle = itemHandle(item);
     if (handle === null || !videos.has(handle)) continue;
     if (item.error) errored.set(handle, BLOCKED_CODES.has(item.error) ? BLOCKED : NOT_FOUND);
-    if (isVideo(item) && inWindow(item, now)) videos.get(handle)?.push(item);
+    if (isVideo(item) && inWindow(item, window)) videos.get(handle)?.push(item);
   }
 
   const posts: RankedPost[] = [];

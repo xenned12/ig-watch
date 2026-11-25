@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/app/_components/Icon';
+import { runRangeLabel } from '@/lib/date-range';
 import { filterPosts, fmt, fmtDate, metric, postText, type PostWithTranscript, type SortKey } from '@/lib/view';
 import type { RunDetail } from '@/lib/pipeline/read';
 import { Highlight } from './Highlight';
@@ -82,7 +83,7 @@ export function PostsTab({ run, posts }: { run: RunDetail['run']; posts: PostWit
       </div>
       <p className="small muted" aria-live="polite">
         {list.length} of {posts.length} video posts{q.trim() ? ` mention "${q.trim()}"` : ''}.
-        {found.length > 0 && ` Found in the last 90 days: ${found.join(', ')}.`} Only each account&apos;s top 10 by views are kept.
+        {found.length > 0 && ` Found in ${runRangeLabel(run)}: ${found.join(', ')}.`} Only each account&apos;s top 10 by views are kept.
       </p>
       <div className="posts">
         {list.length > 0 ? (
@@ -117,7 +118,7 @@ export function PostsTab({ run, posts }: { run: RunDetail['run']; posts: PostWit
           })
         ) : q.trim() === '' ? (
           <div className="empty">
-            <p style={{ fontWeight: 500 }}>No video posts for this account in the last 90 days.</p>
+            <p style={{ fontWeight: 500 }}>No video posts for this account in {runRangeLabel(run)}.</p>
           </div>
         ) : (
           <div className="empty">

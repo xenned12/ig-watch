@@ -92,8 +92,11 @@ describe('NewRunForm', () => {
     await fillValid();
     await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
     await vi.waitFor(() => expect(push).toHaveBeenCalledWith('/runs/abc'));
-    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string);
-    expect(body).toEqual({ niche: 'AI', client: 'me', competitors: ['a', 'b', 'c'] });
+    // The Top accounts panel also fetches once a niche is typed: pick the run request.
+    const call = fetchMock.mock.calls.find((c) => c[0] === '/api/runs')!;
+    const body = JSON.parse(call[1].body as string);
+    expect(body).toMatchObject({ niche: 'AI', client: 'me', competitors: ['a', 'b', 'c'] });
+    expect(body.range).toEqual({ since: expect.any(String), until: expect.any(String) });
   });
 
   it('shows field errors from a 400', async () => {
@@ -166,6 +169,32 @@ describe('NewRunForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
     expect(screen.getByText('@me is already the client.')).toBeTruthy();
     expect(document.activeElement).toBe(compInput());
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('NewRunForm date range', () => {
+  it('defaults to the last 90 days', () => {
+    render(<NewRunForm />);
+    expect(screen.getByRole('button', { name: 'Last 90 days' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByText(/90 days, both dates included/)).toBeTruthy();
+  });
+
+  it('switches range with a preset button', async () => {
+    render(<NewRunForm />);
+    await userEvent.click(screen.getByRole('button', { name: 'Last 7 days' }));
+    expect(screen.getByRole('button', { name: 'Last 7 days' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByText(/7 days, both dates included/)).toBeTruthy();
+  });
+
+  it('blocks a range longer than 90 days without calling the server', async () => {
+    render(<NewRunForm />);
+    fireEvent.change(screen.getByLabelText('From'), { target: { value: '2020-01-01' } });
+    await userEvent.type(screen.getByLabelText('Niche'), 'AI');
+    await userEvent.type(screen.getByLabelText('Client account'), 'me');
+    await userEvent.type(compInput(), 'a,b,c,');
+    await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
+    expect(screen.getByText(/Choose 90 days or fewer/)).toBeTruthy();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });

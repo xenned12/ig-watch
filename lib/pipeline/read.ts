@@ -60,6 +60,8 @@ export async function runDetail(
       videosFound: r.videosFound,
       remaining: r.remaining,
       createdAt: r.createdAt,
+      rangeSince: r.rangeSince,
+      rangeUntil: r.rangeUntil,
     },
     posts: ordered.map((p) => ({ ...p, transcript: byPost.get(p.id) ?? null })),
     analysis,

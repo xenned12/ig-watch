@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import items from './fixtures/apify-items.json';
+import { defaultWindow } from '@/lib/date-range';
 import { rankItems } from '@/lib/rank';
 
 const now = new Date('2026-11-25T00:00:00Z');
-const r = rankItems(items, { client: 'me', competitors: ['alpha', 'beta', 'gamma', 'zeta'] }, now);
+const r = rankItems(items, { client: 'me', competitors: ['alpha', 'beta', 'gamma', 'zeta'] }, defaultWindow(now));
 
 describe('rankItems', () => {
   it('keeps top 10 videos in window, by views', () => {
@@ -20,17 +21,17 @@ describe('rankItems', () => {
   it('records skipped accounts with a reason', () =>
     expect(r.skipped).toEqual([
       { handle: 'gamma', reason: 'Account not found or private' },
-      { handle: 'zeta', reason: 'No video posts in the last 90 days' },
+      { handle: 'zeta', reason: 'No video posts in the selected dates' },
     ]));
   it('marks the client', () =>
     expect(r.posts.filter((p) => p.isClient).map((p) => p.handle)).toEqual(['me', 'me']));
   it('ignores unparseable items', () =>
-    expect(rankItems([null, 5, { timestamp: 3 }], { client: 'me', competitors: [] }, now).posts).toEqual([]));
+    expect(rankItems([null, 5, { timestamp: 3 }], { client: 'me', competitors: [] }, defaultWindow(now)).posts).toEqual([]));
   it('says when Instagram blocked the request instead of "not found"', () => {
     const res = rankItems(
       [{ inputUrl: 'https://www.instagram.com/me/', error: 'login_required' }, { inputUrl: 'https://www.instagram.com/a/', error: 'fetch_failed' }],
       { client: 'me', competitors: ['a'] },
-      now,
+      defaultWindow(now),
     );
     expect(res.skipped).toEqual([
       { handle: 'me', reason: 'Instagram blocked the request. Sign in to Instaloader or try again later' },
@@ -56,7 +57,7 @@ describe('rankItems', () => {
       errorDescription: null,
     };
     const clip = { ...real, url: 'https://www.instagram.com/reel/def/', type: 'Clip', productType: 'clips', videoViewCount: 900 };
-    const res = rankItems([real, clip], { client: 'me', competitors: [] }, now);
+    const res = rankItems([real, clip], { client: 'me', competitors: [] }, defaultWindow(now));
     expect(res.posts.map((p) => p.igUrl)).toEqual(['https://www.instagram.com/p/abc/', 'https://www.instagram.com/reel/def/']);
     expect(res.posts[0]).toMatchObject({ views: 1200, comments: 0, caption: '', durationS: 31 });
     expect(res.videosFound).toMatchObject({ me: 2 });

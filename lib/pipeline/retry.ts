@@ -1,6 +1,7 @@
 import type { Deps } from '@/lib/pipeline/deps';
 import { dispatchTranscribeJobs, type Defer } from '@/lib/pipeline/dispatch';
 import { failStaleRuns } from '@/lib/pipeline/stale';
+import { runWindow } from '@/lib/run-window';
 import { ActiveRunExistsError } from '@/lib/store/types';
 import type { Run } from '@/lib/types';
 
@@ -23,7 +24,7 @@ async function retryFetch(deps: Deps, run: Run): Promise<RetryResult> {
     return NOT_FAILED;
   }
   try {
-    const apifyRunId = await apify.start([run.clientHandle, ...run.competitorHandles], run.id);
+    const apifyRunId = await apify.start([run.clientHandle, ...run.competitorHandles], run.id, runWindow(run, deps.now()));
     await store.updateRun(run.id, { apifyRunId });
   } catch {
     await store.updateRun(run.id, { status: 'failed', failedStep: 'fetch', error: FETCH_FAILED });

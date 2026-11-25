@@ -16,7 +16,7 @@ import { Results } from '@/app/runs/[id]/_components/Results';
 const detail = (analysis: RunDetail['analysis']): RunDetail => ({
   run: {
     id: 'r1', niche: 'AI', clientHandle: 'client', competitorHandles: ['alpha'], status: 'done', failedStep: null,
-    error: null, skipped: [], videosFound: {}, remaining: 0, createdAt: '2026-11-25T00:00:00Z',
+    error: null, skipped: [], videosFound: {}, remaining: 0, createdAt: '2026-11-25T00:00:00Z', rangeSince: null, rangeUntil: null,
   },
   posts: [
     { id: 'a', runId: 'r1', handle: 'alpha', isClient: false, igUrl: 'https://x/a', postedAt: '2026-10-01T00:00:00Z', views: 100, likes: 1, comments: 1, durationS: 30, rankMetric: 'views', rank: 1, videoUrl: null, caption: 'c', transcript: null },

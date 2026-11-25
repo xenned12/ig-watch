@@ -64,7 +64,7 @@ describe('handleApifyDone', () => {
     expect(run?.skipped.map((x) => x.handle).sort()).toEqual(['gamma', 'zeta']);
     expect(d.sent.length).toBeGreaterThan(0);
     expect(d.events.map((e) => e.message)).toContain(
-      'Skipped @gamma (Account not found or private), @zeta (No video posts in the last 90 days). Continuing with the other accounts.',
+      'Skipped @gamma (Account not found or private), @zeta (No video posts in the selected dates). Continuing with the other accounts.',
     );
   });
 
@@ -75,7 +75,7 @@ describe('handleApifyDone', () => {
       status: 'failed',
       failedStep: 'fetch',
       error:
-        'No competitor could be fetched. Skipped: @gamma (Account not found or private), @zeta (No video posts in the last 90 days). Add other competitors and try again.',
+        'No competitor could be fetched. Skipped: @gamma (Account not found or private), @zeta (No video posts in the selected dates). Add other competitors and try again.',
     });
     expect(d.sent).toHaveLength(0);
     expect(d.events.at(-1)?.step).toBe('failed');
@@ -95,7 +95,7 @@ describe('handleApifyDone', () => {
     expect(await d.store.getRun(runId)).toMatchObject({
       status: 'failed',
       failedStep: 'fetch',
-      error: 'Your client @zeta has no video posts in the last 90 days.',
+      error: 'Your client @zeta has no video posts in the selected dates.',
     });
     expect(d.sent).toHaveLength(0);
   });
