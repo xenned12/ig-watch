@@ -56,10 +56,29 @@ def error_item(handle, code, description):
     }
 
 
+_lookups_blocked = None  # cached: does Instagram refuse every profile lookup?
+
+
+def lookups_blocked(loader):
+    """Instagram answers 404 to every profile lookup when it blocks a session or IP,
+    which Instaloader reports as "profile does not exist". Check once against a
+    profile that certainly exists to tell a real "not found" from a block."""
+    global _lookups_blocked
+    if _lookups_blocked is None:
+        try:
+            instaloader.Profile.from_username(loader.context, "instagram")
+            _lookups_blocked = False
+        except Exception:
+            _lookups_blocked = True
+    return _lookups_blocked
+
+
 def scrape_handle(loader, handle, cutoff, limit):
     try:
         profile = instaloader.Profile.from_username(loader.context, handle)
     except ie.ProfileNotExistsException:
+        if lookups_blocked(loader):
+            return [error_item(handle, "fetch_failed", "Instagram refused the profile lookup (404)")]
         return [error_item(handle, "not_found", "Profile does not exist")]
     except ie.LoginRequiredException:
         return [error_item(handle, "login_required", "Instagram requires a logged-in session")]

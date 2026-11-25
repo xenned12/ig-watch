@@ -23,6 +23,9 @@ function usabilityError(
   skipped: Skipped[],
 ): string | null {
   if ((videosFound[client] ?? 0) === 0) {
+    const reason = skipped.find((s) => s.handle === client)?.reason;
+    // Only say "no video posts" when that is the actual reason.
+    if (reason && !reason.startsWith('No video posts')) return `Your client @${client} could not be fetched: ${reason}.`;
     return `Your client @${client} has no video posts in the last 90 days.`;
   }
   const usable = competitors.filter((h) => (videosFound[h] ?? 0) > 0);

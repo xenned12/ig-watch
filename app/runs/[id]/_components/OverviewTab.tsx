@@ -44,11 +44,14 @@ export function OverviewTab({ run, posts, analysis }: Props) {
           </div>
           {per.map((a) => (
             <div key={a.h} className={`cmpbar ${a.client ? 'client' : ''}`}>
-              <span className="mono" style={a.client ? { color: 'var(--client)', fontWeight: 500 } : undefined}>@{a.h}</span>
+              <span className="cmpbar-name" title={`@${a.h}`}>
+                <span className="mono cmpbar-handle">@{a.h}</span>
+                {a.client && <span className="pill amber">Client</span>}
+              </span>
               <span className="track" role="img" aria-label={`@${a.h}: ${fmt(a.med)} median views`}>
                 <i style={{ width: `${Math.max(3, (a.med / max) * 100)}%` }} />
               </span>
-              <span className="num" style={{ textAlign: 'right' }}>{fmt(a.med)}</span>
+              <span className="num cmpbar-value">{fmt(a.med)}</span>
             </div>
           ))}
           <div style={{ display: 'flex', gap: 14, marginTop: 10 }} className="xs muted">

@@ -69,6 +69,14 @@ describe('handleApifyDone', () => {
     expect(d.events.at(-1)?.step).toBe('failed');
   });
 
+  it('says why when the client account itself could not be fetched', async () => {
+    const { d, runId } = await setup('gamma', ['alpha', 'beta', 'delta']);
+    await handleApifyDone(d, p(runId));
+    expect((await d.store.getRun(runId))?.error).toBe(
+      'Your client @gamma could not be fetched: Account not found or private.',
+    );
+  });
+
   it('fails at fetch when the client has no videos', async () => {
     const { d, runId } = await setup('zeta', ['alpha', 'beta', 'delta']);
     await handleApifyDone(d, p(runId));
