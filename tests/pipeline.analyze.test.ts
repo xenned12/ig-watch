@@ -105,16 +105,15 @@ describe('analyzeRun', () => {
     expect(fn).not.toHaveBeenCalled();
   });
   it('does not overwrite a run that moved on while the analysis was failing', async () => {
-    let d: FakeDeps | undefined;
-    let id = '';
+    const ctx: { d?: FakeDeps; id: string } = { id: '' };
     const json = (async () => {
       // Simulates the stale sweep + a retry moving the run on mid-analysis.
-      if (d) await d.store.updateRun(id, { status: 'fetching' });
+      if (ctx.d) await ctx.d.store.updateRun(ctx.id, { status: 'fetching' });
       throw new Error('openai down');
     }) as Deps['openai']['json'];
     const s = await setup('analyzing', json);
-    d = s.d;
-    id = s.runId;
+    ctx.d = s.d;
+    ctx.id = s.runId;
     await analyzeRun(s.d, s.runId);
     expect(await s.d.store.getRun(s.runId)).toMatchObject({ status: 'fetching', failedStep: null });
     expect(s.d.events.some((e) => e.step === 'failed')).toBe(false);

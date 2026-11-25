@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 const FOCUSABLE = 'button:not([aria-disabled="true"]), a[href]';
@@ -16,7 +16,9 @@ type Props = {
 export function Modal({ labelledBy, onClose, onPrev, onNext, children }: Props) {
   const scrim = useRef<HTMLDivElement>(null);
   const handlers = useRef({ onClose, onPrev, onNext });
-  handlers.current = { onClose, onPrev, onNext };
+  useLayoutEffect(() => {
+    handlers.current = { onClose, onPrev, onNext };
+  });
 
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null;
