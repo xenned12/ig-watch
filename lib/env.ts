@@ -40,3 +40,14 @@ export function serverEnv(): ServerEnv {
   const optional = Object.fromEntries(OPTIONAL.map((n) => [n, read(n)])) as Optional;
   return { ...required, ...optional, SCRAPER: scraper.data };
 }
+
+const AUTH = ['APP_USERNAME', 'APP_PASSWORD', 'SESSION_SECRET', 'TURNSTILE_SECRET_KEY'] as const;
+export type AuthEnv = Record<(typeof AUTH)[number], string>;
+
+/** Login settings. Kept apart from serverEnv() so the proxy reads only what it needs. */
+export function authEnv(): AuthEnv {
+  const missing = AUTH.find((n) => read(n) === undefined);
+  if (missing) throw new Error(`Missing server configuration: ${missing}`);
+  if ((read('SESSION_SECRET') ?? '').length < 32) throw new Error('SESSION_SECRET must be at least 32 characters');
+  return Object.fromEntries(AUTH.map((n) => [n, read(n)])) as AuthEnv;
+}

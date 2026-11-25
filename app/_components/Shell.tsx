@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Icon, type IconName } from './Icon';
 import { RecentRuns } from './RecentRuns';
+import { LogoutButton } from './LogoutButton';
 
 type Active = 'new' | 'results' | 'runs';
 export type RecentRun = { id: string; niche: string; clientHandle: string; status?: string };
@@ -34,6 +35,7 @@ export function Shell({ active, recent, children }: { active: Active; /** `null`
         <NavLinks active={active} />
         <div className="side-sec">Recent runs</div>
         <RecentRuns recent={recent} />
+        <LogoutButton />
         <p className="side-foot xs muted">Reel Intel</p>
       </aside>
       <div style={{ minWidth: 0 }}>

@@ -24,6 +24,11 @@ Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper, ree
 | `NEXT_PUBLIC_SUPABASE_URL` | public | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | Supabase anon key |
 | `NEXT_PUBLIC_APP_URL` | public | Production URL, used for Apify webhook and job callbacks |
+| `APP_USERNAME` | server only | Username of the single login account |
+| `APP_PASSWORD` | server only | Password of the login account. Use a long random one |
+| `SESSION_SECRET` | server only | Signs the session cookie. At least 32 chars, for example `openssl rand -hex 32`. Changing it signs everyone out |
+| `TURNSTILE_SECRET_KEY` | server only | Cloudflare Turnstile secret key, checked server-side at login |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | public | Cloudflare Turnstile site key for the login widget. For local testing Cloudflare's test keys work (site `1x00000000000000000000AA`, secret `1x0000000000000000000000000000000AA`) |
 | `VERCEL_AUTOMATION_BYPASS_SECRET` | server only, optional | Only needed if Vercel Deployment Protection is on. See "Deployment Protection" below |
 
 Never commit `.env*` files with values. `.env.local` must stay in `.gitignore`.
