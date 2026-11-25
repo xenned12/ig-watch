@@ -115,6 +115,7 @@ The Apify webhook (`/api/webhooks/apify`) and the job routes (`/api/jobs/*`) are
 
 ## Limits
 
+- Only public Instagram accounts can be analysed. Instagram [detects and blocks automated scraping](https://help.instagram.com/740480200552298), and private profiles can't be read by any scraper. The New analysis form explains this next to the account fields and in the run summary.
 - One analysis at a time for the whole app.
 - 5 analysis starts per IP per hour.
 - A run stuck for more than 30 minutes is marked failed. It can be retried from the Runs page.
