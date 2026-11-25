@@ -16,7 +16,7 @@ async function setup(state: string | null, withStatus = true) {
     async items() {
       return items;
     },
-    ...(withStatus ? { status: async () => state } : {}),
+    ...(withStatus ? { status: async () => ({ event: state, message: state ? null : 'Crawled 147/191 pages, 0 failed requests.' }) } : {}),
   };
   const d = fakeDeps({ apify });
   const run = await d.store.createRun({
@@ -42,9 +42,9 @@ describe('pollScrape', () => {
     expect(await d.store.getRun(runId)).toMatchObject({ status: 'failed', failedStep: 'fetch' });
   });
 
-  it('does nothing while the scrape is still running', async () => {
+  it('returns the live scraper message while the scrape is still running', async () => {
     const { d, runId } = await setup(null);
-    await pollScrape(d, runId);
+    expect(await pollScrape(d, runId)).toBe('Crawled 147/191 pages, 0 failed requests.');
     expect((await d.store.getRun(runId))?.status).toBe('fetching');
   });
 

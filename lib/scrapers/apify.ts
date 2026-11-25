@@ -43,8 +43,10 @@ export function apifyScraper(env: ServerEnv): Scraper {
     },
     async status(apifyRunId) {
       const run = await client.run(apifyRunId).get();
-      if (!run || run.status === 'READY' || run.status === 'RUNNING') return null;
-      return FINISHED[run.status] ?? 'ACTOR.RUN.FAILED';
+      if (!run) return { event: null, message: null };
+      const message = run.statusMessage ?? null;
+      if (run.status === 'READY' || run.status === 'RUNNING') return { event: null, message };
+      return { event: FINISHED[run.status] ?? 'ACTOR.RUN.FAILED', message };
     },
   };
 }

@@ -6,6 +6,7 @@ import { Icon } from '@/app/_components/Icon';
 import { browserSupabase } from '@/lib/supabase-browser';
 import type { ProgressEvent } from '@/lib/progress';
 import type { RunDetail } from '@/lib/pipeline/read';
+import { crawlProgress } from '@/lib/scrape-progress';
 
 /** Broadcast payloads are untrusted input: they are validated before use. */
 type Subscribe = (onPayload: (payload: unknown) => void) => () => void;
@@ -25,6 +26,7 @@ const STEPS = [
 ];
 const ACTIVE = ['fetching', 'transcribing', 'analyzing'];
 const POLL_MS = 15_000;
+const FETCH_POLL_MS = 5_000; // faster while Apify is crawling, to show live progress
 
 function stepFor(status: string): number {
   if (status === 'transcribing') return 2;
@@ -62,6 +64,7 @@ export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
   const [step, setStep] = useState(stepFor(run.status));
   const [counts, setCounts] = useState<{ n: number; total: number | null }>({ n: 0, total: null });
   const [lines, setLines] = useState(initialEvents.map((e) => e.message));
+  const [scrapeMessage, setScrapeMessage] = useState<string | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const onEventRef = useRef(onEvent);
   useLayoutEffect(() => {
@@ -87,12 +90,14 @@ export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
     return (subscribe ?? makeSupabaseSubscribe(run.id))(handle);
   }, [run.id, subscribe, router]);
 
+  const fetching = step === 0;
   useEffect(() => {
-    const timer = setInterval(async () => {
+    const poll = async () => {
       try {
         const res = await fetch(`/api/runs/${run.id}`, { cache: 'no-store' });
         if (!res.ok) return;
-        const d = (await res.json()) as RunDetail;
+        const d = (await res.json()) as RunDetail & { scrapeMessage?: string | null };
+        setScrapeMessage(typeof d.scrapeMessage === 'string' ? d.scrapeMessage : null);
         if (!ACTIVE.includes(d.run.status)) {
           router.refresh();
           return;
@@ -103,9 +108,13 @@ export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
       } catch {
         // Missed poll: the next tick retries.
       }
-    }, POLL_MS);
+    };
+    if (fetching) void poll();
+    const timer = setInterval(() => void poll(), fetching ? FETCH_POLL_MS : POLL_MS);
     return () => clearInterval(timer);
-  }, [run.id, router]);
+  }, [run.id, router, fetching]);
+
+  const crawl = crawlProgress(scrapeMessage);
 
   useEffect(() => {
     const el = logRef.current;
@@ -134,12 +143,23 @@ export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
                   <div>
                     <p className="step-name" style={{ fontWeight: 500 }}>{s.name}</p>
                     <p className="small muted">{s.desc}</p>
+                    {i === 0 && step === 0 && scrapeMessage && (
+                      <>
+                        {crawl && (
+                          <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={crawl.total} aria-valuenow={crawl.done} aria-label="Pages crawled">
+                            <i style={{ width: `${(crawl.done / crawl.total) * 100}%` }} />
+                          </div>
+                        )}
+                        <p className="xs muted" style={{ marginTop: 4 }}>Apify: {scrapeMessage}</p>
+                      </>
+                    )}
                     {i === 2 && step === 2 && (
                       <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={counts.n} aria-label="Transcription progress">
                         <i style={{ width: `${total ? (counts.n / total) * 100 : 0}%` }} />
                       </div>
                     )}
                   </div>
+                  {i === 0 && step === 0 && crawl && <span className="num small">{crawl.done}/{crawl.total}</span>}
                   {i === 2 && <span className={`num small ${state ? '' : 'muted'}`}>{counter}</span>}
                 </div>
               );

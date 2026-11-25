@@ -116,3 +116,24 @@ describe('RunProgress', () => {
     expect(refresh).toHaveBeenCalled();
   });
 });
+
+describe('RunProgress Apify crawl status', () => {
+  it('shows the live Apify message and page progress while fetching', async () => {
+    global.fetch = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          run: { ...baseRun, status: 'fetching' },
+          posts: [],
+          analysis: null,
+          events: [],
+          scrapeMessage: 'Crawled 147/191 pages, 0 failed requests, desired concurrency 160.',
+        }),
+      ),
+    ) as unknown as typeof fetch;
+    setup('fetching');
+    expect(await screen.findByText(/Apify: Crawled 147\/191 pages/)).toBeTruthy();
+    expect(screen.getByText('147/191')).toBeTruthy();
+    const bar = screen.getByRole('progressbar', { name: 'Pages crawled' });
+    expect(bar.getAttribute('aria-valuenow')).toBe('147');
+  });
+});

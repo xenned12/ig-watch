@@ -3,9 +3,10 @@
 export interface Scraper {
   start(handles: string[], runId: string): Promise<string>;
   items(scrapeId: string): Promise<unknown[]>;
-  /** Optional poll for when the webhook cannot arrive (e.g. local dev):
-   * the finished event type, or null while the scrape is still running. */
-  status?(scrapeId: string): Promise<string | null>;
+  /** Optional poll for when the webhook cannot arrive (e.g. local dev).
+   * `event` is the finished event type, or null while still running;
+   * `message` is the scraper's live status line (e.g. "Crawled 147/191 pages"). */
+  status?(scrapeId: string): Promise<{ event: string | null; message: string | null }>;
 }
 
 export type ScrapeDone = {
