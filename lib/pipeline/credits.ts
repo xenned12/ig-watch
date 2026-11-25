@@ -19,6 +19,8 @@ export function isApifyOutOfCredits(err: unknown): boolean {
   const e = shape(err);
   const status = e.statusCode ?? e.status;
   const detail = `${text(e.type)} ${text(e.message)}`;
+  // The AI proxy answers 403 "not permitted in your current context" once the free monthly credit is used up.
+  if (status === 403 && /not permitted in your current context/i.test(detail)) return true;
   if (/not-enough-usage|usage[- ]limit|hard limit|insufficient (credit|fund)|out of credit|upgrade your plan/i.test(detail)) {
     return true;
   }
