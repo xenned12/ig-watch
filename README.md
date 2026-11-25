@@ -2,7 +2,7 @@
 
 Compares a client's top Instagram reels with competitors' top reels in the same niche, then writes recommendations and short-form scripts.
 
-Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper), OpenAI (structured output).
+Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper, reel transcription, and AI analysis through its OpenRouter proxy).
 
 ## Setup
 
@@ -15,11 +15,10 @@ Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper), Op
 | Name | Scope | Notes |
 | --- | --- | --- |
 | `SCRAPER` | server only, optional | `apify` (default) or `instaloader` (local only, see "Try Instaloader instead of Apify") |
-| `APIFY_TOKEN` | server only | Apify API token. Not needed when `SCRAPER=instaloader` |
+| `APIFY_TOKEN` | server only | Apify API token. Pays for scraping, reel transcription (`iddqd/instagram-reel-transcript`) and the AI analysis (Apify's OpenRouter proxy), so it is needed even with `SCRAPER=instaloader` |
 | `INSTALOADER_USERNAME` | server only, optional | Instagram account whose saved Instaloader session is used |
 | `INSTALOADER_PYTHON` | server only, optional | Python with Instaloader installed. Default `.venv/bin/python` |
-| `OPENAI_API_KEY` | server only | OpenAI API key |
-| `OPENAI_MODEL` | server only | For example `gpt-4.1-mini` |
+| `AI_MODEL` | server only, optional | OpenRouter model id for the analysis. Default `openai/gpt-4.1-mini` |
 | `SUPABASE_SERVICE_ROLE_KEY` | server only | Supabase service role key |
 | `WEBHOOK_SECRET` | server only | Long random string, for example `openssl rand -hex 32` |
 | `NEXT_PUBLIC_SUPABASE_URL` | public | Supabase project URL |
@@ -90,7 +89,7 @@ npm run build
    - Transcripts should appear for every kept post.
    - Results should show patterns, 3 to 5 recommendations whose links open real competitor posts, and 3 scripts.
 6. **Check the Apify field names.** Copy one real item from the Apify dataset console and compare its fields with `tests/fixtures/apify-items.json` (`ownerUsername`, `type`/`productType`, `videoViewCount`/`videoPlayCount`, `likesCount`, `timestamp`, `videoDuration`, `videoUrl`, `url`). If they differ, update the schema and the fixture, then run `npm test`.
-7. **Check OpenAI structured output.** Confirm that OpenAI accepts the structured-output schema (min/max item counts) on the first analysis.
+7. **Check AI structured output.** Confirm that the model in `AI_MODEL` accepts the structured-output schema (min/max item counts) on the first analysis.
 8. **Check the concurrency lock.** While one analysis is running, start a second one. It should be refused with: `Another analysis is already running. Try again when it finishes.`
 
 ## Deployment Protection
@@ -103,9 +102,9 @@ The Apify webhook (`/api/webhooks/apify`) and the job routes (`/api/jobs/*`) are
 ## How it works
 
 - An analysis takes the client account and its competitor accounts, and pulls their top reels through Apify.
-- Only video posts are analysed. Videos are not downloaded or stored; they are transcribed and only the transcripts are kept.
+- Only video posts are analysed. Videos are not downloaded or stored; Apify's `iddqd/instagram-reel-transcript` actor transcribes them from the reel URL, and only the transcripts are kept.
 - Progress is broadcast over Supabase Realtime to the run page, which also refetches every 15 seconds as a fallback.
-- OpenAI turns the transcripts and metrics into patterns, recommendations and scripts, using a structured-output schema.
+- An AI model, called through Apify's OpenRouter proxy, turns the transcripts and metrics into patterns, recommendations and scripts, using a structured-output schema.
 - Results are stored in Supabase. Each recommendation links to the source competitor post.
 
 ## Limits

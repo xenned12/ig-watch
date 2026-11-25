@@ -30,7 +30,7 @@ function req(body: unknown, secret = SECRET): Request {
 
 beforeEach(() => {
   pending.length = 0;
-  for (const n of ['APIFY_TOKEN', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'SUPABASE_SERVICE_ROLE_KEY', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_APP_URL']) {
+  for (const n of ['APIFY_TOKEN', 'SUPABASE_SERVICE_ROLE_KEY', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_APP_URL']) {
     vi.stubEnv(n, 'x');
   }
   vi.stubEnv('WEBHOOK_SECRET', SECRET);
@@ -82,7 +82,7 @@ describe('job routes dispatch work after responding', () => {
   });
 
   it('declares the function budgets', () => {
-    expect(transcribeRoute.maxDuration).toBe(60);
+    expect(transcribeRoute.maxDuration).toBe(300);
     expect(analyzeRoute.maxDuration).toBe(300);
   });
 });

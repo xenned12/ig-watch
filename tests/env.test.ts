@@ -14,17 +14,16 @@ describe('serverEnv', () => {
   it('returns all values when configured', () => {
     const values = {
       APIFY_TOKEN: 'a',
-      OPENAI_API_KEY: 'b',
-      OPENAI_MODEL: 'c',
       SUPABASE_SERVICE_ROLE_KEY: 'd',
       WEBHOOK_SECRET: 'e',
       NEXT_PUBLIC_SUPABASE_URL: 'f',
       NEXT_PUBLIC_APP_URL: 'g',
     };
     for (const [k, v] of Object.entries(values)) vi.stubEnv(k, v);
-    for (const k of ['VERCEL_AUTOMATION_BYPASS_SECRET', 'SCRAPER', 'INSTALOADER_USERNAME', 'INSTALOADER_PYTHON']) vi.stubEnv(k, '');
+    for (const k of ['AI_MODEL', 'VERCEL_AUTOMATION_BYPASS_SECRET', 'SCRAPER', 'INSTALOADER_USERNAME', 'INSTALOADER_PYTHON']) vi.stubEnv(k, '');
     expect(serverEnv()).toEqual({
       ...values,
+      AI_MODEL: undefined,
       VERCEL_AUTOMATION_BYPASS_SECRET: undefined,
       SCRAPER: 'apify',
       INSTALOADER_USERNAME: undefined,
@@ -34,13 +33,12 @@ describe('serverEnv', () => {
     expect(serverEnv().VERCEL_AUTOMATION_BYPASS_SECRET).toBe('h');
   });
 
-  it('with SCRAPER=instaloader the Apify token is optional', () => {
-    const values = { OPENAI_API_KEY: 'b', OPENAI_MODEL: 'c', SUPABASE_SERVICE_ROLE_KEY: 'd', WEBHOOK_SECRET: 'e', NEXT_PUBLIC_SUPABASE_URL: 'f', NEXT_PUBLIC_APP_URL: 'g' };
+  it('needs the Apify token even with SCRAPER=instaloader (transcription and AI use it)', () => {
+    const values = { SUPABASE_SERVICE_ROLE_KEY: 'd', WEBHOOK_SECRET: 'e', NEXT_PUBLIC_SUPABASE_URL: 'f', NEXT_PUBLIC_APP_URL: 'g' };
     for (const [k, v] of Object.entries(values)) vi.stubEnv(k, v);
     vi.stubEnv('APIFY_TOKEN', '');
     vi.stubEnv('SCRAPER', 'instaloader');
-    vi.stubEnv('INSTALOADER_USERNAME', 'me_scraper');
-    expect(serverEnv()).toMatchObject({ SCRAPER: 'instaloader', APIFY_TOKEN: undefined, INSTALOADER_USERNAME: 'me_scraper' });
+    expect(() => serverEnv()).toThrow('Missing server configuration: APIFY_TOKEN');
   });
 
   it('rejects an unknown SCRAPER value', () => {

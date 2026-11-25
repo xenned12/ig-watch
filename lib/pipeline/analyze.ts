@@ -6,7 +6,7 @@ import {
   PATTERNS_SYSTEM,
   PatternsOut,
 } from '@/lib/pipeline/analyze-prompts';
-import { isOpenAIOutOfCredits, OPENAI_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
+import { APIFY_OUT_OF_CREDITS, isApifyOutOfCredits } from '@/lib/pipeline/credits';
 import type { Post, Transcript } from '@/lib/types';
 
 const ANALYZE_FAILED = 'The analysis came back incomplete. Retry the failed step.';
@@ -23,7 +23,7 @@ async function callWithRetry<T>(deps: Deps, schema: ZodType<T>, system: string, 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       // Re-parse after the call so .min/.max/.length are enforced even if the API ignores them.
-      return schema.parse(await deps.openai.json(schema, system, user));
+      return schema.parse(await deps.ai.json(schema, system, user));
     } catch (err) {
       lastError = err;
     }
@@ -94,6 +94,6 @@ export async function analyzeRun(deps: Deps, runId: string): Promise<void> {
     // Surface the cause in the server logs; the user only sees the generic message.
     const detail = err instanceof ZodError ? JSON.stringify(err.issues).slice(0, 2000) : String(err);
     console.error(`[analyze] run ${runId} failed: ${detail}`);
-    await fail(deps, runId, isOpenAIOutOfCredits(err) ? OPENAI_OUT_OF_CREDITS : ANALYZE_FAILED);
+    await fail(deps, runId, isApifyOutOfCredits(err) ? APIFY_OUT_OF_CREDITS : ANALYZE_FAILED);
   }
 }

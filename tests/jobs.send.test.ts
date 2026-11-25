@@ -4,7 +4,7 @@ import { sendJob } from '@/lib/jobs';
 const fetchMock = vi.fn();
 
 beforeEach(() => {
-  for (const n of ['APIFY_TOKEN', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'SUPABASE_SERVICE_ROLE_KEY', 'NEXT_PUBLIC_SUPABASE_URL']) {
+  for (const n of ['APIFY_TOKEN', 'SUPABASE_SERVICE_ROLE_KEY', 'NEXT_PUBLIC_SUPABASE_URL']) {
     vi.stubEnv(n, 'x');
   }
   vi.stubEnv('WEBHOOK_SECRET', 'sek');
