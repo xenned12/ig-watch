@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { rememberStatus } from '@/lib/run-status-cache';
 import type { RecentRun } from './Shell';
 
 // Last list a page rendered. Loading screens pass `null` and reuse it, so the
@@ -9,6 +10,7 @@ let lastSeen: RecentRun[] = [];
 
 export function RecentRuns({ recent }: { recent: RecentRun[] | null }) {
   if (recent) lastSeen = recent;
+  for (const r of recent ?? []) rememberStatus(r.id, r.status);
   return (recent ?? lastSeen).map((r) => (
     // Two lines that each truncate on their own; the full text is in the
     // accessible name and the native tooltip.

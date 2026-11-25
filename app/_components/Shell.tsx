@@ -4,7 +4,7 @@ import { Icon, type IconName } from './Icon';
 import { RecentRuns } from './RecentRuns';
 
 type Active = 'new' | 'results' | 'runs';
-export type RecentRun = { id: string; niche: string; clientHandle: string };
+export type RecentRun = { id: string; niche: string; clientHandle: string; status?: string };
 
 const NAV: { key: Active; label: string; href: string; icon: IconName }[] = [
   { key: 'new', label: 'New analysis', href: '/new', icon: 'plus' },

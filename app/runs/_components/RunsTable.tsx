@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { rememberStatus } from '@/lib/run-status-cache';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/app/_components/Icon';
 import type { RunListItem } from '@/lib/pipeline/read';
@@ -34,6 +35,7 @@ function StatusCell({ run }: { run: RunListItem }) {
 }
 
 export function RunsTable({ runs }: { runs: RunListItem[] }) {
+  for (const r of runs) rememberStatus(r.id, r.status);
   const router = useRouter();
   return (
     <div className="tbl-wrap">

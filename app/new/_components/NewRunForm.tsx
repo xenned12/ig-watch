@@ -6,6 +6,7 @@ import { Icon } from '@/app/_components/Icon';
 import { normaliseHandle, tagError, validateNiche, validateRunInput, type Niche, type RunInputErrors } from '@/lib/handles';
 import { windowFromDates, formatWindow } from '@/lib/date-range';
 import { DateRangeField, defaultRange, rangeError, type DateRange } from './DateRangeField';
+import { rememberStatus } from '@/lib/run-status-cache';
 import { NicheCombobox } from './NicheCombobox';
 import { HandleTags } from './HandleTags';
 import { TopAccounts } from './TopAccounts';
@@ -151,6 +152,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
       });
       const body = (await res.json()) as { runId?: string; errors?: RunInputErrors & { range?: string }; error?: string };
       if (res.status === 201 && body.runId) {
+        rememberStatus(body.runId, 'fetching'); // so the next page loads with the progress skeleton
         router.push('/runs/' + body.runId);
         return;
       }

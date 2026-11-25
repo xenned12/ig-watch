@@ -8,6 +8,7 @@ import type { ProgressEvent } from '@/lib/progress';
 import type { RunDetail } from '@/lib/pipeline/read';
 import { crawlProgress } from '@/lib/scrape-progress';
 import { runRangeLabel } from '@/lib/date-range';
+import { rememberStatus } from '@/lib/run-status-cache';
 
 /** Broadcast payloads are untrusted input: they are validated before use. */
 type Subscribe = (onPayload: (payload: unknown) => void) => () => void;
@@ -62,6 +63,7 @@ function makeSupabaseSubscribe(runId: string): Subscribe {
 
 export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
   const router = useRouter();
+  rememberStatus(run.id, run.status);
   const [step, setStep] = useState(stepFor(run.status));
   const [counts, setCounts] = useState<{ n: number; total: number | null }>({ n: 0, total: null });
   const [lines, setLines] = useState(initialEvents.map((e) => e.message));
