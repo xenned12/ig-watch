@@ -18,7 +18,7 @@
   --primary:#8DB4FF;--primary-hover:#A9C6FF;--primary-soft:#1B2C55;--on-primary:#0B1120;
   --client:#F5B94A;--client-soft:#3D2A0C;--ok:#5FD08A;--ok-soft:#123222;--bad:#F28B8B;--bad-soft:#3A1616;--scrim:rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-sans);font-size:15px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-sans);font-size:15px;line-height:1.5}
 .mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 h1,h2,h3{margin:0;text-wrap:balance;font-weight:600}
 h1{font-size:22px}h2{font-size:17px}h3{font-size:15px}
