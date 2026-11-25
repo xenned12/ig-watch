@@ -11,7 +11,8 @@ const NAMES = [
 
 /** Optional settings; an empty string counts as unset. */
 const OPTIONAL = [
-  'AI_MODEL', // OpenRouter model id for the analysis; default openai/gpt-4.1-mini
+  'GEMINI_API_KEY', // when set, the analysis uses Google Gemini's free tier instead of Apify
+  'AI_MODEL', // model id for the analysis; default gemini-flash-latest or openai/gpt-4.1-mini
   'VERCEL_AUTOMATION_BYPASS_SECRET', // only with Vercel Deployment Protection (see README)
   'INSTALOADER_USERNAME', // saved Instaloader session to use (SCRAPER=instaloader)
   'INSTALOADER_PYTHON', // Python with instaloader installed; default .venv/bin/python

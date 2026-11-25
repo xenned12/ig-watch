@@ -26,3 +26,12 @@ export function isApifyOutOfCredits(err: unknown): boolean {
   }
   return status === 402;
 }
+
+export const AI_RATE_LIMITED =
+  'The AI provider\'s rate limit or free daily quota is used up. Wait a while, then retry the failed step.';
+
+/** 429 from the AI provider, e.g. Gemini's free-tier per-minute or per-day limit. */
+export function isRateLimited(err: unknown): boolean {
+  const e = shape(err);
+  return (e.statusCode ?? e.status) === 429;
+}

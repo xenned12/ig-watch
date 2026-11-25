@@ -6,7 +6,7 @@ import {
   PATTERNS_SYSTEM,
   PatternsOut,
 } from '@/lib/pipeline/analyze-prompts';
-import { APIFY_OUT_OF_CREDITS, isApifyOutOfCredits } from '@/lib/pipeline/credits';
+import { AI_RATE_LIMITED, APIFY_OUT_OF_CREDITS, isApifyOutOfCredits, isRateLimited } from '@/lib/pipeline/credits';
 import type { Post, Transcript } from '@/lib/types';
 
 const ANALYZE_FAILED = 'The analysis came back incomplete. Retry the failed step.';
@@ -94,6 +94,7 @@ export async function analyzeRun(deps: Deps, runId: string): Promise<void> {
     // Surface the cause in the server logs; the user only sees the generic message.
     const detail = err instanceof ZodError ? JSON.stringify(err.issues).slice(0, 2000) : String(err);
     console.error(`[analyze] run ${runId} failed: ${detail}`);
-    await fail(deps, runId, isApifyOutOfCredits(err) ? APIFY_OUT_OF_CREDITS : ANALYZE_FAILED);
+    const message = isApifyOutOfCredits(err) ? APIFY_OUT_OF_CREDITS : isRateLimited(err) ? AI_RATE_LIMITED : ANALYZE_FAILED;
+    await fail(deps, runId, message);
   }
 }

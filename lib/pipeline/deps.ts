@@ -5,6 +5,7 @@ import OpenAI from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import type { ZodType } from 'zod';
 import { serverEnv, type ServerEnv } from '@/lib/env';
+import { aiProvider } from '@/lib/pipeline/ai-provider';
 import { callbackHeaders, sendJob } from '@/lib/jobs';
 import { apifyReelTranscript, apifyScraper } from '@/lib/scrapers/apify';
 import { instaloaderScraper } from '@/lib/scrapers/instaloader';
@@ -30,8 +31,9 @@ export interface Deps {
 export function makeDeps(): Deps {
   const env = serverEnv();
   const store = supabaseStore();
-  // Apify's OpenRouter proxy speaks the OpenAI API and bills to the Apify account.
-  const llm = new OpenAI({ apiKey: env.APIFY_TOKEN, baseURL: 'https://openrouter.apify.actor/api/v1' });
+  // Gemini (free tier) when GEMINI_API_KEY is set, else Apify's OpenRouter proxy. Both speak the OpenAI API.
+  const provider = aiProvider(env);
+  const llm = new OpenAI({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 
   return {
     store,
@@ -43,7 +45,7 @@ export function makeDeps(): Deps {
       transcribe: (reelUrl) => apifyReelTranscript(env, reelUrl),
       async json<T>(schema: ZodType<T>, system: string, user: string): Promise<T> {
         const completion = await llm.chat.completions.parse({
-          model: env.AI_MODEL ?? 'openai/gpt-4.1-mini',
+          model: provider.model,
           messages: [
             { role: 'system', content: system },
             { role: 'user', content: user },

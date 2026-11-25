@@ -1,4 +1,4 @@
-import { APIFY_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
+import { AI_RATE_LIMITED, APIFY_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
 import { describe, expect, it, vi } from 'vitest';
 import { analyzeRun } from '@/lib/pipeline/analyze';
 import type { NewPost } from '@/lib/store/types';
@@ -130,5 +130,13 @@ describe('analyzeRun', () => {
       failedStep: 'analyze',
       error: APIFY_OUT_OF_CREDITS,
     });
+  });
+  it('says the AI quota is used up on a 429', async () => {
+    const json = (async () => {
+      throw Object.assign(new Error('429 Resource has been exhausted'), { status: 429 });
+    }) as Deps['ai']['json'];
+    const { d, runId } = await setup('analyzing', json);
+    await analyzeRun(d, runId);
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'failed', error: AI_RATE_LIMITED });
   });
 });

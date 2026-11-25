@@ -15,10 +15,11 @@ Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper, ree
 | Name | Scope | Notes |
 | --- | --- | --- |
 | `SCRAPER` | server only, optional | `apify` (default) or `instaloader` (local only, see "Try Instaloader instead of Apify") |
-| `APIFY_TOKEN` | server only | Apify API token. Pays for scraping, reel transcription (`iddqd/instagram-reel-transcript`) and the AI analysis (Apify's OpenRouter proxy), so it is needed even with `SCRAPER=instaloader` |
+| `APIFY_TOKEN` | server only | Apify API token. Pays for scraping, reel transcription (`iddqd/instagram-reel-transcript`) and the AI analysis (Apify's OpenRouter proxy, unless `GEMINI_API_KEY` is set), so it is needed even with `SCRAPER=instaloader` |
 | `INSTALOADER_USERNAME` | server only, optional | Instagram account whose saved Instaloader session is used |
 | `INSTALOADER_PYTHON` | server only, optional | Python with Instaloader installed. Default `.venv/bin/python` |
-| `AI_MODEL` | server only, optional | OpenRouter model id for the analysis. Default `openai/gpt-4.1-mini` |
+| `GEMINI_API_KEY` | server only, optional | When set, the analysis runs on Google Gemini's free tier instead of Apify. Get a key at https://aistudio.google.com/apikey. Free-tier limits are per day; a used-up quota shows as a failed analyze step you can retry later. Google may use free-tier prompts to improve its products |
+| `AI_MODEL` | server only, optional | Model id for the analysis. Default `gemini-flash-latest` with `GEMINI_API_KEY`, otherwise `openai/gpt-4.1-mini` (OpenRouter id) |
 | `SUPABASE_SERVICE_ROLE_KEY` | server only | Supabase service role key |
 | `WEBHOOK_SECRET` | server only | Long random string, for example `openssl rand -hex 32` |
 | `NEXT_PUBLIC_SUPABASE_URL` | public | Supabase project URL |
