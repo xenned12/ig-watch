@@ -22,6 +22,7 @@ Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper), Op
 | `NEXT_PUBLIC_SUPABASE_URL` | public | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public | Supabase anon key |
 | `NEXT_PUBLIC_APP_URL` | public | Production URL, used for Apify webhook and job callbacks |
+| `VERCEL_AUTOMATION_BYPASS_SECRET` | server only, optional | Only needed if Vercel Deployment Protection is on. See "Deployment Protection" below |
 
 Never commit `.env*` files with values. `.env.local` must stay in `.gitignore`.
 
@@ -38,12 +39,11 @@ For local runs, `NEXT_PUBLIC_APP_URL` can be `http://localhost:3000`. Apify cann
 ## Test
 
 ```bash
+npm run lint
 npm run typecheck
 npm test
 npm run build
 ```
-
-Known issue: `npm run lint` currently fails with an ESLint config error after the Next 16 upgrade. Lint is not part of the checks above.
 
 `apify-client` is pinned to `2.20.0`. Newer versions pull in a high-severity advisory, so do not upgrade it without checking.
 
@@ -53,9 +53,9 @@ Known issue: `npm run lint` currently fails with an ESLint config error after th
    1. `supabase/migrations/0001_init.sql`
    2. `supabase/migrations/0002_single_active_run.sql`
    3. `supabase/migrations/0003_run_started_at.sql`
-2. **Check Realtime.** Realtime is enabled by default in Supabase. Confirm it is still on for the project, since progress updates use broadcast channels.
-3. **Set every env var in Vercel** (all variables from the table above). Set `NEXT_PUBLIC_APP_URL` to the production URL. Then deploy.
-4. **Optional: enable Vercel Deployment Protection** (password) for the whole site. The app has no login.
+2. **Check Realtime.** Progress updates use public broadcast channels (`run:<id>`). In Supabase, Realtime must stay on and its "Allow public access" setting must stay enabled. If public access is off, the run page cannot join the channel and falls back to refetching every 15 seconds.
+3. **Set every env var in Vercel** (all required variables from the table above). Set `NEXT_PUBLIC_APP_URL` to the production URL. Keep Fluid compute on (the default for new Vercel projects): the analyze job needs up to 300 seconds. Then deploy.
+4. **Optional: Deployment Protection.** See "Deployment Protection" below. If you turn it on, set `VERCEL_AUTOMATION_BYPASS_SECRET` too, or the pipeline stops after the fetch step.
 5. **Run one real analysis** with 4 public accounts in the same niche (for example AI).
    - Progress steps should update live.
    - Transcripts should appear for every kept post.
@@ -63,6 +63,13 @@ Known issue: `npm run lint` currently fails with an ESLint config error after th
 6. **Check the Apify field names.** Copy one real item from the Apify dataset console and compare its fields with `tests/fixtures/apify-items.json` (`ownerUsername`, `type`/`productType`, `videoViewCount`/`videoPlayCount`, `likesCount`, `timestamp`, `videoDuration`, `videoUrl`, `url`). If they differ, update the schema and the fixture, then run `npm test`.
 7. **Check OpenAI structured output.** Confirm that OpenAI accepts the structured-output schema (min/max item counts) on the first analysis.
 8. **Check the concurrency lock.** While one analysis is running, start a second one. It should be refused with: `Another analysis is already running. Try again when it finishes.`
+
+## Deployment Protection
+
+The Apify webhook (`/api/webhooks/apify`) and the job routes (`/api/jobs/*`) are called by Apify and by the app itself, not by a browser. Deployment Protection must not block them. They are already guarded by `WEBHOOK_SECRET`.
+
+- On the Hobby plan, standard protection only covers preview deployments, not production. Production is public, so nothing else is needed.
+- If you enable protection that covers production (for example password protection or Vercel Authentication on all deployments), open Project Settings > Deployment Protection > Protection Bypass for Automation, create a secret and set it as `VERCEL_AUTOMATION_BYPASS_SECRET`. The app then sends it as the `x-vercel-protection-bypass` header on job calls and in the Apify webhook headers.
 
 ## How it works
 
@@ -77,5 +84,5 @@ Known issue: `npm run lint` currently fails with an ESLint config error after th
 - One analysis at a time for the whole app.
 - 5 analysis starts per IP per hour.
 - A run stuck for more than 30 minutes is marked failed. It can be retried from the Runs page.
-- Routes use `maxDuration = 60`, which is the Vercel Hobby limit per request.
+- Job routes answer right away and do their work in the background (`after()`). Each transcription job has up to 60 seconds; the analyze job has up to 300 seconds, which requires Fluid compute (the default on new Vercel projects).
 - There is no login. Use Deployment Protection if the site is public.
