@@ -115,6 +115,10 @@ export function PostsTab({ run, posts }: { run: RunDetail['run']; posts: PostWit
               </button>
             );
           })
+        ) : q.trim() === '' ? (
+          <div className="empty">
+            <p style={{ fontWeight: 500 }}>No video posts for this account in the last 90 days.</p>
+          </div>
         ) : (
           <div className="empty">
             <p style={{ fontWeight: 500 }}>No transcripts mention &quot;{q.trim()}&quot;</p>

@@ -6,6 +6,10 @@ import { Icon } from '@/app/_components/Icon';
 import type { RunListItem } from '@/lib/pipeline/read';
 import { RetryButton } from './RetryButton';
 
+// Fetch failures caused by the chosen accounts: retrying would fail the same way, so edit instead.
+const INPUT_PROBLEMS = ['Not enough usable accounts', 'Your client'];
+const needsEdit = (error: string | null) => INPUT_PROBLEMS.some((p) => error?.startsWith(p) ?? false);
+
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -18,7 +22,11 @@ function StatusCell({ run }: { run: RunListItem }) {
       <span style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
         <span className="pill bad"><Icon name="alert" size={15} />Failed</span>
         <span className="xs muted">{run.error}</span>
-        <RetryButton runId={run.id} after="open" className="linkbtn" />
+        {needsEdit(run.error) ? (
+          <Link className="linkbtn" href={`/new?from=${run.id}`}>Edit and re-run</Link>
+        ) : (
+          <RetryButton runId={run.id} after="open" className="linkbtn" />
+        )}
       </span>
     );
   }

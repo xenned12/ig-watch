@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/app/_components/Icon';
 import { browserSupabase } from '@/lib/supabase-browser';
 import type { ProgressEvent } from '@/lib/progress';
 import type { RunDetail } from '@/lib/pipeline/read';
 
-type Subscribe = (onEvent: (e: ProgressEvent) => void) => () => void;
+/** Broadcast payloads are untrusted input: they are validated before use. */
+type Subscribe = (onPayload: (payload: unknown) => void) => () => void;
 type Props = {
   run: RunDetail['run'];
   initialEvents: RunDetail['events'];
@@ -32,13 +33,23 @@ function stepFor(status: string): number {
   return 0;
 }
 
+const EVENT_STEPS = ['fetch', 'rank', 'transcribe', 'analyze', 'done', 'failed'];
+
+function toEvent(payload: unknown): ProgressEvent | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  const p = payload as Record<string, unknown>;
+  if (typeof p.message !== 'string' || typeof p.step !== 'string' || !EVENT_STEPS.includes(p.step)) return null;
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
+  return { step: p.step as ProgressEvent['step'], message: p.message, transcribed: num(p.transcribed), total: num(p.total) };
+}
+
 function makeSupabaseSubscribe(runId: string): Subscribe {
   return (onEvent) => {
     const supabase = browserSupabase();
     if (!supabase) return () => {};
     const channel = supabase
       .channel(`run:${runId}`)
-      .on('broadcast', { event: 'progress' }, (msg) => onEvent(msg.payload as ProgressEvent))
+      .on('broadcast', { event: 'progress' }, (msg) => onEvent(msg.payload))
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
@@ -53,10 +64,14 @@ export function RunProgress({ run, initialEvents, onEvent, subscribe }: Props) {
   const [lines, setLines] = useState(initialEvents.map((e) => e.message));
   const logRef = useRef<HTMLDivElement>(null);
   const onEventRef = useRef(onEvent);
-  onEventRef.current = onEvent;
+  useLayoutEffect(() => {
+    onEventRef.current = onEvent;
+  });
 
   useEffect(() => {
-    const handle = (e: ProgressEvent) => {
+    const handle = (payload: unknown) => {
+      const e = toEvent(payload);
+      if (!e) return;
       setLines((l) => [...l, e.message]);
       if (e.step === 'rank') setStep((s) => Math.max(s, 2));
       else if (e.step === 'transcribe') {

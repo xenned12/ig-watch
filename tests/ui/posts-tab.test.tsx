@@ -85,6 +85,14 @@ describe('PostsTab', () => {
     expect(rows(container)).toHaveLength(10);
   });
 
+  it('explains an account filter with no posts instead of an empty search', () => {
+    render(<PostsTab run={run} posts={many} />);
+    fireEvent.click(screen.getByRole('button', { name: /^@beta/ }));
+    expect(screen.getByText('No video posts for this account in the last 90 days.')).toBeTruthy();
+    expect(screen.queryByText(/No transcripts mention/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+  });
+
   it('opens a post and moves Next within the filtered list', () => {
     render(<PostsTab run={run} posts={many} />);
     fireEvent.click(document.querySelectorAll('.prow')[0]);

@@ -56,7 +56,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
   const client = normaliseHandle(clientText);
   const total = comps.length + (client ? 1 : 0);
 
-  function commit(raw: string): string[] {
+  function commit(raw: string): { list: string[]; error: string } {
     const next = [...comps];
     let err = '';
     for (const part of raw.split(/[,\s]+/).filter(Boolean)) {
@@ -70,7 +70,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
     setComps(next);
     setDraft('');
     setErrors((p) => ({ ...p, competitors: err || undefined }));
-    return next;
+    return { list: next, error: err };
   }
 
   function checkClient(raw: string) {
@@ -99,7 +99,13 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
     e.preventDefault();
     if (pending) return;
     setFormError('');
-    const list = draft.trim() ? commit(draft) : comps;
+    const committed = draft.trim() ? commit(draft) : { list: comps, error: '' };
+    if (committed.error) {
+      // The draft held a handle that could not be added: show why instead of silently dropping it.
+      compRef.current?.focus();
+      return;
+    }
+    const list = committed.list;
     const r = validateRunInput({ niche, client, competitors: list });
     if (!r.ok) {
       setErrors(r.errors);
@@ -167,7 +173,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
               describedBy="comp-msg"
               inputRef={compRef}
               onValueChange={setDraft}
-              onCommit={commit}
+              onCommit={(raw) => void commit(raw)}
               onRemove={remove}
             />
             <FieldMessage id="comp-msg" error={errors.competitors} help="Paste a handle or profile link. Press Enter or comma to add it." />

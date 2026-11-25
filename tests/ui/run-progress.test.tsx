@@ -72,6 +72,15 @@ describe('RunProgress', () => {
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('12');
   });
 
+  it('ignores a broadcast payload without a string message', () => {
+    setup('fetching', [{ at: 't', message: 'Run started' }]);
+    const raw = emit as (payload: unknown) => void;
+    act(() => raw({ step: 'rank', message: 42 }));
+    act(() => raw(null));
+    expect(screen.getByRole('log').children).toHaveLength(1);
+    expect(step('Transcribe')?.className).not.toMatch(/done|active/);
+  });
+
   it('adds each event message to the activity log', () => {
     setup('fetching', [{ at: 't', message: 'Run started' }]);
     act(() => emit({ step: 'rank', message: 'Kept the top 10 videos per account' }));

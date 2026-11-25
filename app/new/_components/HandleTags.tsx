@@ -15,50 +15,53 @@ type Props = {
   onRemove: (index: number) => void;
 };
 
-export function HandleTags(p: Props) {
-  const full = p.tags.length >= p.max;
+export function HandleTags({ tags, value, max, invalid, describedBy, inputRef, onValueChange, onCommit, onRemove }: Props) {
+  const full = tags.length >= max;
 
   function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (p.value.trim() !== '') p.onCommit(p.value);
-    } else if (e.key === 'Backspace' && p.value === '' && p.tags.length > 0) {
-      p.onRemove(p.tags.length - 1);
+      if (!full && value.trim() !== '') onCommit(value);
+    } else if (e.key === 'Backspace' && value === '' && tags.length > 0) {
+      onRemove(tags.length - 1);
     }
   }
 
   function onChange(next: string) {
-    if (next.includes(',')) p.onCommit(next);
-    else p.onValueChange(next);
+    if (next.includes(',')) onCommit(next);
+    else onValueChange(next);
   }
 
   function onPaste(e: ClipboardEvent<HTMLInputElement>) {
+    if (full) return;
     const text = e.clipboardData.getData('text');
     if (/[,\s]/.test(text.trim())) {
       e.preventDefault();
-      p.onCommit(p.value + text);
+      onCommit(value + text);
     }
   }
 
   return (
     <div className="tags">
-      {p.tags.map((t, i) => (
+      {tags.map((t, i) => (
         <span className="tag" key={t}>
           @{t}
-          <button type="button" aria-label={`Remove @${t}`} onClick={() => p.onRemove(i)}>
+          <button type="button" aria-label={`Remove @${t}`} onClick={() => onRemove(i)}>
             <Icon name="x" size={15} />
           </button>
         </span>
       ))}
+      {/* readOnly (not disabled) at the limit so focus can return here after removing a tag. */}
       <input
         id="comp-in"
-        ref={p.inputRef}
-        value={p.value}
+        ref={inputRef}
+        value={value}
         placeholder={full ? 'Limit reached' : 'Type a handle and press Enter'}
-        disabled={full}
+        readOnly={full}
+        aria-disabled={full || undefined}
         autoComplete="off"
-        aria-describedby={p.describedBy}
-        aria-invalid={p.invalid || undefined}
+        aria-describedby={describedBy}
+        aria-invalid={invalid || undefined}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
         onPaste={onPaste}

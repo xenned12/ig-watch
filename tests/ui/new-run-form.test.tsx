@@ -119,4 +119,23 @@ describe('NewRunForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
     expect(screen.queryByRole('button', { name: /^Remove @/ })).toBeNull();
   });
+  it('keeps focus on the competitor input when removing a tag at the 10 limit', async () => {
+    const ten = Array.from({ length: 10 }, (_, i) => `c${i + 1}`);
+    render(<NewRunForm initial={{ niche: 'AI', client: 'me', competitors: ten }} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Remove @c3' }));
+    const input = document.getElementById('comp-in');
+    expect(screen.queryByRole('button', { name: 'Remove @c3' })).toBeNull();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('does not submit when the draft holds an invalid handle', async () => {
+    reply(201, { runId: 'abc' });
+    render(<NewRunForm />);
+    await fillValid();
+    await userEvent.type(compInput(), 'me');
+    await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
+    expect(screen.getByText('@me is already the client.')).toBeTruthy();
+    expect(document.activeElement).toBe(compInput());
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

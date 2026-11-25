@@ -36,6 +36,7 @@ button,input,select{font:inherit;color:inherit}
 .btn.sm{min-height:32px;padding:0 10px;font-size:13px}
 .btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
 .linkbtn{background:none;border:0;padding:0;color:var(--primary);cursor:pointer;text-decoration:underline;text-underline-offset:2px;font-size:13px;text-align:left}
+td .linkbtn{min-height:40px;display:inline-flex;align-items:center}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:13px;font-weight:500}
@@ -79,7 +80,10 @@ button,input,select{font:inherit;color:inherit}
 .tags{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:6px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--surface)}
 .tags:focus-within{outline:2px solid var(--primary);outline-offset:1px}
 .tag{display:inline-flex;align-items:center;gap:4px;background:var(--primary-soft);color:var(--primary);border-radius:6px;padding:4px 4px 4px 9px;font-size:13px;font-family:var(--f-mono)}
-.tag button{border:0;background:transparent;color:inherit;cursor:pointer;width:24px;height:24px;border-radius:4px;display:grid;place-items:center}
+.tag button{border:0;background:transparent;color:inherit;cursor:pointer;width:24px;height:24px;border-radius:4px;display:grid;place-items:center;position:relative}
+/* 24px visual, 40px hit area */
+.tag button::after{content:"";position:absolute;inset:-8px}
+.tags input[aria-disabled="true"]{cursor:not-allowed;color:var(--muted)}
 .tag button:hover{background:rgba(127,127,127,.18)}
 .tags input{border:0;outline:0;flex:1;min-width:140px;background:transparent;min-height:32px;padding:0 6px;font-family:var(--f-mono);font-size:13px}
 .segs{display:flex;flex-wrap:wrap;gap:6px}
