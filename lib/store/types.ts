@@ -5,6 +5,13 @@ export type NewRun = { niche: Niche; clientHandle: string; competitorHandles: st
 export type NewPost = Omit<Post, 'id' | 'runId'>;
 export type RunEvent = { at: string; message: string };
 
+export class ActiveRunExistsError extends Error {
+  constructor() {
+    super('Another run is already active');
+    this.name = 'ActiveRunExistsError';
+  }
+}
+
 export interface Store {
   createRun(r: NewRun): Promise<Run>;
   getRun(id: string): Promise<Run | null>;

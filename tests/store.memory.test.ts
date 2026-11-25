@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { memoryStore } from '@/lib/store/memory';
-import type { NewPost } from '@/lib/store/types';
+import { ActiveRunExistsError, type NewPost } from '@/lib/store/types';
 
 const input = { niche: 'AI' as const, clientHandle: 'me', competitorHandles: ['a', 'b', 'c'] };
 const post = (handle: string, rank: number): NewPost => ({
@@ -41,8 +41,8 @@ describe('memoryStore', () => {
   it('activeRun ignores done and failed runs', async () => {
     const s = memoryStore();
     const a = await s.createRun(input);
-    const b = await s.createRun(input);
     await s.updateRun(a.id, { status: 'done' });
+    const b = await s.createRun(input);
     await s.updateRun(b.id, { status: 'failed' });
     expect(await s.activeRun()).toBeNull();
     const c = await s.createRun(input);
@@ -63,6 +63,7 @@ describe('memoryStore', () => {
   it('replacePosts replaces and listRuns reports postCount newest first', async () => {
     const s = memoryStore();
     const a = await s.createRun(input);
+    await s.updateRun(a.id, { status: 'done' });
     const b = await s.createRun(input);
     await s.replacePosts(a.id, [post('a', 1), post('b', 2)]);
     const saved = await s.replacePosts(a.id, [post('a', 1)]);
@@ -83,5 +84,13 @@ describe('memoryStore', () => {
     await s.addEvent(r.id, 'one');
     await s.addEvent(r.id, 'two');
     expect((await s.listEvents(r.id)).map((e) => e.message)).toEqual(['one', 'two']);
+  });
+
+  it('createRun throws ActiveRunExistsError while another run is active', async () => {
+    const s = memoryStore();
+    const a = await s.createRun(input);
+    await expect(s.createRun(input)).rejects.toBeInstanceOf(ActiveRunExistsError);
+    await s.updateRun(a.id, { status: 'done' });
+    await expect(s.createRun(input)).resolves.toMatchObject({ status: 'fetching' });
   });
 });

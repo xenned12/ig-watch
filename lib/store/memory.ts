@@ -1,5 +1,5 @@
 import type { Analysis, Post, Run, RunStatus, Transcript } from '@/lib/types';
-import type { NewPost, NewRun, RunEvent, Store } from '@/lib/store/types';
+import { ActiveRunExistsError, type NewPost, type NewRun, type RunEvent, type Store } from '@/lib/store/types';
 
 const isActive = (r: Run): boolean => r.status !== 'done' && r.status !== 'failed';
 
@@ -16,6 +16,7 @@ export function memoryStore(): Store {
 
   return {
     async createRun(r: NewRun) {
+      if ([...runs.values()].some(isActive)) throw new ActiveRunExistsError();
       const run: Run = {
         id: crypto.randomUUID(),
         niche: r.niche,

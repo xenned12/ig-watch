@@ -1,13 +1,13 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { serverEnv } from '@/lib/env';
-import type { Store } from '@/lib/store/types';
+import { ActiveRunExistsError, type Store } from '@/lib/store/types';
 import {
   analysisFromRow, analysisToRow, postFromRow, postToRow, runFromRow,
   runPatchToRow, transcriptFromRow, transcriptToRow, type Row,
 } from '@/lib/store/supabase-mappers';
 
-type DbError = { message: string } | null;
+type DbError = { message: string; code?: string } | null;
 
 function check(error: DbError, what: string): void {
   if (error) throw new Error(`${what}: ${error.message}`);
@@ -32,6 +32,7 @@ export function supabaseStore(): Store {
         })
         .select()
         .single();
+      if (error?.code === '23505') throw new ActiveRunExistsError();
       check(error, 'createRun');
       return runFromRow(data as Row);
     },
