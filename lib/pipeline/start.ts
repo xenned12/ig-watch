@@ -1,3 +1,4 @@
+import { APIFY_OUT_OF_CREDITS, isApifyOutOfCredits } from '@/lib/pipeline/credits';
 import type { Deps } from '@/lib/pipeline/deps';
 import { defaultWindow, validateWindow } from '@/lib/date-range';
 import { validateRunInput } from '@/lib/handles';
@@ -15,7 +16,7 @@ const BUSY: StartResult = {
   status: 409,
   error: 'Another analysis is already running. Try again when it finishes.',
 };
-const FETCH_FAILED = 'Could not start fetching posts. Try again.';
+const FETCH_START_FAILED = 'Could not start fetching posts. Try again.';
 
 export async function startRun(deps: Deps, input: unknown, ipHash: string): Promise<StartResult> {
   const v = validateRunInput(input);
@@ -59,14 +60,16 @@ export async function startRun(deps: Deps, input: unknown, ipHash: string): Prom
   try {
     const apifyRunId = await apify.start(handles, run.id, window);
     await store.updateRun(run.id, { apifyRunId });
-  } catch {
+  } catch (err) {
+    console.error(`[fetch] run ${run.id} could not start: ${String(err)}`);
+    const message = isApifyOutOfCredits(err) ? APIFY_OUT_OF_CREDITS : FETCH_START_FAILED;
     await store.updateRun(run.id, {
       status: 'failed',
       failedStep: 'fetch',
-      error: FETCH_FAILED,
+      error: message,
     });
-    await progress.emit(run.id, { step: 'failed', message: FETCH_FAILED });
-    return { status: 502, error: FETCH_FAILED };
+    await progress.emit(run.id, { step: 'failed', message });
+    return { status: 502, error: message };
   }
   await progress.emit(run.id, {
     step: 'fetch',

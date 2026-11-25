@@ -6,6 +6,7 @@ import {
   PATTERNS_SYSTEM,
   PatternsOut,
 } from '@/lib/pipeline/analyze-prompts';
+import { isOpenAIOutOfCredits, OPENAI_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
 import type { Post, Transcript } from '@/lib/types';
 
 const ANALYZE_FAILED = 'The analysis came back incomplete. Retry the failed step.';
@@ -30,14 +31,14 @@ async function callWithRetry<T>(deps: Deps, schema: ZodType<T>, system: string, 
   throw lastError;
 }
 
-async function fail(deps: Deps, runId: string): Promise<void> {
+async function fail(deps: Deps, runId: string, error: string): Promise<void> {
   // Conditional so a run the stale sweep or a retry already moved on is never overwritten.
   const moved = await deps.store.transitionRun(runId, 'analyzing', {
     status: 'failed',
     failedStep: 'analyze',
-    error: ANALYZE_FAILED,
+    error,
   });
-  if (moved) await deps.progress.emit(runId, { step: 'failed', message: ANALYZE_FAILED });
+  if (moved) await deps.progress.emit(runId, { step: 'failed', message: error });
 }
 
 export async function analyzeRun(deps: Deps, runId: string): Promise<void> {
@@ -93,6 +94,6 @@ export async function analyzeRun(deps: Deps, runId: string): Promise<void> {
     // Surface the cause in the server logs; the user only sees the generic message.
     const detail = err instanceof ZodError ? JSON.stringify(err.issues).slice(0, 2000) : String(err);
     console.error(`[analyze] run ${runId} failed: ${detail}`);
-    await fail(deps, runId);
+    await fail(deps, runId, isOpenAIOutOfCredits(err) ? OPENAI_OUT_OF_CREDITS : ANALYZE_FAILED);
   }
 }

@@ -1,3 +1,4 @@
+import { OPENAI_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
 import { describe, expect, it, vi } from 'vitest';
 import { analyzeRun } from '@/lib/pipeline/analyze';
 import type { NewPost } from '@/lib/store/types';
@@ -117,5 +118,17 @@ describe('analyzeRun', () => {
     await analyzeRun(s.d, s.runId);
     expect(await s.d.store.getRun(s.runId)).toMatchObject({ status: 'fetching', failedStep: null });
     expect(s.d.events.some((e) => e.step === 'failed')).toBe(false);
+  });
+  it('says the OpenAI account is out of credits when it is', async () => {
+    const json = (async () => {
+      throw Object.assign(new Error('429 You have no credits remaining.'), { status: 429 });
+    }) as Deps['openai']['json'];
+    const { d, runId } = await setup('analyzing', json);
+    await analyzeRun(d, runId);
+    expect(await d.store.getRun(runId)).toMatchObject({
+      status: 'failed',
+      failedStep: 'analyze',
+      error: OPENAI_OUT_OF_CREDITS,
+    });
   });
 });
