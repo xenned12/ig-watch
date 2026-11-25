@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Icon, type IconName } from './Icon';
 import { RecentRuns } from './RecentRuns';
+import { AccountCard } from './AccountCard';
 import { LogoutButton } from './LogoutButton';
 
 type Active = 'new' | 'results' | 'runs';
@@ -36,12 +37,13 @@ export function Shell({ active, recent, children }: { active: Active; /** `null`
         <div className="side-sec">Recent runs</div>
         <RecentRuns recent={recent} />
         <div className="side-foot">
-          <LogoutButton />
+          <AccountCard name={process.env.APP_USERNAME || "Account"} />
         </div>
       </aside>
       <div style={{ minWidth: 0 }}>
         <nav className="mobilebar" aria-label="Main">
           <NavLinks active={active} />
+          <LogoutButton />
         </nav>
         <main className="main" id="main">
           <div className="wrap">{children}</div>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export type IconName =
   | 'plus' | 'list' | 'chart' | 'x' | 'search' | 'ext' | 'copy' | 'left'
-  | 'right' | 'check' | 'alert' | 'mic' | 'cap' | 'retry' | 'play';
+  | 'right' | 'check' | 'alert' | 'mic' | 'cap' | 'retry' | 'play' | 'logout';
 
 const PATHS: Record<IconName, ReactNode> = {
   plus: <path d="M12 5v14M5 12h14" />,
@@ -19,6 +19,7 @@ const PATHS: Record<IconName, ReactNode> = {
   mic: (<><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>),
   cap: (<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 15h4M13 15h4M7 11h10" /></>),
   retry: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" />,
+  logout: <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />,
   play: (<><rect x="3" y="3" width="18" height="18" rx="4" /><path d="m10 8 6 4-6 4Z" /></>),
 };
 
