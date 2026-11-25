@@ -26,6 +26,17 @@ describe('rankItems', () => {
     expect(r.posts.filter((p) => p.isClient).map((p) => p.handle)).toEqual(['me', 'me']));
   it('ignores unparseable items', () =>
     expect(rankItems([null, 5, { timestamp: 3 }], { client: 'me', competitors: [] }, now).posts).toEqual([]));
+  it('says when Instagram blocked the request instead of "not found"', () => {
+    const res = rankItems(
+      [{ inputUrl: 'https://www.instagram.com/me/', error: 'login_required' }, { inputUrl: 'https://www.instagram.com/a/', error: 'fetch_failed' }],
+      { client: 'me', competitors: ['a'] },
+      now,
+    );
+    expect(res.skipped).toEqual([
+      { handle: 'me', reason: 'Instagram blocked the request. Sign in to Instaloader or try again later' },
+      { handle: 'a', reason: 'Instagram blocked the request. Sign in to Instaloader or try again later' },
+    ]);
+  });
   it('keeps real-world items whose optional fields are null or have other type values', () => {
     const real = {
       inputUrl: 'https://www.instagram.com/me/',

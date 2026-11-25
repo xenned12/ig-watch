@@ -14,6 +14,9 @@ const WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
 const TOP_N = 10;
 const NOT_FOUND = 'Account not found or private';
 const NO_VIDEOS = 'No video posts in the last 90 days';
+const BLOCKED = 'Instagram blocked the request. Sign in to Instaloader or try again later';
+// Error codes the Instaloader script uses when Instagram refuses the request.
+const BLOCKED_CODES = new Set(['login_required', 'fetch_failed']);
 
 function itemHandle(item: ApifyItem): string | null {
   if (item.ownerUsername) return normaliseHandle(item.ownerUsername);
@@ -66,7 +69,7 @@ export function rankItems(
   const client = normaliseHandle(handles.client);
   const order = [client, ...handles.competitors.map(normaliseHandle)];
   const videos = new Map<string, ApifyItem[]>();
-  const errored = new Set<string>();
+  const errored = new Map<string, string>(); // handle → skip reason
   for (const h of order) videos.set(h, []);
 
   for (const raw of items) {
@@ -75,7 +78,7 @@ export function rankItems(
     const item = parsed.data;
     const handle = itemHandle(item);
     if (handle === null || !videos.has(handle)) continue;
-    if (item.error) errored.add(handle);
+    if (item.error) errored.set(handle, BLOCKED_CODES.has(item.error) ? BLOCKED : NOT_FOUND);
     if (isVideo(item) && inWindow(item, now)) videos.get(handle)?.push(item);
   }
 
@@ -86,7 +89,7 @@ export function rankItems(
     const found = videos.get(handle) ?? [];
     videosFound[handle] = found.length;
     if (found.length === 0) {
-      skipped.push({ handle, reason: errored.has(handle) ? NOT_FOUND : NO_VIDEOS });
+      skipped.push({ handle, reason: errored.get(handle) ?? NO_VIDEOS });
       continue;
     }
     found

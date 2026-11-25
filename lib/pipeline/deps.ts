@@ -1,10 +1,14 @@
 import 'server-only';
-import { ApifyClient } from 'apify-client';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import OpenAI, { toFile } from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import type { ZodType } from 'zod';
-import { serverEnv } from '@/lib/env';
+import { serverEnv, type ServerEnv } from '@/lib/env';
 import { callbackHeaders, sendJob } from '@/lib/jobs';
+import { apifyScraper } from '@/lib/scrapers/apify';
+import { instaloaderScraper } from '@/lib/scrapers/instaloader';
+import type { Scraper } from '@/lib/scrapers/types';
 import { supabaseProgress, type Progress } from '@/lib/progress';
 import { supabaseStore } from '@/lib/store/supabase';
 import type { Store } from '@/lib/store/types';
@@ -13,10 +17,7 @@ export interface Deps {
   store: Store;
   progress: Progress;
   sendJob: typeof sendJob;
-  apify: {
-    start(handles: string[], runId: string): Promise<string>;
-    items(apifyRunId: string): Promise<unknown[]>;
-  };
+  apify: Scraper;
   openai: {
     transcribe(
       file: Blob,
@@ -31,46 +32,14 @@ export interface Deps {
 export function makeDeps(): Deps {
   const env = serverEnv();
   const store = supabaseStore();
-  const apifyClient = new ApifyClient({ token: env.APIFY_TOKEN });
   const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 
   return {
     store,
     progress: supabaseProgress(store),
     sendJob,
-    apify: {
-      async start(handles, runId) {
-        const run = await apifyClient.actor('apify/instagram-scraper').start(
-          {
-            directUrls: handles.map((h) => 'https://www.instagram.com/' + h + '/'),
-            resultsType: 'posts',
-            resultsLimit: 60,
-            onlyPostsNewerThan: '90 days',
-          },
-          {
-            webhooks: [
-              {
-                eventTypes: [
-                  'ACTOR.RUN.SUCCEEDED',
-                  'ACTOR.RUN.FAILED',
-                  'ACTOR.RUN.TIMED_OUT',
-                  'ACTOR.RUN.ABORTED',
-                ],
-                requestUrl: env.NEXT_PUBLIC_APP_URL + '/api/webhooks/apify',
-                payloadTemplate:
-                  '{"runId":"' + runId + '","eventType":{{eventType}},"apifyRunId":{{resource.id}}}',
-                headersTemplate: JSON.stringify(callbackHeaders(env)),
-              },
-            ],
-          },
-        );
-        return run.id;
-      },
-      async items(apifyRunId) {
-        const { items } = await apifyClient.run(apifyRunId).dataset().listItems();
-        return items;
-      },
-    },
+    // Post source, switched by SCRAPER. The field keeps its original name.
+    apify: env.SCRAPER === 'instaloader' ? localInstaloader(env) : apifyScraper(env),
     openai: {
       async transcribe(file, name) {
         const res = await openai.audio.transcriptions.create({
@@ -104,4 +73,25 @@ export function makeDeps(): Deps {
     },
     now: () => new Date(),
   };
+}
+
+// Local-only Instaloader scraper: runs scripts/instaloader_scrape.py and reports
+// back through the same webhook Apify uses.
+function localInstaloader(env: ServerEnv): Scraper {
+  const root = process.cwd();
+  return instaloaderScraper({
+    python: env.INSTALOADER_PYTHON ?? join(root, '.venv', 'bin', 'python'),
+    script: join(root, 'scripts', 'instaloader_scrape.py'),
+    dir: join(tmpdir(), 'reel-intel-instaloader'),
+    login: env.INSTALOADER_USERNAME,
+    async notify(done) {
+      const res = await fetch(env.NEXT_PUBLIC_APP_URL + '/api/webhooks/apify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...callbackHeaders(env) },
+        body: JSON.stringify(done),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) throw new Error(`Webhook call failed: ${res.status}`);
+    },
+  });
 }

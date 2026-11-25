@@ -14,7 +14,10 @@ Stack: Next.js 16, Supabase (Postgres + Realtime), Apify (Instagram scraper), Op
 
 | Name | Scope | Notes |
 | --- | --- | --- |
-| `APIFY_TOKEN` | server only | Apify API token |
+| `SCRAPER` | server only, optional | `apify` (default) or `instaloader` (local only, see "Try Instaloader instead of Apify") |
+| `APIFY_TOKEN` | server only | Apify API token. Not needed when `SCRAPER=instaloader` |
+| `INSTALOADER_USERNAME` | server only, optional | Instagram account whose saved Instaloader session is used |
+| `INSTALOADER_PYTHON` | server only, optional | Python with Instaloader installed. Default `.venv/bin/python` |
 | `OPENAI_API_KEY` | server only | OpenAI API key |
 | `OPENAI_MODEL` | server only | For example `gpt-4.1-mini` |
 | `SUPABASE_SERVICE_ROLE_KEY` | server only | Supabase service role key |
@@ -35,6 +38,26 @@ npm run dev
 Open http://localhost:3000.
 
 For local runs, `NEXT_PUBLIC_APP_URL` can be `http://localhost:3000`. Apify cannot reach localhost webhooks, so use a production or tunnel URL for full end-to-end runs.
+
+### Try Instaloader instead of Apify (free, local only)
+
+[Instaloader](https://instaloader.github.io/) is a free, open-source scraper. The app runs `scripts/instaloader_scrape.py` in the background; it writes posts in the same shape Apify returns and then calls the same webhook, so everything after scraping works the same.
+
+1. Install it into a project-local Python environment:
+   ```bash
+   python3 -m venv .venv && .venv/bin/pip install -r scripts/requirements.txt
+   ```
+2. Sign in once with an Instagram account (Instagram blocks logged-out scraping almost immediately). This saves a session file; you type the password yourself:
+   ```bash
+   .venv/bin/instaloader -l YOUR_INSTAGRAM_USERNAME
+   ```
+3. In `.env.local`, set `SCRAPER=instaloader` and `INSTALOADER_USERNAME=YOUR_INSTAGRAM_USERNAME`, then restart `npm run dev`. `APIFY_TOKEN` can stay empty.
+
+Notes:
+- Local only. Vercel functions can't run Python or keep a background process, so keep `SCRAPER=apify` in production.
+- It's slower than Apify (Instaloader waits between requests) and has no proxy, so Instagram may rate-limit or flag the account you sign in with. Use a spare account, and keep runs small.
+- Scraping without Meta's permission is against Instagram's terms.
+- If Instagram refuses a request, the run lists that account as "Instagram blocked the request". The script's log is in your OS temp folder under `reel-intel-instaloader/`.
 
 ## Test
 
