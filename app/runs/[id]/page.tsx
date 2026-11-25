@@ -20,7 +20,7 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
   const { run } = detail;
 
   return (
-    <Shell active="runs" recent={list.slice(0, 3)}>
+    <Shell active="runs" recent={list}>
       {run.status === 'done' && <Results detail={detail} />}
       {run.status === 'failed' && (
         <>

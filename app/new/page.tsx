@@ -10,7 +10,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export default async function NewPage({ searchParams }: { searchParams: Promise<{ from?: string }> }) {
   const { from } = await searchParams;
   const store = supabaseStore();
-  const recent = (await runList(store)).slice(0, 3);
+  const recent = await runList(store);
 
   let initial: NewRunInitial | undefined;
   if (from && UUID_RE.test(from)) {

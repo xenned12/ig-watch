@@ -2,11 +2,12 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Icon, type IconName } from './Icon';
 import { RecentRuns } from './RecentRuns';
+import { creditWarning } from '@/lib/credit-warning';
 import { AccountCard } from './AccountCard';
 import { LogoutButton } from './LogoutButton';
 
 type Active = 'new' | 'results' | 'runs';
-export type RecentRun = { id: string; niche: string; clientHandle: string; status?: string };
+export type RecentRun = { id: string; niche: string; clientHandle: string; status?: string; error?: string | null };
 
 const NAV: { key: Active; label: string; href: string; icon: IconName }[] = [
   { key: 'new', label: 'New analysis', href: '/new', icon: 'plus' },
@@ -26,6 +27,7 @@ function NavLinks({ active }: { active: Active }) {
 export function Shell({ active, recent, children }: { active: Active; /** `null` on loading screens: keep showing the last list. */
   recent: RecentRun[] | null;
   children: ReactNode }) {
+  const warning = recent ? creditWarning(recent) : null;
   return (
     <div className="shell">
       <aside className="side" aria-label="Main">
@@ -35,7 +37,9 @@ export function Shell({ active, recent, children }: { active: Active; /** `null`
         </div>
         <NavLinks active={active} />
         <div className="side-sec">Recent runs</div>
-        <RecentRuns recent={recent} />
+        <div className="recent-list">
+          <RecentRuns recent={recent} />
+        </div>
         <div className="side-foot">
           <AccountCard name={process.env.APP_USERNAME || "Account"} />
         </div>
@@ -46,7 +50,15 @@ export function Shell({ active, recent, children }: { active: Active; /** `null`
           <LogoutButton />
         </nav>
         <main className="main" id="main">
-          <div className="wrap">{children}</div>
+          <div className="wrap">
+            {warning && (
+              <div className="credit-warn" role="alert">
+                <Icon name="alert" />
+                <span>{warning}</span>
+              </div>
+            )}
+            {children}
+          </div>
         </main>
       </div>
     </div>

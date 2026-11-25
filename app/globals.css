@@ -60,6 +60,10 @@ td .linkbtn{min-height:40px;display:inline-flex;align-items:center}
 .nav:hover{background:var(--sunk);color:var(--fg)}
 .nav[aria-current="page"]{background:var(--primary-soft);color:var(--primary);font-weight:500}
 .side-sec{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:18px 10px 6px}
+/* All runs scroll inside the sidebar so the account card stays at the bottom */
+.recent-list{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -4px;padding:0 4px}
+.credit-warn{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--bad);background:var(--bad-soft);color:var(--fg);font-size:14px;line-height:1.5}
+.credit-warn svg{flex:none;color:var(--bad);margin-top:2px}
 /* Sidebar recent runs: client handle over niche, each truncating on one line */
 .recent{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 10px;border-radius:var(--r);color:var(--fg);text-decoration:none;min-width:0}
 .recent:hover{background:var(--sunk)}

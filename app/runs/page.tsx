@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function RunsPage() {
   const runs = await runList(supabaseStore());
   return (
-    <Shell active="runs" recent={runs.slice(0, 3)}>
+    <Shell active="runs" recent={runs}>
       <div className="pagehead">
         <div>
           <h1>Runs</h1>
