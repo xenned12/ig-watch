@@ -1,0 +1,27 @@
+import type { Niche } from '@/lib/handles';
+import type { Analysis, Post, Run, RunStatus, Transcript } from '@/lib/types';
+
+export type NewRun = { niche: Niche; clientHandle: string; competitorHandles: string[] };
+export type NewPost = Omit<Post, 'id' | 'runId'>;
+export type RunEvent = { at: string; message: string };
+
+export interface Store {
+  createRun(r: NewRun): Promise<Run>;
+  getRun(id: string): Promise<Run | null>;
+  listRuns(): Promise<(Run & { postCount: number })[]>;
+  activeRun(): Promise<Run | null>;
+  updateRun(id: string, patch: Partial<Run>): Promise<void>;
+  transitionRun(id: string, from: RunStatus, patch: Partial<Run>): Promise<boolean>;
+  replacePosts(runId: string, posts: NewPost[]): Promise<Post[]>;
+  listPosts(runId: string): Promise<Post[]>;
+  getPost(id: string): Promise<Post | null>;
+  saveTranscriptOnce(t: Transcript): Promise<boolean>;
+  listTranscripts(runId: string): Promise<Transcript[]>;
+  decrementRemaining(runId: string): Promise<number>;
+  saveAnalysis(a: Analysis): Promise<void>;
+  getAnalysis(runId: string): Promise<Analysis | null>;
+  addEvent(runId: string, message: string): Promise<void>;
+  listEvents(runId: string): Promise<RunEvent[]>;
+  countRecentStarts(ipHash: string, sinceIso: string): Promise<number>;
+  recordStart(ipHash: string): Promise<void>;
+}
