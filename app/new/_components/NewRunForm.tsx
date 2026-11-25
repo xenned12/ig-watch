@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/app/_components/Icon';
 import { normaliseHandle, tagError, validateNiche, validateRunInput, type Niche, type RunInputErrors } from '@/lib/handles';
@@ -15,8 +15,17 @@ export type NewRunInitial = { niche: Niche; client: string; competitors: string[
 
 const MAX = 10;
 const NETWORK_ERROR = 'Could not reach the server. Check your connection and try again.';
+const SCRAPING_SOURCE = 'https://help.instagram.com/740480200552298';
 
-function FieldMessage({ id, error, help }: { id: string; error?: string; help: string }) {
+function SourceLink({ children }: { children: ReactNode }) {
+  return (
+    <a href={SCRAPING_SOURCE} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
+      {children}
+    </a>
+  );
+}
+
+function FieldMessage({ id, error, help }: { id: string; error?: string; help: ReactNode }) {
   return error ? (
     <span className="err" id={id}>
       <Icon name="alert" size={15} />
@@ -42,6 +51,15 @@ function Summary({ total, range }: { total: number; range: DateRange }) {
       <p className="xs muted" style={{ borderTop: '1px solid var(--line)', paddingTop: 12 }}>
         Only reels and video posts are fetched. Photos and carousels are skipped because they have no speech to
         transcribe. Videos aren&apos;t saved; each post links back to Instagram.
+      </p>
+      <p className="xs" style={{ borderTop: '1px solid var(--line)', paddingTop: 12, display: 'flex', gap: 6 }}>
+        <span>
+          <strong>Public accounts only.</strong>{' '}
+          <span className="muted">
+            Instagram actively detects and blocks scrapers, so private profiles can&apos;t be read.{' '}
+            <SourceLink>Source</SourceLink>
+          </span>
+        </span>
       </p>
     </aside>
   );
@@ -196,7 +214,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
               aria-invalid={errors.client ? true : undefined}
               onBlur={(e) => checkClient(e.target.value)}
             />
-            <FieldMessage id="client-msg" error={errors.client} help="The account you're writing scripts for. It must be public." />
+            <FieldMessage id="client-msg" error={errors.client} help={<>The account you&apos;re writing scripts for. It must be public: Instagram&apos;s anti-scraping security blocks private profiles. <SourceLink>Why?</SourceLink></>} />
           </div>
           <div className="field">
             <label htmlFor="comp-in">Competitors <span className="muted" style={{ fontWeight: 400 }}>({comps.length} added, 3–10 allowed)</span></label>
@@ -211,7 +229,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
               onCommit={(raw) => void commit(raw)}
               onRemove={remove}
             />
-            <FieldMessage id="comp-msg" error={errors.competitors} help="Paste a handle or profile link. Press Enter or comma to add it." />
+            <FieldMessage id="comp-msg" error={errors.competitors} help="Public accounts only. Paste a handle or profile link. Press Enter or comma to add it." />
           </div>
           <DateRangeField
             value={range}
