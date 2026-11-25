@@ -1,4 +1,4 @@
-import type { Analysis, Post, Run, RunStatus, Step, Transcript } from '@/lib/types';
+import type { Analysis, NicheAccounts, Post, Run, RunStatus, Step, Transcript } from '@/lib/types';
 import { ActiveRunExistsError, type NewPost, type NewRun, type RunEvent, type Store } from '@/lib/store/types';
 
 const STALE_STEP: Record<string, Step> = {
@@ -16,6 +16,7 @@ export function memoryStore(): Store {
   const analyses = new Map<string, Analysis>();
   const events = new Map<string, RunEvent[]>();
   const starts: { ipHash: string; at: number }[] = [];
+  const niches = new Map<string, NicheAccounts>();
 
   const postsOf = (runId: string): Post[] =>
     [...posts.values()].filter((p) => p.runId === runId);
@@ -127,6 +128,17 @@ export function memoryStore(): Store {
     },
     async recordStart(ipHash) {
       starts.push({ ipHash, at: Date.now() });
+    },
+    async getNicheAccounts(nicheKey) {
+      const n = niches.get(nicheKey);
+      return n ? { ...n, accounts: n.accounts.map((a) => ({ ...a })) } : null;
+    },
+    async saveNicheAccounts(nicheKey, accounts, fetchedAt) {
+      niches.set(nicheKey, { accounts: accounts.map((a) => ({ ...a })), fetchedAt, pendingRunId: null, pendingSince: null });
+    },
+    async setNichePending(nicheKey, runId, sinceIso) {
+      const n = niches.get(nicheKey) ?? { accounts: [], fetchedAt: null, pendingRunId: null, pendingSince: null };
+      niches.set(nicheKey, { ...n, pendingRunId: runId, pendingSince: sinceIso });
     },
   };
 }

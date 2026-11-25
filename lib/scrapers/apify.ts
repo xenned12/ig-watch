@@ -2,6 +2,7 @@ import 'server-only';
 import { ApifyClient } from 'apify-client';
 import type { ServerEnv } from '@/lib/env';
 import { callbackHeaders } from '@/lib/jobs';
+import type { AccountSearch } from '@/lib/pipeline/deps';
 import type { Scraper } from './types';
 
 // Apify's hosted instagram-scraper; Apify calls our webhook when the run ends.
@@ -32,6 +33,32 @@ export function apifyScraper(env: ServerEnv): Scraper {
     async items(apifyRunId) {
       const { items } = await client.run(apifyRunId).dataset().listItems();
       return items;
+    },
+  };
+}
+
+// Background Instagram account search with profile details (followers), used for
+// the "top accounts" suggestions. start() returns the Apify run id; result() checks it.
+export function apifyAccountSearch(env: ServerEnv): AccountSearch {
+  const client = () => {
+    if (!env.APIFY_TOKEN) throw new Error('Account search needs APIFY_TOKEN');
+    return new ApifyClient({ token: env.APIFY_TOKEN });
+  };
+  return {
+    async start(keyword) {
+      const run = await client()
+        .actor('apify/instagram-scraper')
+        .start({ search: keyword, searchType: 'user', searchLimit: 20, resultsType: 'details', resultsLimit: 20 });
+      return run.id;
+    },
+    async result(searchId) {
+      const c = client();
+      const run = await c.run(searchId).get();
+      if (!run) return { state: 'failed' };
+      if (run.status === 'READY' || run.status === 'RUNNING') return { state: 'running' };
+      if (run.status !== 'SUCCEEDED') return { state: 'failed' };
+      const { items } = await c.dataset(run.defaultDatasetId).listItems();
+      return { state: 'done', items };
     },
   };
 }

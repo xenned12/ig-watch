@@ -2,6 +2,7 @@ import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { serverEnv } from '@/lib/env';
 import { ActiveRunExistsError, type Store } from '@/lib/store/types';
+import type { TopAccount } from '@/lib/types';
 import {
   analysisFromRow, analysisToRow, postFromRow, postToRow, runFromRow,
   runPatchToRow, transcriptFromRow, transcriptToRow, type Row,
@@ -186,6 +187,37 @@ export function supabaseStore(): Store {
     async recordStart(ipHash) {
       const { error } = await db.from('run_starts').insert({ ip_hash: ipHash });
       check(error, 'recordStart');
+    },
+    async getNicheAccounts(nicheKey) {
+      const { data, error } = await db
+        .from('niche_top_accounts')
+        .select('accounts, fetched_at, pending_run_id, pending_since')
+        .eq('niche', nicheKey)
+        .maybeSingle();
+      check(error, 'getNicheAccounts');
+      if (!data) return null;
+      const row = data as Row;
+      return {
+        accounts: (row.accounts as TopAccount[] | null) ?? [],
+        fetchedAt: (row.fetched_at as string | null) ?? null,
+        pendingRunId: (row.pending_run_id as string | null) ?? null,
+        pendingSince: (row.pending_since as string | null) ?? null,
+      };
+    },
+    async saveNicheAccounts(nicheKey, accounts, fetchedAt) {
+      const { error } = await db
+        .from('niche_top_accounts')
+        .upsert(
+          { niche: nicheKey, accounts, fetched_at: fetchedAt, pending_run_id: null, pending_since: null },
+          { onConflict: 'niche' },
+        );
+      check(error, 'saveNicheAccounts');
+    },
+    async setNichePending(nicheKey, runId, sinceIso) {
+      const { error } = await db
+        .from('niche_top_accounts')
+        .upsert({ niche: nicheKey, pending_run_id: runId, pending_since: sinceIso }, { onConflict: 'niche' });
+      check(error, 'setNichePending');
     },
   };
 }

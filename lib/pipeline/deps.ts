@@ -6,12 +6,21 @@ import { zodResponseFormat } from 'openai/helpers/zod';
 import type { ZodType } from 'zod';
 import { serverEnv, type ServerEnv } from '@/lib/env';
 import { callbackHeaders, sendJob } from '@/lib/jobs';
-import { apifyScraper } from '@/lib/scrapers/apify';
+import { apifyAccountSearch, apifyScraper } from '@/lib/scrapers/apify';
 import { instaloaderScraper } from '@/lib/scrapers/instaloader';
 import type { Scraper } from '@/lib/scrapers/types';
 import { supabaseProgress, type Progress } from '@/lib/progress';
 import { supabaseStore } from '@/lib/store/supabase';
 import type { Store } from '@/lib/store/types';
+
+export type AccountSearchResult =
+  | { state: 'running' }
+  | { state: 'failed' }
+  | { state: 'done'; items: unknown[] };
+export interface AccountSearch {
+  start(keyword: string): Promise<string>;
+  result(searchId: string): Promise<AccountSearchResult>;
+}
 
 export interface Deps {
   store: Store;
@@ -26,6 +35,8 @@ export interface Deps {
     json<T>(schema: ZodType<T>, system: string, user: string): Promise<T>;
   };
   fetchVideo(url: string): Promise<Blob>;
+  /** Background Instagram account search (profile details) for a keyword. */
+  accountSearch: AccountSearch;
   now(): Date;
 }
 
@@ -71,6 +82,7 @@ export function makeDeps(): Deps {
       if (!res.ok) throw new Error(`Video download failed: ${res.status}`);
       return res.blob();
     },
+    accountSearch: apifyAccountSearch(env),
     now: () => new Date(),
   };
 }

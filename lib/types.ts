@@ -66,6 +66,15 @@ export type Script = {
   cta: string;
 };
 
+// A suggested competitor for a preset niche (from the account search).
+export type TopAccount = { handle: string; fullName: string; followers: number; verified: boolean };
+export type NicheAccounts = {
+  accounts: TopAccount[];
+  fetchedAt: string | null; // when `accounts` was last filled; null if never
+  pendingRunId: string | null; // account search currently running, if any
+  pendingSince: string | null;
+};
+
 export type Analysis = {
   runId: string;
   patterns: Pattern[];

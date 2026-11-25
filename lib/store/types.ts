@@ -1,5 +1,5 @@
 import type { Niche } from '@/lib/handles';
-import type { Analysis, Post, Run, RunStatus, Transcript } from '@/lib/types';
+import type { Analysis, NicheAccounts, Post, Run, RunStatus, TopAccount, Transcript } from '@/lib/types';
 
 export type NewRun = { niche: Niche; clientHandle: string; competitorHandles: string[] };
 export type NewPost = Omit<Post, 'id' | 'runId'>;
@@ -32,4 +32,10 @@ export interface Store {
   listEvents(runId: string): Promise<RunEvent[]>;
   countRecentStarts(ipHash: string, sinceIso: string): Promise<number>;
   recordStart(ipHash: string): Promise<void>;
+  /** Cached top accounts per preset niche, keyed by the lower-case niche. */
+  getNicheAccounts(nicheKey: string): Promise<NicheAccounts | null>;
+  /** Saves a finished search's accounts and clears the running search. */
+  saveNicheAccounts(nicheKey: string, accounts: TopAccount[], fetchedAt: string): Promise<void>;
+  /** Records (or clears, with null) the account search running for a niche. */
+  setNichePending(nicheKey: string, runId: string | null, sinceIso: string | null): Promise<void>;
 }

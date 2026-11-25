@@ -6,6 +6,7 @@ import { Icon } from '@/app/_components/Icon';
 import { normaliseHandle, tagError, validateNiche, validateRunInput, type Niche, type RunInputErrors } from '@/lib/handles';
 import { NicheCombobox } from './NicheCombobox';
 import { HandleTags } from './HandleTags';
+import { TopAccounts } from './TopAccounts';
 
 export type NewRunInitial = { niche: Niche; client: string; competitors: string[] };
 
@@ -80,6 +81,21 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
     setClientText(h ? '@' + h : '');
     const r = validateRunInput({ niche, client: h, competitors: comps });
     setErrors((p) => ({ ...p, client: r.ok ? undefined : r.errors.client }));
+  }
+
+  // Chip clicks from the top-accounts list.
+  function addHandle(h: string) {
+    const e = tagError(h, client, comps);
+    if (e) setErrors((p) => ({ ...p, competitors: e }));
+    else if (comps.length < MAX) {
+      setComps([...comps, h]);
+      setErrors((p) => ({ ...p, competitors: undefined }));
+    }
+  }
+
+  function removeHandle(h: string) {
+    setComps((c) => c.filter((x) => x !== h));
+    setErrors((p) => ({ ...p, competitors: undefined }));
   }
 
   function remove(i: number) {
@@ -181,6 +197,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
             />
             <FieldMessage id="comp-msg" error={errors.competitors} help="Paste a handle or profile link. Press Enter or comma to add it." />
           </div>
+          <TopAccounts niche={niche} client={client} added={comps} max={MAX} onAdd={addHandle} onRemove={removeHandle} />
           {formError && <p className="err" role="alert"><Icon name="alert" size={15} />{formError}</p>}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
             <button type="button" className="btn ghost" onClick={clear}>Clear</button>
