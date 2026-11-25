@@ -51,12 +51,18 @@ export type Pattern = {
 };
 export type Gap = { text: string; kind: 'gap' | 'keep' };
 export type Recommendation = { text: string; reason: string; postId: string };
+// One timed section of a full script: the exact words spoken, the text overlay
+// (empty when none) and a short filming direction.
+export type ScriptBeat = { at: string; voiceover: string; onScreen: string; direction: string };
+// Scripts saved before full scripts existed only have a one-line summary per beat.
+export type LegacyBeat = { at: string; text: string };
+
 export type Script = {
   name: string;
   lengthS: number;
   patterns: string[];
   hook: string;
-  beats: { at: string; text: string }[];
+  beats: (ScriptBeat | LegacyBeat)[];
   cta: string;
 };
 

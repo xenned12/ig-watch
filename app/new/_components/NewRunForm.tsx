@@ -3,7 +3,8 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Icon } from '@/app/_components/Icon';
-import { NICHES, normaliseHandle, tagError, validateRunInput, type Niche, type RunInputErrors } from '@/lib/handles';
+import { normaliseHandle, tagError, validateNiche, validateRunInput, type Niche, type RunInputErrors } from '@/lib/handles';
+import { NicheCombobox } from './NicheCombobox';
 import { HandleTags } from './HandleTags';
 
 export type NewRunInitial = { niche: Niche; client: string; competitors: string[] };
@@ -45,7 +46,8 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
   const router = useRouter();
   const compRef = useRef<HTMLInputElement>(null);
   const clientRef = useRef<HTMLInputElement>(null);
-  const [niche, setNiche] = useState<Niche>(initial?.niche ?? NICHES[0]);
+  const nicheRef = useRef<HTMLInputElement>(null);
+  const [niche, setNiche] = useState<Niche>(initial?.niche ?? 'AI');
   const [clientText, setClientText] = useState(initial?.client ? '@' + initial.client : '');
   const [comps, setComps] = useState<string[]>(initial?.competitors ?? []);
   const [draft, setDraft] = useState('');
@@ -87,7 +89,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
   }
 
   function clear() {
-    setNiche(NICHES[0]);
+    setNiche('');
     setClientText('');
     setComps([]);
     setDraft('');
@@ -109,7 +111,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
     const r = validateRunInput({ niche, client, competitors: list });
     if (!r.ok) {
       setErrors(r.errors);
-      (r.errors.client ? clientRef : compRef).current?.focus();
+      (r.errors.niche ? nicheRef : r.errors.client ? clientRef : compRef).current?.focus();
       return;
     }
     setErrors({});
@@ -138,15 +140,16 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
       <div className="pagehead"><div><p className="eyebrow">Step 1 of 2</p><h1>New analysis</h1></div></div>
       <div className="form-grid">
         <form className="card" noValidate onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div className="field">
-            <span style={{ fontSize: 13, fontWeight: 500 }} id="niche-l">Niche</span>
-            <div className="segs" role="group" aria-labelledby="niche-l">
-              {NICHES.map((n) => (
-                <button key={n} type="button" className="seg" aria-pressed={niche === n} onClick={() => setNiche(n)}>{n}</button>
-              ))}
-            </div>
-            {errors.niche && <span className="err"><Icon name="alert" size={15} />{errors.niche}</span>}
-          </div>
+          <NicheCombobox
+            value={niche}
+            inputRef={nicheRef}
+            error={errors.niche}
+            onChange={(v) => {
+              setNiche(v);
+              if (errors.niche) setErrors((p) => ({ ...p, niche: undefined }));
+            }}
+            onBlur={() => setErrors((p) => ({ ...p, niche: validateNiche(niche) }))}
+          />
           <div className="field">
             <label htmlFor="client">Client account</label>
             <input

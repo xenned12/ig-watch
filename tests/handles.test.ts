@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { normaliseHandle, tagError, validateRunInput } from '@/lib/handles';
+import { nicheSuggestions, normaliseHandle, tagError, validateRunInput } from '@/lib/handles';
 
 it.each(['@Promptpilot','promptpilot/','https://instagram.com/promptpilot?igsh=x','https://www.instagram.com/PROMPTPILOT/reels/',' PROMPTPILOT '])
   ('normalises %s', raw => expect(normaliseHandle(raw)).toBe('promptpilot'));
@@ -27,8 +27,20 @@ it('needs 3 competitors', () =>
 it('caps at 10', () =>
   expect(validateRunInput({ niche:'AI', client:'me', competitors:Array.from({length:11},(_,i)=>'c'+i) }))
     .toMatchObject({ ok:false, errors:{ competitors:'You can compare up to 10 competitors.' } }));
-it('rejects an unknown niche', () =>
-  expect(validateRunInput({ niche:'Food', client:'me', competitors:['a','b','c'] })).toMatchObject({ ok:false }));
+it('accepts any typed niche, trimmed and with spaces collapsed', () =>
+  expect(validateRunInput({ niche:'  Plant-based   cooking ', client:'me', competitors:['a','b','c'] }))
+    .toEqual({ ok:true, value:{ niche:'Plant-based cooking', client:'me', competitors:['a','b','c'] } }));
+it('rejects an empty niche', () =>
+  expect(validateRunInput({ niche:'   ', client:'me', competitors:['a','b','c'] }))
+    .toEqual({ ok:false, errors:{ niche:'Enter a niche, like "AI" or "Fitness".' } }));
+it('rejects a niche over 40 characters', () =>
+  expect(validateRunInput({ niche:'x'.repeat(41), client:'me', competitors:['a','b','c'] }))
+    .toEqual({ ok:false, errors:{ niche:'Keep the niche under 40 characters.' } }));
+it('suggests niches: prefix matches first, then other matches', () => {
+  expect(nicheSuggestions('fi')).toEqual(['Finance', 'Fitness', 'Personal finance']);
+  expect(nicheSuggestions('')).toHaveLength(8);
+  expect(nicheSuggestions('zzz')).toEqual([]);
+});
 it('tagError flags the client', () => expect(tagError('me','me',[])).toBe('@me is already the client.'));
 it('accepts and returns normalised values', () =>
   expect(validateRunInput({ niche:'AI', client:'@Me', competitors:['A','b','c'] }))

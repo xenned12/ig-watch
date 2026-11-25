@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Icon } from '@/app/_components/Icon';
+import { scriptVoiceover, wordCount } from '@/lib/script-view';
 import type { Script } from '@/lib/types';
 import { ScriptModal } from './ScriptModal';
 
@@ -10,27 +11,31 @@ export function ScriptsTab({ clientHandle, scripts }: { clientHandle: string; sc
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 4 }}>
       <p className="small muted">
-        Written in @{clientHandle}&apos;s voice, using the patterns that win in this niche. Open one to see the full script, beat by beat.
+        Written in @{clientHandle}&apos;s voice, using the patterns that win in this niche. Open one to read the full script, word for word.
       </p>
       <div className="scripts">
         {scripts.map((s, i) => (
-          <button key={i} className="card scard" onClick={() => setOpen(i)}>
-            <span style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <button key={i} className="card scard" onClick={() => setOpen(i)} aria-label={`Open script ${i + 1}: ${s.name}`}>
+            <span className="scard-top">
               <span className="mono xs muted">Script {i + 1}</span>
-              <span className="pill grey num">{s.lengthS}s</span>
+              <span className="pill grey num">{s.lengthS}s · {wordCount(scriptVoiceover(s))} words</span>
             </span>
-            <span style={{ fontWeight: 600 }}>{s.name}</span>
+            <span className="scard-name">{s.name}</span>
             <span className="hook">&quot;{s.hook}&quot;</span>
-            <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {s.patterns.map((u) => <span key={u} className="pill blue">{u}</span>)}
+            <span className="scard-tags">
+              {s.patterns.map((u) => (
+                <span key={u} className="pill blue" title={u}>{u}</span>
+              ))}
             </span>
-            <span className="small" style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 'auto' }}>
+            <span className="scard-open">
               Read full script <Icon name="right" size={15} />
             </span>
           </button>
         ))}
       </div>
-      {open !== null && <ScriptModal scripts={scripts} index={open} onSelect={setOpen} onClose={() => setOpen(null)} />}
+      {open !== null && scripts[open] && (
+        <ScriptModal script={scripts[open]} index={open} total={scripts.length} onClose={() => setOpen(null)} />
+      )}
     </div>
   );
 }

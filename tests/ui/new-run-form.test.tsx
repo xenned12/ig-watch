@@ -114,10 +114,38 @@ describe('NewRunForm', () => {
 
   it('prefills from initial and updates the summary', () => {
     render(<NewRunForm initial={{ niche: 'Gaming', client: 'me', competitors: ['a', 'b', 'c'] }} />);
-    expect(screen.getByRole('button', { name: 'Gaming' }).getAttribute('aria-pressed')).toBe('true');
+    expect((screen.getByRole('combobox', { name: 'Niche' }) as HTMLInputElement).value).toBe('Gaming');
     expect(screen.getByText('~4 min')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
     expect(screen.queryByRole('button', { name: /^Remove @/ })).toBeNull();
+  });
+  it('niche: typing shows matching suggestions and ArrowDown + Enter picks one', async () => {
+    render(<NewRunForm />);
+    const niche = screen.getByRole('combobox', { name: 'Niche' }) as HTMLInputElement;
+    await userEvent.clear(niche);
+    await userEvent.type(niche, 'fit');
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['Fitness']);
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(niche.value).toBe('Fitness');
+    expect(screen.queryByRole('listbox')).toBeNull();
+  });
+  it('niche: a custom niche not in the list is kept and submitted', async () => {
+    reply(201, { runId: 'r9' });
+    render(<NewRunForm initial={{ niche: 'AI', client: 'me', competitors: ['a', 'b', 'c'] }} />);
+    const niche = screen.getByRole('combobox', { name: 'Niche' });
+    await userEvent.clear(niche);
+    await userEvent.type(niche, 'Vegan baking');
+    await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
+    const init = fetchMock.mock.calls[0][1] as { body: string };
+    expect(JSON.parse(init.body).niche).toBe('Vegan baking');
+  });
+  it('niche: an empty niche shows the error and focuses the niche field on submit', async () => {
+    render(<NewRunForm initial={{ niche: 'AI', client: 'me', competitors: ['a', 'b', 'c'] }} />);
+    const niche = screen.getByRole('combobox', { name: 'Niche' });
+    await userEvent.clear(niche);
+    await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
+    expect(screen.getByText('Enter a niche, like "AI" or "Fitness".')).toBeTruthy();
+    expect(document.activeElement).toBe(niche);
   });
   it('keeps focus on the competitor input when removing a tag at the 10 limit', async () => {
     const ten = Array.from({ length: 10 }, (_, i) => `c${i + 1}`);

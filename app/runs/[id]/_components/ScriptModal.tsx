@@ -3,74 +3,86 @@
 import { Icon } from '@/app/_components/Icon';
 import { Modal } from '@/app/_components/Modal';
 import { copyText, useToast } from '@/app/_components/Toast';
+import { beatParts, scriptCopyText, scriptVoiceover, wordCount } from '@/lib/script-view';
 import type { Script } from '@/lib/types';
 
-export function scriptCopyText(s: Script): string {
-  const beats = s.beats.map((b) => `${b.at}: ${b.text}`).join('\n');
-  return `${s.name} (${s.lengthS}s)\n\nHOOK: ${s.hook}\n\n${beats}\n\nCTA: ${s.cta}`;
-}
+type Props = { script: Script; index: number; total: number; onClose: () => void };
 
-type Props = { scripts: Script[]; index: number; onSelect: (i: number) => void; onClose: () => void };
-
-export function ScriptModal({ scripts, index, onSelect, onClose }: Props) {
+// Full, read-on-camera script: one row per timed beat with the exact voiceover,
+// the on-screen text and a filming note. No Prev/Next: one script at a time.
+export function ScriptModal({ script: s, index, total, onClose }: Props) {
   const toast = useToast();
-  const s = scripts[index];
-  if (!s) return null;
-  const hasPrev = index > 0;
-  const hasNext = index < scripts.length - 1;
+  const beats = s.beats.map(beatParts);
+  const words = wordCount(scriptVoiceover(s));
+  const legacy = beats.some((b) => b.legacy);
 
   return (
-    <Modal
-      labelledBy="mtitle"
-      onClose={onClose}
-      onPrev={hasPrev ? () => onSelect(index - 1) : undefined}
-      onNext={hasNext ? () => onSelect(index + 1) : undefined}
-    >
+    <Modal labelledBy="script-title" onClose={onClose} wide>
       <div className="mhead">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <p className="eyebrow">Script {index + 1} of {scripts.length} · target {s.lengthS}s</p>
-          <h2 id="mtitle" style={{ fontSize: 18 }}>{s.name}</h2>
-          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
-            {s.patterns.map((u) => <span key={u} className="pill blue">{u}</span>)}
-          </span>
+        <div className="script-head">
+          <p className="eyebrow">Recommended script {index + 1} of {total}</p>
+          <h2 id="script-title" className="script-title">{s.name}</h2>
+          <div className="script-meta">
+            <span className="pill grey num">{s.lengthS}s</span>
+            <span className="pill grey num">{beats.length} beats</span>
+            {!legacy && <span className="pill grey num">{words} words</span>}
+          </div>
+          {s.patterns.length > 0 && (
+            <ul className="script-patterns" aria-label="Winning patterns this script uses">
+              {s.patterns.map((p) => <li key={p} className="pill blue">{p}</li>)}
+            </ul>
+          )}
         </div>
         <button className="btn ghost sm" data-close onClick={onClose} aria-label="Close">
           <Icon name="x" />
         </button>
       </div>
+
       <div className="mbody">
-        <div>
-          <p className="sec-label">Hook · first 3 seconds</p>
-          <p style={{ fontSize: 18, fontWeight: 500, marginTop: 6, lineHeight: 1.4 }}>&quot;{s.hook}&quot;</p>
-        </div>
-        <div>
-          <p className="sec-label" style={{ marginBottom: 4 }}>Beats</p>
-          {s.beats.map((b, i) => (
-            <div className="list-row" key={i}>
-              <span className="mono xs muted" style={{ width: 56, flex: 'none' }}>{b.at}</span>
-              <span>{b.text}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-          <p className="sec-label">Call to action</p>
-          <p style={{ marginTop: 6 }}>{s.cta}</p>
-        </div>
+        {legacy && (
+          <p className="notice small">
+            <Icon name="alert" size={15} />
+            This script was saved before full scripts were added, so it shows one line per beat. Re-run the analysis for a word-for-word version.
+          </p>
+        )}
+        <ol className="script-beats" aria-label="Full script">
+          {beats.map((b, i) => {
+            const role = i === 0 ? 'Hook' : i === beats.length - 1 ? 'Call to action' : null;
+            return (
+              <li key={i} className={role ? 'beat key' : 'beat'}>
+                <div className="beat-time">
+                  <span className="mono">{b.at}</span>
+                  {role && <span className="beat-role">{role}</span>}
+                </div>
+                <div className="beat-body">
+                  <p className="beat-vo">{b.voiceover}</p>
+                  {b.onScreen.trim() && (
+                    <p className="beat-note">
+                      <Icon name="cap" size={15} />
+                      <span><span className="beat-label">On screen</span> {b.onScreen}</span>
+                    </p>
+                  )}
+                  {b.direction.trim() && (
+                    <p className="beat-note muted">
+                      <Icon name="play" size={15} />
+                      <span><span className="beat-label">Shot</span> {b.direction}</span>
+                    </p>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
       </div>
+
       <div className="mfoot">
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn sm" aria-label="Previous script" aria-disabled={!hasPrev} onClick={() => hasPrev && onSelect(index - 1)}>
-            <Icon name="left" size={15} />
-            Prev
-          </button>
-          <button className="btn sm" aria-label="Next script" aria-disabled={!hasNext} onClick={() => hasNext && onSelect(index + 1)}>
-            Next
-            <Icon name="right" size={15} />
-          </button>
-        </div>
+        <button className="btn sm" onClick={() => void copyText(scriptVoiceover(s), 'Voiceover', toast)}>
+          <Icon name="mic" size={15} />
+          Copy voiceover only
+        </button>
         <button className="btn primary sm" onClick={() => void copyText(scriptCopyText(s), 'Script', toast)}>
           <Icon name="copy" size={15} />
-          Copy script
+          Copy full script
         </button>
       </div>
     </Modal>

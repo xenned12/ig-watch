@@ -10,10 +10,12 @@ type Props = {
   onClose: () => void;
   onPrev?: () => void;
   onNext?: () => void;
+  /** Wider dialog for long reading content such as a full script. */
+  wide?: boolean;
   children: ReactNode;
 };
 
-export function Modal({ labelledBy, onClose, onPrev, onNext, children }: Props) {
+export function Modal({ labelledBy, onClose, onPrev, onNext, wide, children }: Props) {
   const scrim = useRef<HTMLDivElement>(null);
   const handlers = useRef({ onClose, onPrev, onNext });
   useLayoutEffect(() => {
@@ -64,7 +66,7 @@ export function Modal({ labelledBy, onClose, onPrev, onNext, children }: Props) 
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby={labelledBy}>
+      <div className={wide ? 'modal wide' : 'modal'} role="dialog" aria-modal="true" aria-labelledby={labelledBy}>
         {children}
       </div>
     </div>,

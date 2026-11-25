@@ -13,7 +13,7 @@ import { ScriptsTab } from './ScriptsTab';
 const TABS = [
   { key: 'overview', label: 'Overview' },
   { key: 'posts', label: 'Posts and transcripts' },
-  { key: 'scripts', label: 'Scripts' },
+  { key: 'scripts', label: 'Recommended scripts' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -64,7 +64,7 @@ export function Results({ detail }: { detail: RunDetail }) {
             Re-run
           </Link>
           {analysis && (
-            <button className="btn primary" onClick={() => go('scripts')}>View scripts</button>
+            <button className="btn primary" onClick={() => go('scripts')}>View recommended scripts</button>
           )}
         </div>
       </div>
@@ -109,7 +109,7 @@ export function Results({ detail }: { detail: RunDetail }) {
                   refs.current[t.key] = el;
                 }}
                 role="tab"
-                className="tab"
+                className={t.key === 'scripts' ? 'tab tab-featured' : 'tab'}
                 id={`tab-${t.key}`}
                 aria-controls="panel"
                 aria-selected={tab === t.key}
@@ -117,8 +117,10 @@ export function Results({ detail }: { detail: RunDetail }) {
                 onClick={() => go(t.key)}
                 onKeyDown={(e) => onKey(e, i)}
               >
+                {t.key === 'scripts' && <Icon name="mic" size={15} />}
                 {t.label}
                 {t.key === 'posts' && <> <span className="pill grey num">{posts.length}</span></>}
+                {t.key === 'scripts' && <span className="tab-badge num">{analysis.scripts.length}</span>}
               </button>
             ))}
           </div>

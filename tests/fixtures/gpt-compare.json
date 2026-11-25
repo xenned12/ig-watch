@@ -52,11 +52,15 @@
       "beats": [
         {
           "at": "0-3s",
-          "text": "Hook"
+          "voiceover": "Hook",
+          "onScreen": "",
+          "direction": "Talking head to camera."
         },
         {
           "at": "3-25s",
-          "text": "Body"
+          "voiceover": "Body",
+          "onScreen": "",
+          "direction": "Talking head to camera."
         }
       ],
       "cta": "Follow for more"
@@ -71,11 +75,15 @@
       "beats": [
         {
           "at": "0-3s",
-          "text": "Hook"
+          "voiceover": "Hook",
+          "onScreen": "",
+          "direction": "Talking head to camera."
         },
         {
           "at": "3-25s",
-          "text": "Body"
+          "voiceover": "Body",
+          "onScreen": "",
+          "direction": "Talking head to camera."
         }
       ],
       "cta": "Follow for more"
@@ -90,11 +98,15 @@
       "beats": [
         {
           "at": "0-3s",
-          "text": "Hook"
+          "voiceover": "Hook",
+          "onScreen": "",
+          "direction": "Talking head to camera."
         },
         {
           "at": "3-25s",
-          "text": "Body"
+          "voiceover": "Body",
+          "onScreen": "",
+          "direction": "Talking head to camera."
         }
       ],
       "cta": "Follow for more"
