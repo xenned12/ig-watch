@@ -6,8 +6,7 @@ import { makeDeps } from '@/lib/pipeline/deps';
 import { transcribePost } from '@/lib/pipeline/transcribe';
 import { checkSecret } from '@/lib/security';
 
-// The Apify transcript actor is awaited inside this job.
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 const JobSchema = z.object({ postId: z.string().uuid() });
 

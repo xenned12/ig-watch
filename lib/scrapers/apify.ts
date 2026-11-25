@@ -50,35 +50,3 @@ export function apifyScraper(env: ServerEnv): Scraper {
     },
   };
 }
-
-const TRANSCRIPT_ACTOR = 'iddqd/instagram-reel-transcript';
-// Leaves headroom under the transcribe job's 300 s limit.
-const TRANSCRIPT_WAIT_SECS = 240;
-
-type TranscriptItem = {
-  status?: string;
-  text?: string;
-  segments?: { start: number; text: string }[];
-  error?: { code?: string; message?: string };
-};
-
-/** Transcribes one public reel with Apify's reel-transcript actor and waits for it. */
-export async function apifyReelTranscript(
-  env: ServerEnv,
-  reelUrl: string,
-): Promise<{ text: string; segments: { start: number; text: string }[] }> {
-  const client = new ApifyClient({ token: env.APIFY_TOKEN });
-  const run = await client
-    .actor(TRANSCRIPT_ACTOR)
-    .call({ startUrls: [{ url: reelUrl }], maxItems: 1, outputFormats: ['text'] }, { waitSecs: TRANSCRIPT_WAIT_SECS });
-  if (run.status !== 'SUCCEEDED') throw new Error(`Transcript run ended as ${run.status}`);
-
-  const { items } = await client.dataset<TranscriptItem>(run.defaultDatasetId).listItems();
-  const item = items.find((i) => i.status === 'ok');
-  if (!item) {
-    const err = items[0]?.error;
-    throw new Error(`No transcript: ${err?.code ?? 'empty'} ${err?.message ?? ''}`.trim());
-  }
-  const segments = (item.segments ?? []).map((s) => ({ start: s.start, text: s.text.trim() }));
-  return { text: item.text ?? segments.map((s) => s.text).join(' '), segments };
-}

@@ -1,13 +1,12 @@
 import 'server-only';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import type { ZodType } from 'zod';
 import { serverEnv, type ServerEnv } from '@/lib/env';
-import { aiProvider } from '@/lib/pipeline/ai-provider';
 import { callbackHeaders, sendJob } from '@/lib/jobs';
-import { apifyReelTranscript, apifyScraper } from '@/lib/scrapers/apify';
+import { apifyScraper } from '@/lib/scrapers/apify';
 import { instaloaderScraper } from '@/lib/scrapers/instaloader';
 import type { Scraper } from '@/lib/scrapers/types';
 import { supabaseProgress, type Progress } from '@/lib/progress';
@@ -19,11 +18,14 @@ export interface Deps {
   progress: Progress;
   sendJob: typeof sendJob;
   apify: Scraper;
-  ai: {
-    /** Transcribes a public reel from its Instagram URL. */
-    transcribe(reelUrl: string): Promise<{ text: string; segments: { start: number; text: string }[] }>;
+  openai: {
+    transcribe(
+      file: Blob,
+      name: string,
+    ): Promise<{ text: string; segments: { start: number; text: string }[] }>;
     json<T>(schema: ZodType<T>, system: string, user: string): Promise<T>;
   };
+  fetchVideo(url: string): Promise<Blob>;
   /** Background Instagram account search (profile details) for a keyword. */
   now(): Date;
 }
@@ -31,9 +33,7 @@ export interface Deps {
 export function makeDeps(): Deps {
   const env = serverEnv();
   const store = supabaseStore();
-  // Gemini (free tier) when GEMINI_API_KEY is set, else Apify's OpenRouter proxy. Both speak the OpenAI API.
-  const provider = aiProvider(env);
-  const llm = new OpenAI({ apiKey: provider.apiKey, baseURL: provider.baseURL });
+  const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 
   return {
     store,
@@ -41,11 +41,21 @@ export function makeDeps(): Deps {
     sendJob,
     // Post source, switched by SCRAPER. The field keeps its original name.
     apify: env.SCRAPER === 'instaloader' ? localInstaloader(env) : apifyScraper(env),
-    ai: {
-      transcribe: (reelUrl) => apifyReelTranscript(env, reelUrl),
+    openai: {
+      async transcribe(file, name) {
+        const res = await openai.audio.transcriptions.create({
+          model: 'whisper-1',
+          response_format: 'verbose_json',
+          file: await toFile(file, name),
+        });
+        return {
+          text: res.text,
+          segments: (res.segments ?? []).map((s) => ({ start: s.start, text: s.text })),
+        };
+      },
       async json<T>(schema: ZodType<T>, system: string, user: string): Promise<T> {
-        const completion = await llm.chat.completions.parse({
-          model: provider.model,
+        const completion = await openai.chat.completions.parse({
+          model: env.OPENAI_MODEL,
           messages: [
             { role: 'system', content: system },
             { role: 'user', content: user },
@@ -53,9 +63,14 @@ export function makeDeps(): Deps {
           response_format: zodResponseFormat(schema, 'out'),
         });
         const parsed = completion.choices[0]?.message.parsed;
-        if (parsed === null || parsed === undefined) throw new Error('The AI returned no parsed output');
+        if (parsed === null || parsed === undefined) throw new Error('OpenAI returned no parsed output');
         return parsed as T;
       },
+    },
+    async fetchVideo(url) {
+      const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+      if (!res.ok) throw new Error(`Video download failed: ${res.status}`);
+      return res.blob();
     },
     now: () => new Date(),
   };

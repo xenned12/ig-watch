@@ -1,4 +1,4 @@
-import { AI_RATE_LIMITED, APIFY_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
+import { OPENAI_OUT_OF_CREDITS } from '@/lib/pipeline/credits';
 import { describe, expect, it, vi } from 'vitest';
 import { analyzeRun } from '@/lib/pipeline/analyze';
 import type { NewPost } from '@/lib/store/types';
@@ -30,7 +30,7 @@ function substitute<T>(value: T, ids: Record<string, string>): T {
   return JSON.parse(s) as T;
 }
 
-async function setup(status: 'analyzing' | 'done' = 'analyzing', json?: Deps['ai']['json']) {
+async function setup(status: 'analyzing' | 'done' = 'analyzing', json?: Deps['openai']['json']) {
   const base = fakeDeps();
   const run = await base.store.createRun({
     niche: 'AI',
@@ -50,8 +50,8 @@ async function setup(status: 'analyzing' | 'done' = 'analyzing', json?: Deps['ai
   const compare = substitute(compareFixture, ids);
   const fn =
     json ??
-    (vi.fn().mockResolvedValueOnce(patterns).mockResolvedValueOnce(compare) as unknown as Deps['ai']['json']);
-  const d: FakeDeps = Object.assign(base, { ai: { ...base.ai, json: fn } });
+    (vi.fn().mockResolvedValueOnce(patterns).mockResolvedValueOnce(compare) as unknown as Deps['openai']['json']);
+  const d: FakeDeps = Object.assign(base, { openai: { ...base.openai, json: fn } });
   return { d, runId: run.id, ids, fn };
 }
 
@@ -83,7 +83,7 @@ describe('analyzeRun', () => {
       .fn()
       .mockResolvedValueOnce(substitute(patternsFixture, ids))
       .mockResolvedValueOnce(bad);
-    const d2: FakeDeps = Object.assign(d, { ai: { ...d.ai, json } });
+    const d2: FakeDeps = Object.assign(d, { openai: { ...d.openai, json } });
     await analyzeRun(d2, runId);
     const run = await d2.store.getRun(runId);
     expect(run).toMatchObject({ status: 'failed', failedStep: 'analyze', error: FAIL_COPY });
@@ -92,7 +92,7 @@ describe('analyzeRun', () => {
 
   it('retries a failed model call once, then fails the run', async () => {
     const json = vi.fn().mockRejectedValue(new Error('bad json'));
-    const { d, runId } = await setup('analyzing', json as unknown as Deps['ai']['json']);
+    const { d, runId } = await setup('analyzing', json as unknown as Deps['openai']['json']);
     await analyzeRun(d, runId);
     expect(json).toHaveBeenCalledTimes(2);
     const run = await d.store.getRun(runId);
@@ -110,8 +110,8 @@ describe('analyzeRun', () => {
     const json = (async () => {
       // Simulates the stale sweep + a retry moving the run on mid-analysis.
       if (ctx.d) await ctx.d.store.updateRun(ctx.id, { status: 'fetching' });
-      throw new Error('ai down');
-    }) as Deps['ai']['json'];
+      throw new Error('openai down');
+    }) as Deps['openai']['json'];
     const s = await setup('analyzing', json);
     ctx.d = s.d;
     ctx.id = s.runId;
@@ -119,24 +119,16 @@ describe('analyzeRun', () => {
     expect(await s.d.store.getRun(s.runId)).toMatchObject({ status: 'fetching', failedStep: null });
     expect(s.d.events.some((e) => e.step === 'failed')).toBe(false);
   });
-  it('says the Apify account is out of credits when it is', async () => {
+  it('says the OpenAI account is out of credits when it is', async () => {
     const json = (async () => {
-      throw Object.assign(new Error('402 Insufficient credits'), { status: 402 });
-    }) as Deps['ai']['json'];
+      throw Object.assign(new Error('429 You have no credits remaining.'), { status: 429 });
+    }) as Deps['openai']['json'];
     const { d, runId } = await setup('analyzing', json);
     await analyzeRun(d, runId);
     expect(await d.store.getRun(runId)).toMatchObject({
       status: 'failed',
       failedStep: 'analyze',
-      error: APIFY_OUT_OF_CREDITS,
+      error: OPENAI_OUT_OF_CREDITS,
     });
-  });
-  it('says the AI quota is used up on a 429', async () => {
-    const json = (async () => {
-      throw Object.assign(new Error('429 Resource has been exhausted'), { status: 429 });
-    }) as Deps['ai']['json'];
-    const { d, runId } = await setup('analyzing', json);
-    await analyzeRun(d, runId);
-    expect(await d.store.getRun(runId)).toMatchObject({ status: 'failed', error: AI_RATE_LIMITED });
   });
 });

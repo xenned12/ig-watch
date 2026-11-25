@@ -28,13 +28,16 @@ export function fakeDeps(overrides: Partial<Deps> = {}): FakeDeps {
         return [];
       },
     },
-    ai: {
+    openai: {
       async transcribe() {
         return { text: '', segments: [] };
       },
       async json() {
-        throw new Error('ai.json not stubbed');
+        throw new Error('openai.json not stubbed');
       },
+    },
+    async fetchVideo() {
+      return new Blob([]);
     },
     now: () => new Date('2026-11-25T00:00:00Z'),
   };

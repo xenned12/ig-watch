@@ -19,7 +19,7 @@ describe('checkSecret', () => {
 describe('hashIp', () => {
   beforeEach(() => {
     for (const n of [
-      'APIFY_TOKEN', 'SUPABASE_SERVICE_ROLE_KEY',
+      'APIFY_TOKEN', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'SUPABASE_SERVICE_ROLE_KEY',
       'WEBHOOK_SECRET', 'NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_APP_URL',
     ]) vi.stubEnv(n, `test-${n}`);
   });

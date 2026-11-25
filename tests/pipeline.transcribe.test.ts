@@ -55,12 +55,13 @@ describe("transcribePost", () => {
   it("saves a whisper transcript with segments", async () => {
     const transcribe = whisperOk();
     const { d, runId, ids } = await setup(1, {
-      ai: {
+      openai: {
         transcribe,
         json: async () => {
           throw new Error("x");
         },
       },
+      fetchVideo: async () => new Blob(["v"]),
     });
     await transcribePost(d, ids[0]);
     expect(await transcriptOf(d, runId, ids[0])).toEqual({
@@ -69,21 +70,14 @@ describe("transcribePost", () => {
       segments: [{ startS: 0, text: "hi" }],
       source: "whisper",
     });
-    expect(transcribe).toHaveBeenCalledWith("https://ig/1");
+    expect(transcribe).toHaveBeenCalledWith(expect.any(Blob), `${ids[0]}.mp4`);
   });
 
-  it("falls back to caption after one retry when transcription fails", async () => {
-    const transcribe = vi.fn().mockRejectedValue(new Error("403"));
-    const { d, runId, ids, posts } = await setup(1, {
-      ai: {
-        transcribe,
-        json: async () => {
-          throw new Error("x");
-        },
-      },
-    });
+  it("falls back to caption after one retry when download fails", async () => {
+    const fetchVideo = vi.fn().mockRejectedValue(new Error("403"));
+    const { d, runId, ids, posts } = await setup(1, { fetchVideo });
     await transcribePost(d, ids[0]);
-    expect(transcribe).toHaveBeenCalledTimes(2);
+    expect(fetchVideo).toHaveBeenCalledTimes(2);
     expect(await transcriptOf(d, runId, ids[0])).toEqual({
       postId: ids[0],
       text: posts[0].caption,
@@ -92,10 +86,30 @@ describe("transcribePost", () => {
     });
   });
 
+  it("uses the caption when the file is over 25 MB", async () => {
+    const transcribe = whisperOk();
+    const fetchVideo = vi
+      .fn()
+      .mockResolvedValue(new Blob([new Uint8Array(25 * 1024 * 1024 + 1)]));
+    const { d, runId, ids } = await setup(1, {
+      fetchVideo,
+      openai: {
+        transcribe,
+        json: async () => {
+          throw new Error("x");
+        },
+      },
+    });
+    await transcribePost(d, ids[0]);
+    expect(transcribe).not.toHaveBeenCalled();
+    expect(fetchVideo).toHaveBeenCalledTimes(1);
+    expect((await transcriptOf(d, runId, ids[0]))?.source).toBe("caption");
+  });
+
   it("uses the caption when whisper returns empty text", async () => {
     const transcribe = vi.fn().mockResolvedValue({ text: "  ", segments: [] });
     const { d, runId, ids } = await setup(1, {
-      ai: {
+      openai: {
         transcribe,
         json: async () => {
           throw new Error("x");
@@ -107,11 +121,11 @@ describe("transcribePost", () => {
     expect((await transcriptOf(d, runId, ids[0]))?.source).toBe("caption");
   });
 
-  it("uses the caption without transcribing when there is no video url", async () => {
-    const transcribe = vi.fn();
-    const { d, runId, ids } = await setup(1, { ai: { transcribe, json: async () => { throw new Error("x"); } } }, null);
+  it("uses the caption without downloading when there is no video url", async () => {
+    const fetchVideo = vi.fn();
+    const { d, runId, ids } = await setup(1, { fetchVideo }, null);
     await transcribePost(d, ids[0]);
-    expect(transcribe).not.toHaveBeenCalled();
+    expect(fetchVideo).not.toHaveBeenCalled();
     expect((await transcriptOf(d, runId, ids[0]))?.source).toBe("caption");
   });
 
@@ -121,7 +135,7 @@ describe("transcribePost", () => {
       .mockRejectedValueOnce(new Error("boom"))
       .mockResolvedValue({ text: "ok", segments: [] });
     const { d, runId, ids } = await setup(1, {
-      ai: {
+      openai: {
         transcribe,
         json: async () => {
           throw new Error("x");

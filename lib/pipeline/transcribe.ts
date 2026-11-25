@@ -1,6 +1,7 @@
 import type { Deps } from "@/lib/pipeline/deps";
 import type { Post, Transcript } from "@/lib/types";
 
+const MAX_BYTES = 25 * 1024 * 1024;
 const MAX_ATTEMPTS = 2;
 const ANALYZE_START_FAILED =
   "Could not start the analysis. Retry the failed step.";
@@ -14,10 +15,16 @@ function captionTranscript(post: Post): Transcript {
   };
 }
 
-async function whisperTranscript(deps: Deps, post: Post): Promise<Transcript> {
+async function whisperTranscript(
+  deps: Deps,
+  post: Post,
+  videoUrl: string,
+): Promise<Transcript> {
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
-      const res = await deps.ai.transcribe(post.igUrl);
+      const blob = await deps.fetchVideo(videoUrl);
+      if (blob.size > MAX_BYTES) return captionTranscript(post);
+      const res = await deps.openai.transcribe(blob, `${post.id}.mp4`);
       if (res.text.trim() === "") return captionTranscript(post);
       return {
         postId: post.id,
@@ -25,18 +32,17 @@ async function whisperTranscript(deps: Deps, post: Post): Promise<Transcript> {
         segments: res.segments.map((s) => ({ startS: s.start, text: s.text })),
         source: "whisper",
       };
-    } catch (err) {
-      console.error(`[transcribe] post ${post.id} attempt ${attempt + 1} failed: ${String(err)}`);
+    } catch {
+      // retry once, then fall back to the caption
     }
   }
   return captionTranscript(post);
 }
 
 async function decide(deps: Deps, post: Post): Promise<Transcript> {
-  // No video url means a photo post: there is nothing to transcribe.
   if (post.videoUrl === null) return captionTranscript(post);
   try {
-    return await whisperTranscript(deps, post);
+    return await whisperTranscript(deps, post, post.videoUrl);
   } catch {
     return captionTranscript(post);
   }
