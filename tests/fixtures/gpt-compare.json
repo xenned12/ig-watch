@@ -1,0 +1,103 @@
+{
+  "clientCounts": [
+    {
+      "name": "Question hook",
+      "clientCount": 3
+    },
+    {
+      "name": "Numbered list structure",
+      "clientCount": 1
+    }
+  ],
+  "gaps": [
+    {
+      "text": "You open with a statement, not a question",
+      "kind": "gap"
+    },
+    {
+      "text": "Your pacing is tight",
+      "kind": "keep"
+    }
+  ],
+  "recommendations": [
+    {
+      "text": "Open with a question",
+      "reason": "Shown in the top reel",
+      "postId": "COMP_1"
+    },
+    {
+      "text": "Cite nothing real",
+      "reason": "Bad id",
+      "postId": "nope"
+    },
+    {
+      "text": "Copy your own reel",
+      "reason": "Client post",
+      "postId": "CLIENT_1"
+    },
+    {
+      "text": "Use numbered steps",
+      "reason": "Shown in reel two",
+      "postId": "COMP_2"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "Script 1",
+      "lengthS": 30,
+      "patterns": [
+        "Question hook"
+      ],
+      "hook": "Ever wonder why?",
+      "beats": [
+        {
+          "at": "0-3s",
+          "text": "Hook"
+        },
+        {
+          "at": "3-25s",
+          "text": "Body"
+        }
+      ],
+      "cta": "Follow for more"
+    },
+    {
+      "name": "Script 2",
+      "lengthS": 30,
+      "patterns": [
+        "Question hook"
+      ],
+      "hook": "Ever wonder why?",
+      "beats": [
+        {
+          "at": "0-3s",
+          "text": "Hook"
+        },
+        {
+          "at": "3-25s",
+          "text": "Body"
+        }
+      ],
+      "cta": "Follow for more"
+    },
+    {
+      "name": "Script 3",
+      "lengthS": 30,
+      "patterns": [
+        "Question hook"
+      ],
+      "hook": "Ever wonder why?",
+      "beats": [
+        {
+          "at": "0-3s",
+          "text": "Hook"
+        },
+        {
+          "at": "3-25s",
+          "text": "Body"
+        }
+      ],
+      "cta": "Follow for more"
+    }
+  ]
+}

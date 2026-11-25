@@ -1,0 +1,7 @@
+{
+  "patterns": [
+    { "name": "Question hook", "competitorCount": 7, "postIds": ["COMP_1", "COMP_2"] },
+    { "name": "Numbered list structure", "competitorCount": 5, "postIds": ["COMP_2", "GHOST_9"] },
+    { "name": "Direct follow CTA", "competitorCount": 4, "postIds": ["COMP_1"] }
+  ]
+}
