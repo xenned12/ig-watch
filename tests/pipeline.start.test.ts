@@ -89,6 +89,13 @@ describe('startRun', () => {
       createdAt: new Date(d.now().getTime() - 120 * 60_000).toISOString(),
       startedAt: new Date(d.now().getTime() - 120 * 60_000).toISOString(),
     });
+    // An analyze retry needs stored posts; with none it would restart from fetch.
+    await d.store.replacePosts(run.id, [
+      {
+        handle: 'a', isClient: false, igUrl: 'https://ig/1', postedAt: '2026-11-01T00:00:00Z',
+        views: 1, likes: 1, comments: 0, durationS: 10, rankMetric: 'views', rank: 1, videoUrl: null, caption: 'c',
+      },
+    ]);
     expect(await retryRun(d, run.id)).toEqual({ status: 202 });
     expect(await startRun(d, ok, 'ip1')).toEqual({
       status: 409,

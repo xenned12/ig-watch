@@ -90,6 +90,9 @@ export async function handleApifyDone(deps: Deps, payload: unknown): Promise<voi
   if (!parsed.success) return;
   const { runId, eventType, apifyRunId } = parsed.data;
   try {
+    // A webhook from an earlier Apify attempt must not claim a retried run.
+    const run = await deps.store.getRun(runId);
+    if (!run || run.apifyRunId !== apifyRunId) return;
     const claimed = await deps.store.transitionRun(runId, 'fetching', {
       status: 'transcribing',
     });

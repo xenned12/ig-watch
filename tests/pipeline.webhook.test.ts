@@ -28,6 +28,7 @@ async function setup(client: string, competitors: string[]) {
     clientHandle: client,
     competitorHandles: competitors,
   });
+  await d.store.updateRun(run.id, { apifyRunId: 'apify-1' });
   return { d, runId: run.id };
 }
 
@@ -127,6 +128,14 @@ describe('handleApifyDone', () => {
       handleApifyDone(d, p('00000000-0000-4000-8000-000000000000')),
     ).resolves.toBeUndefined();
     expect(await d.store.getRun(runId)).toMatchObject({ status: 'fetching' });
+    expect(d.sent).toHaveLength(0);
+    expect(d.events).toHaveLength(0);
+  });
+  it('ignores a webhook from an earlier Apify attempt', async () => {
+    const { d, runId } = await setup('me', ['alpha', 'beta', 'delta']);
+    await d.store.updateRun(runId, { apifyRunId: 'apify-2' });
+    await handleApifyDone(d, p(runId));
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'fetching', apifyRunId: 'apify-2' });
     expect(d.sent).toHaveLength(0);
     expect(d.events).toHaveLength(0);
   });

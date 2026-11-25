@@ -99,6 +99,8 @@ export function supabaseStore(): Store {
         .eq('id', id)
         .eq('status', from)
         .select('id');
+      // The one-active-run unique index rejects reactivating a run while another is active.
+      if (error?.code === '23505') throw new ActiveRunExistsError();
       check(error, 'transitionRun');
       return (data ?? []).length > 0;
     },

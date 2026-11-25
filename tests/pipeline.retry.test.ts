@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { retryRun } from '@/lib/pipeline/retry';
-import type { NewPost } from '@/lib/store/types';
+import { ActiveRunExistsError, type NewPost } from '@/lib/store/types';
 import type { Step } from '@/lib/types';
 import { fakeDeps, type FakeDeps } from './fakes';
 
@@ -210,5 +210,27 @@ describe('retryRun', () => {
     expect(await retryRun(d, runId)).toEqual({ status: 202 });
     expect(await d.store.getRun(runId)).toMatchObject({ status: 'analyzing', failedStep: null });
     expect(d.sent).toHaveLength(1);
+  });
+  it.each(['transcribe', 'analyze'] as const)('%s retry with zero posts takes the fetch path', async (step) => {
+    const { d, runId } = await failedRun(step, 0, 0);
+    expect(await retryRun(d, runId)).toEqual({ status: 202 });
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'fetching', apifyRunId: 'apify-1', failedStep: null });
+    expect(d.sent).toHaveLength(0);
+  });
+
+  it('maps a unique-index clash on transition (another run went active) to 409 busy', async () => {
+    const { d, runId } = await failedRun('fetch');
+    const busy = fakeDeps({
+      store: {
+        ...d.store,
+        async transitionRun() {
+          throw new ActiveRunExistsError();
+        },
+      },
+    });
+    expect(await retryRun(busy, runId)).toEqual({
+      status: 409,
+      error: 'Another analysis is already running. Try again when it finishes.',
+    });
   });
 });

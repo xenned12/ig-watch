@@ -1,3 +1,4 @@
+import { sweepStaleRuns } from '@/lib/pipeline/stale';
 import type { Store } from '@/lib/store/types';
 import type { Analysis, Post, Run, Transcript } from '@/lib/types';
 
@@ -13,7 +14,8 @@ export type RunDetail = {
   events: { at: string; message: string }[];
 };
 
-export async function runList(store: Store): Promise<RunListItem[]> {
+export async function runList(store: Store, now: Date = new Date()): Promise<RunListItem[]> {
+  await sweepStaleRuns(store, now);
   const runs = await store.listRuns();
   return runs.map((r) => ({
     id: r.id,
@@ -27,7 +29,12 @@ export async function runList(store: Store): Promise<RunListItem[]> {
   }));
 }
 
-export async function runDetail(store: Store, id: string): Promise<RunDetail | null> {
+export async function runDetail(
+  store: Store,
+  id: string,
+  now: Date = new Date(),
+): Promise<RunDetail | null> {
+  await sweepStaleRuns(store, now);
   const r = await store.getRun(id);
   if (!r) return null;
   const [posts, transcripts, analysis, events] = await Promise.all([

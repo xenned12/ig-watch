@@ -1,5 +1,6 @@
 import type { Deps } from '@/lib/pipeline/deps';
 import { failStaleRuns } from '@/lib/pipeline/stale';
+import { ActiveRunExistsError } from '@/lib/store/types';
 import type { Run } from '@/lib/types';
 
 export type RetryResult =
@@ -87,12 +88,18 @@ export async function retryRun(deps: Deps, runId: string): Promise<RetryResult> 
   if (run.status !== 'failed') return NOT_FAILED;
   if (await deps.store.activeRun()) return BUSY;
 
-  switch (run.failedStep) {
-    case 'transcribe':
-      return retryTranscribe(deps, run);
-    case 'analyze':
-      return retryAnalyze(deps, run);
-    default:
-      return retryFetch(deps, run);
+  try {
+    return await dispatch(deps, run);
+  } catch (err) {
+    if (err instanceof ActiveRunExistsError) return BUSY;
+    throw err;
   }
+}
+
+async function dispatch(deps: Deps, run: Run): Promise<RetryResult> {
+  // Without stored posts there is nothing to transcribe or analyze: start over from fetch.
+  const hasPosts = (await deps.store.listPosts(run.id)).length > 0;
+  if (hasPosts && run.failedStep === 'transcribe') return retryTranscribe(deps, run);
+  if (hasPosts && run.failedStep === 'analyze') return retryAnalyze(deps, run);
+  return retryFetch(deps, run);
 }

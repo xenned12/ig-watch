@@ -54,6 +54,18 @@ describe('runDetail', () => {
     expect(detail.events.map((e) => e.message)).toEqual(['started']);
   });
 
+  it('sweeps stale runs first: analyzing for 31 minutes comes back failed at analyze', async () => {
+    const d = fakeDeps();
+    const run = await d.store.createRun({ niche: 'AI', clientHandle: 'me', competitorHandles: ['a', 'b', 'c'] });
+    const now = new Date('2026-11-25T12:00:00Z');
+    await d.store.updateRun(run.id, {
+      status: 'analyzing',
+      startedAt: new Date(now.getTime() - 31 * 60_000).toISOString(),
+    });
+    const detail = await runDetail(d.store, run.id, now);
+    expect(detail?.run).toMatchObject({ status: 'failed', failedStep: 'analyze' });
+  });
+
   it('returns null for an unknown run', async () => {
     expect(await runDetail(fakeDeps().store, '00000000-0000-4000-8000-000000000000')).toBeNull();
   });
@@ -75,5 +87,13 @@ describe('runList', () => {
       ['clientHandle', 'competitorHandles', 'createdAt', 'error', 'id', 'niche', 'postCount', 'status'].sort(),
     );
     expect(list[0]?.postCount).toBe(2);
+  });
+
+  it('sweeps stale runs before listing', async () => {
+    const d = fakeDeps();
+    const run = await d.store.createRun({ niche: 'AI', clientHandle: 'me', competitorHandles: ['a', 'b', 'c'] });
+    const now = new Date('2026-11-25T12:00:00Z');
+    await d.store.updateRun(run.id, { startedAt: new Date(now.getTime() - 31 * 60_000).toISOString() });
+    expect((await runList(d.store, now))[0]?.status).toBe('failed');
   });
 });
