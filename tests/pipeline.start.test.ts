@@ -68,4 +68,14 @@ describe('startRun', () => {
     expect(d.events).toEqual([{ step: 'failed', message: 'Could not start fetching posts. Try again.' }]);
     expect(await d.store.activeRun()).toBeNull();
   });
+
+  it('succeeds when the only active run is 31 minutes old', async () => {
+    const d = fakeDeps();
+    const old = await d.store.createRun({ niche: 'AI', clientHandle: 'x', competitorHandles: ['a', 'b', 'c'] });
+    await d.store.updateRun(old.id, {
+      createdAt: new Date(d.now().getTime() - 31 * 60_000).toISOString(),
+    });
+    expect((await startRun(d, ok, 'ip1')).status).toBe(201);
+    expect(await d.store.getRun(old.id)).toMatchObject({ status: 'failed', failedStep: 'fetch' });
+  });
 });

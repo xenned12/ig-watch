@@ -9,7 +9,7 @@ const PayloadSchema = z.object({
 });
 
 const FETCH_FAILED = 'Fetching posts from Instagram failed. Retry the failed step.';
-const JOBS_PARTIAL = 'Some transcription jobs could not be started. Use retry if the run stalls.';
+const JOBS_PARTIAL = 'Some transcription jobs could not be started. If progress stops, the run will be marked failed after 30 minutes and you can retry it.';
 const MIN_COMPETITORS = 3;
 
 class FetchError extends Error {}

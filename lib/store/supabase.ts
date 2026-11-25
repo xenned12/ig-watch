@@ -63,6 +63,31 @@ export function supabaseStore(): Store {
       check(error, 'activeRun');
       return data ? runFromRow(data as Row) : null;
     },
+    async failStaleRuns(beforeIso) {
+      const steps = [
+        ['fetching', 'fetch'],
+        ['transcribing', 'transcribe'],
+        ['analyzing', 'analyze'],
+      ] as const;
+      let n = 0;
+      for (const [status, step] of steps) {
+        const { data, error } = await db
+          .from('runs')
+          .update(
+            runPatchToRow({
+              status: 'failed',
+              failedStep: step,
+              error: 'This run stopped responding. Retry the failed step.',
+            }),
+          )
+          .eq('status', status)
+          .lt('created_at', beforeIso)
+          .select('id');
+        check(error, 'failStaleRuns');
+        n += (data ?? []).length;
+      }
+      return n;
+    },
     async updateRun(id, patch) {
       const { error } = await db.from('runs').update(runPatchToRow(patch)).eq('id', id);
       check(error, 'updateRun');

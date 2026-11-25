@@ -156,4 +156,59 @@ describe('retryRun', () => {
       error: msg,
     });
   });
+
+  it('failedStep null is treated as a fetch retry', async () => {
+    const { d, runId } = await failedRun(null);
+    expect(await retryRun(d, runId)).toEqual({ status: 202 });
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'fetching', apifyRunId: 'apify-1' });
+  });
+
+  it('analyze retry: sendJob throwing marks the run failed again, 502', async () => {
+    const d = fakeDeps({
+      async sendJob() {
+        throw new Error('down');
+      },
+    });
+    const { runId } = await failedRun('analyze', 1, 1, d);
+    const msg = 'Could not start the analysis. Retry the failed step.';
+    expect(await retryRun(d, runId)).toEqual({ status: 502, error: msg });
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'failed', failedStep: 'analyze', error: msg });
+    expect(d.events).toContainEqual({ step: 'failed', message: msg });
+  });
+
+  it('transcribe retry: every job rejecting marks the run failed again, 502', async () => {
+    const d = fakeDeps({
+      async sendJob() {
+        throw new Error('down');
+      },
+    });
+    const { runId } = await failedRun('transcribe', 3, 0, d);
+    const msg = 'Could not start transcription. Retry the failed step.';
+    expect(await retryRun(d, runId)).toEqual({ status: 502, error: msg });
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'failed', failedStep: 'transcribe', error: msg });
+  });
+
+  it('transcribe retry: partial rejection keeps 202 and emits the partial event', async () => {
+    let n = 0;
+    const d = fakeDeps({
+      async sendJob() {
+        n += 1;
+        if (n === 1) throw new Error('down');
+      },
+    });
+    const { runId } = await failedRun('transcribe', 3, 0, d);
+    expect(await retryRun(d, runId)).toEqual({ status: 202 });
+    expect(d.events.some((e) => e.message.startsWith('Some transcription jobs could not be started.'))).toBe(true);
+  });
+
+  it('retries a run stuck in analyzing for 31 minutes', async () => {
+    const { d, runId } = await failedRun('analyze', 1, 1);
+    await d.store.updateRun(runId, {
+      status: 'analyzing',
+      createdAt: new Date(d.now().getTime() - 31 * 60_000).toISOString(),
+    });
+    expect(await retryRun(d, runId)).toEqual({ status: 202 });
+    expect(await d.store.getRun(runId)).toMatchObject({ status: 'analyzing', failedStep: null });
+    expect(d.sent).toHaveLength(1);
+  });
 });

@@ -17,6 +17,7 @@ export interface Store {
   getRun(id: string): Promise<Run | null>;
   listRuns(): Promise<(Run & { postCount: number })[]>;
   activeRun(): Promise<Run | null>;
+  failStaleRuns(beforeIso: string): Promise<number>;
   updateRun(id: string, patch: Partial<Run>): Promise<void>;
   transitionRun(id: string, from: RunStatus, patch: Partial<Run>): Promise<boolean>;
   replacePosts(runId: string, posts: NewPost[]): Promise<Post[]>;

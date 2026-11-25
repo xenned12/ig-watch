@@ -116,7 +116,7 @@ describe('handleApifyDone', () => {
     });
     expect(d.events.at(-1)).toEqual({
       step: 'transcribe',
-      message: 'Some transcription jobs could not be started. Use retry if the run stalls.',
+      message: 'Some transcription jobs could not be started. If progress stops, the run will be marked failed after 30 minutes and you can retry it.',
     });
   });
 

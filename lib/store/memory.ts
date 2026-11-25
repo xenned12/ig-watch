@@ -1,6 +1,12 @@
-import type { Analysis, Post, Run, RunStatus, Transcript } from '@/lib/types';
+import type { Analysis, Post, Run, RunStatus, Step, Transcript } from '@/lib/types';
 import { ActiveRunExistsError, type NewPost, type NewRun, type RunEvent, type Store } from '@/lib/store/types';
 
+const STALE_STEP: Record<string, Step> = {
+  fetching: 'fetch',
+  transcribing: 'transcribe',
+  analyzing: 'analyze',
+};
+const STALE_ERROR = 'This run stopped responding. Retry the failed step.';
 const isActive = (r: Run): boolean => r.status !== 'done' && r.status !== 'failed';
 
 export function memoryStore(): Store {
@@ -47,6 +53,15 @@ export function memoryStore(): Store {
     async activeRun() {
       const r = [...runs.values()].reverse().find(isActive);
       return r ? { ...r } : null;
+    },
+    async failStaleRuns(beforeIso) {
+      let n = 0;
+      for (const [id, r] of runs) {
+        if (!isActive(r) || r.createdAt >= beforeIso) continue;
+        runs.set(id, { ...r, status: 'failed', failedStep: STALE_STEP[r.status], error: STALE_ERROR });
+        n += 1;
+      }
+      return n;
     },
     async updateRun(id, patch) {
       const r = runs.get(id);

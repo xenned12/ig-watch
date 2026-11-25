@@ -1,5 +1,6 @@
 import type { Deps } from '@/lib/pipeline/deps';
 import { validateRunInput } from '@/lib/handles';
+import { failStaleRuns } from '@/lib/pipeline/stale';
 import { ActiveRunExistsError } from '@/lib/store/types';
 
 export type StartResult =
@@ -19,6 +20,7 @@ export async function startRun(deps: Deps, input: unknown, ipHash: string): Prom
   const v = validateRunInput(input);
   if (!v.ok) return { status: 400, errors: v.errors as Record<string, string> };
   const { store, progress, apify } = deps;
+  await failStaleRuns(deps);
 
   const since = new Date(deps.now().getTime() - HOUR_MS).toISOString();
   if ((await store.countRecentStarts(ipHash, since)) >= MAX_STARTS_PER_HOUR) {

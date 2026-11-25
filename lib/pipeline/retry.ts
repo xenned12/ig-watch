@@ -1,4 +1,5 @@
 import type { Deps } from '@/lib/pipeline/deps';
+import { failStaleRuns } from '@/lib/pipeline/stale';
 import type { Run } from '@/lib/types';
 
 export type RetryResult =
@@ -11,7 +12,9 @@ const BUSY: RetryResult = {
   error: 'Another analysis is already running. Try again when it finishes.',
 };
 const FETCH_FAILED = 'Could not start fetching posts. Try again.';
-const JOBS_PARTIAL = 'Some transcription jobs could not be started. Use retry if the run stalls.';
+const JOBS_PARTIAL = 'Some transcription jobs could not be started. If progress stops, the run will be marked failed after 30 minutes and you can retry it.';
+const ANALYZE_FAILED = 'Could not start the analysis. Retry the failed step.';
+const TRANSCRIBE_FAILED = 'Could not start transcription. Retry the failed step.';
 const CLEARED = { failedStep: null, error: null } as const;
 
 async function retryFetch(deps: Deps, run: Run): Promise<RetryResult> {
@@ -35,7 +38,13 @@ async function retryAnalyze(deps: Deps, run: Run, remaining?: number): Promise<R
   const patch = { status: 'analyzing', ...CLEARED, ...(remaining === undefined ? {} : { remaining }) } as const;
   if (!(await deps.store.transitionRun(run.id, 'failed', patch))) return NOT_FAILED;
   await deps.progress.emit(run.id, { step: 'analyze', message: 'Retrying: comparing transcripts' });
-  await deps.sendJob('/api/jobs/analyze', { runId: run.id });
+  try {
+    await deps.sendJob('/api/jobs/analyze', { runId: run.id });
+  } catch {
+    await deps.store.updateRun(run.id, { status: 'failed', failedStep: 'analyze', error: ANALYZE_FAILED });
+    await deps.progress.emit(run.id, { step: 'failed', message: ANALYZE_FAILED });
+    return { status: 502, error: ANALYZE_FAILED };
+  }
   return { status: 202 };
 }
 
@@ -55,6 +64,11 @@ async function retryTranscribe(deps: Deps, run: Run): Promise<RetryResult> {
   const results = await Promise.allSettled(
     missing.map((p) => deps.sendJob('/api/jobs/transcribe', { postId: p.id })),
   );
+  if (results.every((r) => r.status === 'rejected')) {
+    await store.updateRun(run.id, { status: 'failed', failedStep: 'transcribe', error: TRANSCRIBE_FAILED });
+    await progress.emit(run.id, { step: 'failed', message: TRANSCRIBE_FAILED });
+    return { status: 502, error: TRANSCRIBE_FAILED };
+  }
   if (results.some((r) => r.status === 'rejected')) {
     await progress.emit(run.id, { step: 'transcribe', message: JOBS_PARTIAL });
   }
@@ -62,6 +76,7 @@ async function retryTranscribe(deps: Deps, run: Run): Promise<RetryResult> {
 }
 
 export async function retryRun(deps: Deps, runId: string): Promise<RetryResult> {
+  await failStaleRuns(deps);
   const run = await deps.store.getRun(runId);
   if (!run) return { status: 404, error: 'Run not found.' };
   if (run.status !== 'failed') return NOT_FAILED;
