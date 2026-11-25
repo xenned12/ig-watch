@@ -176,19 +176,19 @@ describe('retryRun', () => {
     expect(d.events).toContainEqual({ step: 'failed', message: msg });
   });
 
-  it('transcribe retry: every job rejecting marks the run failed again, 502', async () => {
+  it('transcribe retry: jobs that never queue are transcribed directly instead of failing', async () => {
     const d = fakeDeps({
-      async sendJob() {
-        throw new Error('down');
+      async sendJob(path) {
+        if (path === '/api/jobs/transcribe') throw new Error('down');
       },
     });
     const { runId } = await failedRun('transcribe', 3, 0, d);
-    const msg = 'Could not start transcription. Retry the failed step.';
-    expect(await retryRun(d, runId)).toEqual({ status: 502, error: msg });
-    expect(await d.store.getRun(runId)).toMatchObject({ status: 'failed', failedStep: 'transcribe', error: msg });
+    expect(await retryRun(d, runId)).toEqual({ status: 202 });
+    expect((await d.store.getRun(runId))?.status).not.toBe('failed');
+    expect(d.events.some((e) => e.message === '3 transcription jobs could not be queued, so they are being transcribed directly.')).toBe(true);
   });
 
-  it('transcribe retry: partial rejection keeps 202 and emits the partial event', async () => {
+  it('transcribe retry: a job that fails to queue once is resent', async () => {
     let n = 0;
     const d = fakeDeps({
       async sendJob() {
@@ -198,7 +198,7 @@ describe('retryRun', () => {
     });
     const { runId } = await failedRun('transcribe', 3, 0, d);
     expect(await retryRun(d, runId)).toEqual({ status: 202 });
-    expect(d.events.some((e) => e.message.startsWith('Some transcription jobs could not be started.'))).toBe(true);
+    expect(n).toBe(4);
   });
 
   it('retries a run stuck in analyzing for 31 minutes', async () => {

@@ -124,7 +124,7 @@ describe('handleApifyDone', () => {
     });
   });
 
-  it('does not fail the run when some jobs cannot be sent', async () => {
+  it('resends a transcription job that failed to queue', async () => {
     const { d, runId } = await setup('me', ['alpha', 'beta', 'delta']);
     let n = 0;
     d.sendJob = async () => {
@@ -135,10 +135,7 @@ describe('handleApifyDone', () => {
       status: 'transcribing',
       remaining: 19,
     });
-    expect(d.events.at(-1)).toEqual({
-      step: 'transcribe',
-      message: 'Some transcription jobs could not be started. If progress stops, the run will be marked failed after 30 minutes and you can retry it.',
-    });
+    expect(d.events.at(-1)?.step).toBe('rank');
   });
 
   it('ignores an invalid payload and an unknown run without throwing', async () => {

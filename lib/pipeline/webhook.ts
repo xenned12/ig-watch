@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Deps } from '@/lib/pipeline/deps';
+import { dispatchTranscribeJobs } from '@/lib/pipeline/dispatch';
 import { rankItems } from '@/lib/rank';
 
 const PayloadSchema = z.object({
@@ -9,7 +10,6 @@ const PayloadSchema = z.object({
 });
 
 const FETCH_FAILED = 'Fetching posts from Instagram failed. Retry the failed step.';
-const JOBS_PARTIAL = 'Some transcription jobs could not be started. If progress stops, the run will be marked failed after 30 minutes and you can retry it.';
 
 class FetchError extends Error {}
 
@@ -76,12 +76,7 @@ async function runPipeline(deps: Deps, runId: string, eventType: string, apifyRu
     message: 'Kept the top 10 videos per account',
   });
 
-  const results = await Promise.allSettled(
-    stored.map((p) => deps.sendJob('/api/jobs/transcribe', { postId: p.id })),
-  );
-  if (results.some((r) => r.status === 'rejected')) {
-    await progress.emit(runId, { step: 'transcribe', message: JOBS_PARTIAL });
-  }
+  await dispatchTranscribeJobs(deps, runId, stored.map((p) => p.id));
 }
 
 async function fail(deps: Deps, runId: string, error: string): Promise<void> {
@@ -121,13 +116,20 @@ export async function handleApifyDone(deps: Deps, payload: unknown): Promise<voi
 
 /**
  * Fallback for when Apify's webhook cannot reach the app (local dev): asks the
- * scraper whether the scrape has finished and, if so, handles it like the webhook.
- * Safe alongside the webhook: handleApifyDone claims the run only once.
+ * scraper whether the scrape has finished and, if so, handles it like the webhook
+ * (via `defer`, so callers can run it after responding). Returns the scraper's
+ * live status message for display. Safe alongside the webhook: handleApifyDone
+ * claims the run only once.
  */
-export async function pollScrape(deps: Deps, runId: string): Promise<void> {
+export async function pollScrape(
+  deps: Deps,
+  runId: string,
+  defer: (task: () => Promise<void>) => Promise<void> | void = (task) => task(),
+): Promise<string | null> {
   const run = await deps.store.getRun(runId);
-  if (!run || run.status !== 'fetching' || !run.apifyRunId || !deps.apify.status) return;
-  const eventType = await deps.apify.status(run.apifyRunId);
-  if (!eventType) return;
-  await handleApifyDone(deps, { runId, eventType, apifyRunId: run.apifyRunId });
+  if (!run || run.status !== 'fetching' || !run.apifyRunId || !deps.apify.status) return null;
+  const apifyRunId = run.apifyRunId;
+  const { event, message } = await deps.apify.status(apifyRunId);
+  if (event) await defer(() => handleApifyDone(deps, { runId, eventType: event, apifyRunId }));
+  return message;
 }
