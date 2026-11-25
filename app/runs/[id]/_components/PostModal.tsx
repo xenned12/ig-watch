@@ -5,6 +5,7 @@ import { Modal } from '@/app/_components/Modal';
 import { copyText, useToast } from '@/app/_components/Toast';
 import { fmt, fmtClock, fmtDate, metric, postText, type PostWithTranscript } from '@/lib/view';
 import { Highlight } from './Highlight';
+import { ScrollingTranscript } from './ScrollingTranscript';
 
 type Props = {
   post: PostWithTranscript;
@@ -76,7 +77,7 @@ export function PostModal({ post: p, list, listLabel, fromRecommendation, query 
             Copy transcript
           </button>
         </div>
-        <div className="transcript" tabIndex={0} role="region" aria-label="Transcript">
+        <ScrollingTranscript resetKey={p.id}>
           {segments.length === 0 ? (
             <p><Highlight text={postText(p)} query={query} /></p>
           ) : (
@@ -87,7 +88,7 @@ export function PostModal({ post: p, list, listLabel, fromRecommendation, query 
               </p>
             ))
           )}
-        </div>
+        </ScrollingTranscript>
         <p className="xs muted">Use ← and → to move between posts. Esc closes.</p>
       </div>
       <div className="mfoot">

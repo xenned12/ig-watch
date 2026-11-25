@@ -236,12 +236,21 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--sunk)}
 .mbody{padding:16px 20px;display:flex;flex-direction:column;gap:14px;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
 .mbody:has(.transcript){overflow:hidden}
 .mbody:has(.transcript)>*{flex:none}
+/* Transcript in a modal: hidden scrollbar, bottom fade, reading-progress bar */
+.mbody>.tscroll{flex:1 1 auto;min-height:150px;display:flex;flex-direction:column;gap:8px}
+.tscroll-box{position:relative;flex:1 1 auto;min-height:0;display:flex}
+.tscroll-box>.transcript{flex:1;min-height:0;max-width:none;scrollbar-width:none}
+.tscroll-box>.transcript::-webkit-scrollbar{display:none}
+.tscroll-fade{position:absolute;left:0;right:0;bottom:0;height:40px;border-radius:0 0 var(--r) var(--r);background:linear-gradient(transparent,var(--sunk));pointer-events:none}
+.tscroll-meta{flex:none;display:flex;flex-direction:column;gap:6px}
+.tscroll-bar{height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.tscroll-bar>span{display:block;height:100%;background:var(--primary);transition:width .1s linear}
+.tscroll-count{display:flex;justify-content:space-between;gap:8px;margin:0}
 .mfoot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:12px 20px 18px;border-top:1px solid var(--line)}
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 @media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .stat{background:var(--sunk);border-radius:var(--r);padding:8px 10px}
 .stat .num{font-size:15px;margin-top:2px}
-.mbody>.transcript{flex:1 1 auto;min-height:120px}
 .transcript{background:var(--sunk);border-radius:var(--r);padding:14px 16px;line-height:1.7;max-width:65ch;font-size:15px;overflow-y:auto;overscroll-behavior:contain}
 .transcript:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .ts{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-right:8px}
