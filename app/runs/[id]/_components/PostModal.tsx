@@ -76,7 +76,7 @@ export function PostModal({ post: p, list, listLabel, fromRecommendation, query 
             Copy transcript
           </button>
         </div>
-        <div className="transcript">
+        <div className="transcript" tabIndex={0} role="region" aria-label="Transcript">
           {segments.length === 0 ? (
             <p><Highlight text={postText(p)} query={query} /></p>
           ) : (
