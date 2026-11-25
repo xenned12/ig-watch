@@ -7,6 +7,8 @@ import { join } from 'node:path';
 import type { Scraper, ScrapeDone } from './types';
 
 type Options = {
+  /** Folder that relative `python` and `script` paths are resolved against. */
+  cwd?: string;
   python: string;
   script: string;
   dir: string;
@@ -35,6 +37,7 @@ export function instaloaderScraper(o: Options): Scraper {
       const out = join(o.dir, id + '.json');
       const args = [o.script, '--out', out, ...(o.login ? ['--login', o.login] : []), ...handles];
       const child = spawn(o.python, args, {
+        cwd: o.cwd,
         stdio: ['ignore', 'ignore', 'pipe'],
         env: { ...process.env, PYTHONWARNINGS: 'ignore' },
       });

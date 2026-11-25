@@ -77,11 +77,13 @@ export function makeDeps(): Deps {
 
 // Local-only Instaloader scraper: runs scripts/instaloader_scrape.py and reports
 // back through the same webhook Apify uses.
+// Paths are plain relative strings resolved against the project folder (cwd):
+// path.join(process.cwd(), …) would make the bundler try to trace these files.
 function localInstaloader(env: ServerEnv): Scraper {
-  const root = process.cwd();
   return instaloaderScraper({
-    python: env.INSTALOADER_PYTHON ?? join(root, '.venv', 'bin', 'python'),
-    script: join(root, 'scripts', 'instaloader_scrape.py'),
+    cwd: process.cwd(),
+    python: env.INSTALOADER_PYTHON ?? '.venv/bin/python',
+    script: 'scripts/instaloader_scrape.py',
     dir: join(tmpdir(), 'reel-intel-instaloader'),
     login: env.INSTALOADER_USERNAME,
     async notify(done) {
