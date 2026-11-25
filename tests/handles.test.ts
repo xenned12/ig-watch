@@ -3,6 +3,18 @@ import { normaliseHandle, tagError, validateRunInput } from '@/lib/handles';
 
 it.each(['@Promptpilot','promptpilot/','https://instagram.com/promptpilot?igsh=x','https://www.instagram.com/PROMPTPILOT/reels/',' PROMPTPILOT '])
   ('normalises %s', raw => expect(normaliseHandle(raw)).toBe('promptpilot'));
+it.each(['instagram.com/promptpilot','www.instagram.com/promptpilot/','m.instagram.com/promptpilot'])
+  ('normalises scheme-less or mobile URL %s', raw => expect(normaliseHandle(raw)).toBe('promptpilot'));
+it('rejects a missing client', () =>
+  expect(validateRunInput({ niche:'AI', client:'', competitors:['a','b','c'] }))
+    .toMatchObject({ ok:false, errors:{ client:"Enter the client's Instagram handle." } }));
+it('rejects an invalid competitor handle', () =>
+  expect(validateRunInput({ niche:'AI', client:'me', competitors:['bad!name','b','c'] }))
+    .toMatchObject({ ok:false, errors:{ competitors:"That isn't a valid handle. Use letters, numbers, dots or underscores." } }));
+it('accepts exactly 3 competitors', () =>
+  expect(validateRunInput({ niche:'AI', client:'me', competitors:['a','b','c'] })).toMatchObject({ ok:true }));
+it('accepts exactly 10 competitors', () =>
+  expect(validateRunInput({ niche:'AI', client:'me', competitors:Array.from({length:10},(_,i)=>'c'+i) })).toMatchObject({ ok:true }));
 it('rejects a duplicate after normalising', () =>
   expect(validateRunInput({ niche:'AI', client:'me', competitors:['a1','@A1','b2','c3'] }))
     .toEqual({ ok:false, errors:{ competitors:'@a1 is already in the list.' } }));

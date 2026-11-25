@@ -21,7 +21,7 @@ const MSG = {
   tooMany: 'You can compare up to 10 competitors.',
 } as const;
 
-const INSTAGRAM_PREFIX_RE = /^https?:\/\/(www\.)?instagram\.com\//i;
+const INSTAGRAM_PREFIX_RE = /^(?:https?:\/\/)?(?:www\.|m\.)?instagram\.com\//i;
 
 export function normaliseHandle(raw: string): string {
   return raw
