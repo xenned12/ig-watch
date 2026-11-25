@@ -1,5 +1,6 @@
 import { after } from 'next/server';
 import { serverEnv } from '@/lib/env';
+import { background } from '@/lib/pipeline/background';
 import { makeDeps } from '@/lib/pipeline/deps';
 import { handleApifyDone } from '@/lib/pipeline/webhook';
 import { checkSecret } from '@/lib/security';
@@ -11,6 +12,6 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: 'Unauthorized.' }, { status: 401 });
   }
   const body: unknown = await req.json().catch(() => null);
-  after(() => handleApifyDone(makeDeps(), body));
+  after(background(() => handleApifyDone(makeDeps(), body)));
   return Response.json({ ok: true });
 }

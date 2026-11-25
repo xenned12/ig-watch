@@ -4,7 +4,7 @@ import OpenAI, { toFile } from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import type { ZodType } from 'zod';
 import { serverEnv } from '@/lib/env';
-import { sendJob } from '@/lib/jobs';
+import { callbackHeaders, sendJob } from '@/lib/jobs';
 import { supabaseProgress, type Progress } from '@/lib/progress';
 import { supabaseStore } from '@/lib/store/supabase';
 import type { Store } from '@/lib/store/types';
@@ -59,7 +59,7 @@ export function makeDeps(): Deps {
                 requestUrl: env.NEXT_PUBLIC_APP_URL + '/api/webhooks/apify',
                 payloadTemplate:
                   '{"runId":"' + runId + '","eventType":{{eventType}},"apifyRunId":{{resource.id}}}',
-                headersTemplate: JSON.stringify({ 'x-webhook-secret': env.WEBHOOK_SECRET }),
+                headersTemplate: JSON.stringify(callbackHeaders(env)),
               },
             ],
           },

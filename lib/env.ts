@@ -11,19 +11,25 @@ const NAMES = [
   'NEXT_PUBLIC_APP_URL',
 ] as const;
 
-const schema = z.object(
-  Object.fromEntries(NAMES.map((n) => [n, z.string().min(1)])) as Record<
+/** Optional: only needed when Vercel Deployment Protection is on (see README). */
+const OPTIONAL = 'VERCEL_AUTOMATION_BYPASS_SECRET';
+
+const schema = z.object({
+  ...(Object.fromEntries(NAMES.map((n) => [n, z.string().min(1)])) as Record<
     (typeof NAMES)[number],
     z.ZodString
-  >,
-);
+  >),
+  [OPTIONAL]: z.string().min(1).optional(),
+});
 
 export type ServerEnv = z.infer<typeof schema>;
 
 export function serverEnv(): ServerEnv {
-  const result = schema.safeParse(
-    Object.fromEntries(NAMES.map((n) => [n, process.env[n]])),
-  );
+  const optional = process.env[OPTIONAL];
+  const result = schema.safeParse({
+    ...Object.fromEntries(NAMES.map((n) => [n, process.env[n]])),
+    [OPTIONAL]: optional === '' ? undefined : optional,
+  });
   if (!result.success) {
     const missing = NAMES.find((n) =>
       result.error.issues.some((i) => i.path[0] === n),

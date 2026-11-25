@@ -22,6 +22,9 @@ describe('serverEnv', () => {
       NEXT_PUBLIC_APP_URL: 'g',
     };
     for (const [k, v] of Object.entries(values)) vi.stubEnv(k, v);
-    expect(serverEnv()).toEqual(values);
+    vi.stubEnv('VERCEL_AUTOMATION_BYPASS_SECRET', '');
+    expect(serverEnv()).toEqual({ ...values, VERCEL_AUTOMATION_BYPASS_SECRET: undefined });
+    vi.stubEnv('VERCEL_AUTOMATION_BYPASS_SECRET', 'h');
+    expect(serverEnv().VERCEL_AUTOMATION_BYPASS_SECRET).toBe('h');
   });
 });

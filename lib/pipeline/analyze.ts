@@ -31,12 +31,13 @@ async function callWithRetry<T>(deps: Deps, schema: ZodType<T>, system: string, 
 }
 
 async function fail(deps: Deps, runId: string): Promise<void> {
-  await deps.store.updateRun(runId, {
+  // Conditional so a run the stale sweep or a retry already moved on is never overwritten.
+  const moved = await deps.store.transitionRun(runId, 'analyzing', {
     status: 'failed',
     failedStep: 'analyze',
     error: ANALYZE_FAILED,
   });
-  await deps.progress.emit(runId, { step: 'failed', message: ANALYZE_FAILED });
+  if (moved) await deps.progress.emit(runId, { step: 'failed', message: ANALYZE_FAILED });
 }
 
 export async function analyzeRun(deps: Deps, runId: string): Promise<void> {
