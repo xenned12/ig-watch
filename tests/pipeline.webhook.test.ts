@@ -44,7 +44,7 @@ describe('handleApifyDone', () => {
     expect(jobs).toHaveLength(19);
     const ids = new Set((await d.store.listPosts(runId)).map((x) => x.id));
     expect(new Set(jobs.map((j) => (j.body as { postId: string }).postId))).toEqual(ids);
-    expect(d.events.map((e) => e.step)).toEqual(['fetch', 'fetch']);
+    expect(d.events.map((e) => e.step)).toEqual(['fetch', 'rank']);
   });
 
   it('is idempotent when apify delivers twice', async () => {

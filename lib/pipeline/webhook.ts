@@ -60,7 +60,7 @@ async function runPipeline(deps: Deps, runId: string, eventType: string, apifyRu
     message: `Fetched posts for ${Object.keys(videosFound).length} accounts`,
   });
   await progress.emit(runId, {
-    step: 'fetch',
+    step: 'rank',
     message: 'Kept the top 10 videos per account',
   });
 

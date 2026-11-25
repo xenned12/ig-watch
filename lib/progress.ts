@@ -5,7 +5,7 @@ import type { Store } from '@/lib/store/types';
 import type { Step } from '@/lib/types';
 
 export type ProgressEvent = {
-  step: Step | 'done' | 'failed';
+  step: Step | 'rank' | 'done' | 'failed';
   message: string;
   transcribed?: number;
   total?: number;
