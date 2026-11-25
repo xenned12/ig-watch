@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Icon, type IconName } from './Icon';
+import { RecentRuns } from './RecentRuns';
 
 type Active = 'new' | 'results' | 'runs';
 export type RecentRun = { id: string; niche: string; clientHandle: string };
@@ -20,7 +21,9 @@ function NavLinks({ active }: { active: Active }) {
   ));
 }
 
-export function Shell({ active, recent, children }: { active: Active; recent: RecentRun[]; children: ReactNode }) {
+export function Shell({ active, recent, children }: { active: Active; /** `null` on loading screens: keep showing the last list. */
+  recent: RecentRun[] | null;
+  children: ReactNode }) {
   return (
     <div className="shell">
       <aside className="side" aria-label="Main">
@@ -30,23 +33,7 @@ export function Shell({ active, recent, children }: { active: Active; recent: Re
         </div>
         <NavLinks active={active} />
         <div className="side-sec">Recent runs</div>
-        {recent.map((r) => (
-          // Two lines that each truncate on their own; the full text is in the
-          // accessible name and the native tooltip.
-          <Link
-            key={r.id}
-            className="recent"
-            href={`/runs/${r.id}`}
-            aria-label={`@${r.clientHandle}, ${r.niche}`}
-            title={`@${r.clientHandle} · ${r.niche}`}
-          >
-            <span className="recent-avatar" aria-hidden="true">{r.clientHandle.charAt(0)}</span>
-            <span className="recent-text" aria-hidden="true">
-              <span className="recent-handle">@{r.clientHandle}</span>
-              <span className="recent-niche">{r.niche}</span>
-            </span>
-          </Link>
-        ))}
+        <RecentRuns recent={recent} />
         <p className="side-foot xs muted">Reel Intel</p>
       </aside>
       <div style={{ minWidth: 0 }}>
