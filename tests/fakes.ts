@@ -20,14 +20,6 @@ export function fakeDeps(overrides: Partial<Deps> = {}): FakeDeps {
     async sendJob(path, body) {
       sent.push({ path, body });
     },
-    accountSearch: {
-      async start() {
-        throw new Error('accountSearch not faked');
-      },
-      async result() {
-        return { state: 'running' };
-      },
-    },
     apify: {
       async start() {
         return 'apify-1';

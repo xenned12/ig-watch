@@ -1,0 +1,1718 @@
+{
+ "AI": [
+  {
+   "handle": "siliconvalleygirl",
+   "fullName": "Marina Mogilko",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "varunmayya",
+   "fullName": "Varun Mayya",
+   "followers": 900000,
+   "verified": true
+  },
+  {
+   "handle": "rowancheung",
+   "fullName": "Rowan Cheung",
+   "followers": 600000,
+   "verified": true
+  },
+  {
+   "handle": "heyrobinai",
+   "fullName": "Robin Delta",
+   "followers": 550000,
+   "verified": false
+  },
+  {
+   "handle": "theaipage",
+   "fullName": "The AI Page",
+   "followers": 500000,
+   "verified": false
+  },
+  {
+   "handle": "sabrina_ramonov",
+   "fullName": "Sabrina Ramonov",
+   "followers": 450000,
+   "verified": true
+  },
+  {
+   "handle": "openai",
+   "fullName": "OpenAI",
+   "followers": 450000,
+   "verified": true
+  },
+  {
+   "handle": "aiadvantage",
+   "fullName": "The AI Advantage",
+   "followers": 200000,
+   "verified": false
+  },
+  {
+   "handle": "therundownai",
+   "fullName": "The Rundown AI",
+   "followers": 200000,
+   "verified": false
+  },
+  {
+   "handle": "gregisenberg",
+   "fullName": "Greg Isenberg",
+   "followers": 100000,
+   "verified": true
+  }
+ ],
+ "Business": [
+  {
+   "handle": "garyvee",
+   "fullName": "Gary Vaynerchuk",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "grantcardone",
+   "fullName": "Grant Cardone",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "alexhormozi",
+   "fullName": "Alex Hormozi",
+   "followers": 3800000,
+   "verified": true
+  },
+  {
+   "handle": "businessinsider",
+   "fullName": "Business Insider",
+   "followers": 3500000,
+   "verified": true
+  },
+  {
+   "handle": "entrepreneur",
+   "fullName": "Entrepreneur",
+   "followers": 3500000,
+   "verified": true
+  },
+  {
+   "handle": "steven",
+   "fullName": "Steven Bartlett",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "forbes",
+   "fullName": "Forbes",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "thediaryofaceo",
+   "fullName": "The Diary Of A CEO",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "leilahormozi",
+   "fullName": "Leila Hormozi",
+   "followers": 1500000,
+   "verified": true
+  },
+  {
+   "handle": "codiesanchez",
+   "fullName": "Codie Sanchez",
+   "followers": 1200000,
+   "verified": true
+  }
+ ],
+ "Finance": [
+  {
+   "handle": "bloombergbusiness",
+   "fullName": "Bloomberg Business",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "your.richbff",
+   "fullName": "Vivian Tu",
+   "followers": 3700000,
+   "verified": true
+  },
+  {
+   "handle": "cnbc",
+   "fullName": "CNBC",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "wallstreetjournal",
+   "fullName": "The Wall Street Journal",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "calltoleap",
+   "fullName": "Calltoleap",
+   "followers": 2300000,
+   "verified": false
+  },
+  {
+   "handle": "humphreytalks",
+   "fullName": "Humphrey Yang",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "johnsfinancetips",
+   "fullName": "John's Finance Tips",
+   "followers": 1000000,
+   "verified": false
+  },
+  {
+   "handle": "thefinancialdiet",
+   "fullName": "The Financial Diet",
+   "followers": 813000,
+   "verified": true
+  },
+  {
+   "handle": "personalfinanceclub",
+   "fullName": "Personal Finance Club",
+   "followers": 490000,
+   "verified": true
+  },
+  {
+   "handle": "mrsdowjones",
+   "fullName": "Haley Sacks",
+   "followers": 440000,
+   "verified": true
+  }
+ ],
+ "Gaming": [
+  {
+   "handle": "playstation",
+   "fullName": "PlayStation",
+   "followers": 21000000,
+   "verified": true
+  },
+  {
+   "handle": "ninja",
+   "fullName": "Ninja",
+   "followers": 13000000,
+   "verified": true
+  },
+  {
+   "handle": "xbox",
+   "fullName": "Xbox",
+   "followers": 13000000,
+   "verified": true
+  },
+  {
+   "handle": "fortnite",
+   "fullName": "Fortnite",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "nintendo",
+   "fullName": "Nintendo",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "callofduty",
+   "fullName": "Call of Duty",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "minecraft",
+   "fullName": "Minecraft",
+   "followers": 9000000,
+   "verified": true
+  },
+  {
+   "handle": "ign",
+   "fullName": "IGN",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "pokimanelol",
+   "fullName": "Pokimane",
+   "followers": 6500000,
+   "verified": true
+  },
+  {
+   "handle": "gamespot",
+   "fullName": "GameSpot",
+   "followers": 2000000,
+   "verified": true
+  }
+ ],
+ "Crypto": [
+  {
+   "handle": "theschoolofhardknockz",
+   "fullName": "The School of Hard Knocks",
+   "followers": 7100000,
+   "verified": true
+  },
+  {
+   "handle": "vitalik.buterin",
+   "fullName": "Vitalik Buterin",
+   "followers": 1200000,
+   "verified": true
+  },
+  {
+   "handle": "davincij15",
+   "fullName": "Davinci Jeremie",
+   "followers": 1100000,
+   "verified": false
+  },
+  {
+   "handle": "coinbase",
+   "fullName": "Coinbase",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "binance",
+   "fullName": "Binance",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "cointelegraph",
+   "fullName": "Cointelegraph",
+   "followers": 900000,
+   "verified": true
+  },
+  {
+   "handle": "cryptoexplorer",
+   "fullName": "CryptoExplorer",
+   "followers": 659000,
+   "verified": false
+  },
+  {
+   "handle": "coindesk",
+   "fullName": "CoinDesk",
+   "followers": 500000,
+   "verified": true
+  },
+  {
+   "handle": "matthiasmende",
+   "fullName": "Matthias Mende",
+   "followers": 427000,
+   "verified": false
+  },
+  {
+   "handle": "bitboy_crypto",
+   "fullName": "BitBoy Crypto",
+   "followers": 300000,
+   "verified": false
+  }
+ ],
+ "Marketing": [
+  {
+   "handle": "garyvee",
+   "fullName": "Gary Vaynerchuk",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "russellbrunson",
+   "fullName": "Russell Brunson",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "neilpatel",
+   "fullName": "Neil Patel",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "jasminestar",
+   "fullName": "Jasmine Star",
+   "followers": 800000,
+   "verified": true
+  },
+  {
+   "handle": "hubspot",
+   "fullName": "HubSpot",
+   "followers": 700000,
+   "verified": true
+  },
+  {
+   "handle": "later",
+   "fullName": "Later",
+   "followers": 600000,
+   "verified": true
+  },
+  {
+   "handle": "amyporterfield",
+   "fullName": "Amy Porterfield",
+   "followers": 500000,
+   "verified": true
+  },
+  {
+   "handle": "vanessalau.co",
+   "fullName": "Vanessa Lau",
+   "followers": 500000,
+   "verified": true
+  },
+  {
+   "handle": "socialmediaexaminer",
+   "fullName": "Social Media Examiner",
+   "followers": 250000,
+   "verified": true
+  },
+  {
+   "handle": "buffer",
+   "fullName": "Buffer",
+   "followers": 250000,
+   "verified": true
+  }
+ ],
+ "Real estate": [
+  {
+   "handle": "grantcardone",
+   "fullName": "Grant Cardone",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "ryanserhant",
+   "fullName": "Ryan Serhant",
+   "followers": 2000000,
+   "verified": true
+  },
+  {
+   "handle": "graham_stephan",
+   "fullName": "Graham Stephan",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "thejasonoppenheim",
+   "fullName": "Jason Oppenheim",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "enes.yilmazer",
+   "fullName": "Enes Yilmazer",
+   "followers": 700000,
+   "verified": true
+  },
+  {
+   "handle": "pacemorby",
+   "fullName": "Pace Morby",
+   "followers": 600000,
+   "verified": true
+  },
+  {
+   "handle": "biggerpockets",
+   "fullName": "BiggerPockets",
+   "followers": 450000,
+   "verified": true
+  },
+  {
+   "handle": "meetkevin",
+   "fullName": "Kevin Paffrath",
+   "followers": 400000,
+   "verified": true
+  },
+  {
+   "handle": "realtor.com",
+   "fullName": "Realtor.com",
+   "followers": 400000,
+   "verified": true
+  },
+  {
+   "handle": "zillow",
+   "fullName": "Zillow",
+   "followers": 350000,
+   "verified": true
+  }
+ ],
+ "Personal finance": [
+  {
+   "handle": "your.richbff",
+   "fullName": "Vivian Tu",
+   "followers": 3700000,
+   "verified": true
+  },
+  {
+   "handle": "erikakullberg",
+   "fullName": "Erika Kullberg",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "humphreytalks",
+   "fullName": "Humphrey Yang",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "thefinancialdiet",
+   "fullName": "The Financial Diet",
+   "followers": 813000,
+   "verified": true
+  },
+  {
+   "handle": "thebudgetnista",
+   "fullName": "Tiffany Aliche",
+   "followers": 615000,
+   "verified": true
+  },
+  {
+   "handle": "daveramsey",
+   "fullName": "Dave Ramsey",
+   "followers": 600000,
+   "verified": true
+  },
+  {
+   "handle": "kiacommodore",
+   "fullName": "Kia Commodore",
+   "followers": 508000,
+   "verified": true
+  },
+  {
+   "handle": "personalfinanceclub",
+   "fullName": "Personal Finance Club",
+   "followers": 490000,
+   "verified": true
+  },
+  {
+   "handle": "mrsdowjones",
+   "fullName": "Haley Sacks",
+   "followers": 440000,
+   "verified": true
+  },
+  {
+   "handle": "financiallyintentional",
+   "fullName": "Financially Intentional",
+   "followers": 209000,
+   "verified": false
+  }
+ ],
+ "Investing": [
+  {
+   "handle": "calltoleap",
+   "fullName": "Calltoleap",
+   "followers": 2300000,
+   "verified": false
+  },
+  {
+   "handle": "graham_stephan",
+   "fullName": "Graham Stephan",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "johnsfinancetips",
+   "fullName": "John's Finance Tips",
+   "followers": 1000000,
+   "verified": false
+  },
+  {
+   "handle": "humphreytalks",
+   "fullName": "Humphrey Yang",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "andreijikh",
+   "fullName": "Andrei Jikh",
+   "followers": 500000,
+   "verified": true
+  },
+  {
+   "handle": "personalfinanceclub",
+   "fullName": "Personal Finance Club",
+   "followers": 490000,
+   "verified": true
+  },
+  {
+   "handle": "meetkevin",
+   "fullName": "Kevin Paffrath",
+   "followers": 400000,
+   "verified": true
+  },
+  {
+   "handle": "financiallyintentional",
+   "fullName": "Financially Intentional",
+   "followers": 209000,
+   "verified": false
+  },
+  {
+   "handle": "thefinancialmotto",
+   "fullName": "The Financial Motto",
+   "followers": 150000,
+   "verified": false
+  }
+ ],
+ "Entrepreneurship": [
+  {
+   "handle": "melrobbins",
+   "fullName": "Mel Robbins",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "garyvee",
+   "fullName": "Gary Vaynerchuk",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "grantcardone",
+   "fullName": "Grant Cardone",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "entrepreneur",
+   "fullName": "Entrepreneur",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "alexhormozi",
+   "fullName": "Alex Hormozi",
+   "followers": 3800000,
+   "verified": true
+  },
+  {
+   "handle": "tailopez",
+   "fullName": "Tai Lopez",
+   "followers": 3500000,
+   "verified": true
+  },
+  {
+   "handle": "foundr",
+   "fullName": "Foundr",
+   "followers": 3400000,
+   "verified": true
+  },
+  {
+   "handle": "steven",
+   "fullName": "Steven Bartlett",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "patrickbetdavid",
+   "fullName": "Patrick Bet-David",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "leilahormozi",
+   "fullName": "Leila Hormozi",
+   "followers": 2500000,
+   "verified": true
+  }
+ ],
+ "Productivity": [
+  {
+   "handle": "jamesclear",
+   "fullName": "James Clear",
+   "followers": 1500000,
+   "verified": true
+  },
+  {
+   "handle": "aliabdaal",
+   "fullName": "Ali Abdaal",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "timferriss",
+   "fullName": "Tim Ferriss",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "notion",
+   "fullName": "Notion",
+   "followers": 700000,
+   "verified": true
+  },
+  {
+   "handle": "mattdavella",
+   "fullName": "Matt D'Avella",
+   "followers": 600000,
+   "verified": true
+  }
+ ],
+ "Tech reviews": [
+  {
+   "handle": "mkbhd",
+   "fullName": "Marques Brownlee",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "technicalguruji",
+   "fullName": "Gaurav Chaudhary",
+   "followers": 4500000,
+   "verified": true
+  },
+  {
+   "handle": "mrwhosetheboss",
+   "fullName": "Arun Maini",
+   "followers": 3500000,
+   "verified": true
+  },
+  {
+   "handle": "unboxtherapy",
+   "fullName": "Unbox Therapy",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "techburner",
+   "fullName": "Tech Burner",
+   "followers": 2800000,
+   "verified": true
+  },
+  {
+   "handle": "ijustine",
+   "fullName": "iJustine",
+   "followers": 2000000,
+   "verified": true
+  },
+  {
+   "handle": "linustech",
+   "fullName": "Linus Tech Tips",
+   "followers": 600000,
+   "verified": true
+  }
+ ],
+ "Software development": [
+  {
+   "handle": "codewithharry",
+   "fullName": "CodeWithHarry",
+   "followers": 1300000,
+   "verified": true
+  },
+  {
+   "handle": "apnacollege.official",
+   "fullName": "Apna College",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "jsmastery",
+   "fullName": "JavaScript Mastery",
+   "followers": 400000,
+   "verified": false
+  },
+  {
+   "handle": "cleverprogrammer",
+   "fullName": "Clever Programmer",
+   "followers": 300000,
+   "verified": false
+  }
+ ],
+ "Fitness": [
+  {
+   "handle": "cbum",
+   "fullName": "Chris Bumstead",
+   "followers": 22000000,
+   "verified": true
+  },
+  {
+   "handle": "kayla_itsines",
+   "fullName": "Kayla Itsines",
+   "followers": 16000000,
+   "verified": true
+  },
+  {
+   "handle": "michelle_lewin",
+   "fullName": "Michelle Lewin",
+   "followers": 14000000,
+   "verified": true
+  },
+  {
+   "handle": "simeonpanda",
+   "fullName": "Simeon Panda",
+   "followers": 8000000,
+   "verified": true
+  },
+  {
+   "handle": "ulissesworld",
+   "fullName": "Ulisses Jr",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "thebodycoach",
+   "fullName": "Joe Wicks",
+   "followers": 4500000,
+   "verified": true
+  },
+  {
+   "handle": "chloeting",
+   "fullName": "Chloe Ting",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "jeffnippard",
+   "fullName": "Jeff Nippard",
+   "followers": 2000000,
+   "verified": true
+  },
+  {
+   "handle": "blogilates",
+   "fullName": "Cassey Ho",
+   "followers": 2000000,
+   "verified": true
+  }
+ ],
+ "Nutrition": [
+  {
+   "handle": "feelgoodfoodie",
+   "fullName": "Yumna Jawad | Feel Good Foodie",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "deliciouslyella",
+   "fullName": "Ella Mills | Deliciously Ella",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "drmarkhyman",
+   "fullName": "Mark Hyman, MD",
+   "followers": 2000000,
+   "verified": true
+  },
+  {
+   "handle": "minimalistbaker",
+   "fullName": "Minimalist Baker",
+   "followers": 2000000,
+   "verified": true
+  },
+  {
+   "handle": "pickuplimes",
+   "fullName": "Sadia | Pick Up Limes",
+   "followers": 1000000,
+   "verified": true
+  }
+ ],
+ "Health and wellness": [
+  {
+   "handle": "jayshetty",
+   "fullName": "Jay Shetty",
+   "followers": 15000000,
+   "verified": true
+  },
+  {
+   "handle": "hubermanlab",
+   "fullName": "Andrew Huberman, Ph.D.",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "deepakchopra",
+   "fullName": "Deepak Chopra",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "goop",
+   "fullName": "goop",
+   "followers": 1700000,
+   "verified": true
+  },
+  {
+   "handle": "mindbodygreen",
+   "fullName": "mindbodygreen",
+   "followers": 1500000,
+   "verified": true
+  },
+  {
+   "handle": "peterattiamd",
+   "fullName": "Peter Attia, MD",
+   "followers": 900000,
+   "verified": true
+  }
+ ],
+ "Mental health": [
+  {
+   "handle": "the.holistic.psychologist",
+   "fullName": "Dr. Nicole LePera",
+   "followers": 8000000,
+   "verified": true
+  },
+  {
+   "handle": "drjuliesmith",
+   "fullName": "Dr Julie Smith",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "nedratawwab",
+   "fullName": "Nedra Glover Tawwab",
+   "followers": 1600000,
+   "verified": true
+  },
+  {
+   "handle": "calm",
+   "fullName": "Calm",
+   "followers": 1500000,
+   "verified": true
+  },
+  {
+   "handle": "headspace",
+   "fullName": "Headspace",
+   "followers": 1400000,
+   "verified": true
+  }
+ ],
+ "Beauty": [
+  {
+   "handle": "hudabeauty",
+   "fullName": "Huda Kattan",
+   "followers": 56000000,
+   "verified": true
+  },
+  {
+   "handle": "sephora",
+   "fullName": "Sephora",
+   "followers": 22000000,
+   "verified": true
+  },
+  {
+   "handle": "jamescharles",
+   "fullName": "James Charles",
+   "followers": 21000000,
+   "verified": true
+  },
+  {
+   "handle": "nikkietutorials",
+   "fullName": "NikkieTutorials",
+   "followers": 19000000,
+   "verified": true
+  },
+  {
+   "handle": "jeffreestar",
+   "fullName": "Jeffree Star",
+   "followers": 12000000,
+   "verified": true
+  },
+  {
+   "handle": "fentybeauty",
+   "fullName": "FENTY BEAUTY BY RIHANNA",
+   "followers": 12000000,
+   "verified": true
+  },
+  {
+   "handle": "mannymua733",
+   "fullName": "Manny Gutierrez",
+   "followers": 4500000,
+   "verified": true
+  }
+ ],
+ "Skincare": [
+  {
+   "handle": "skincarebyhyram",
+   "fullName": "Hyram Yarbro",
+   "followers": 4500000,
+   "verified": true
+  },
+  {
+   "handle": "dr.dray",
+   "fullName": "Dr. Dray",
+   "followers": 1700000,
+   "verified": true
+  },
+  {
+   "handle": "dermdoctor",
+   "fullName": "Dr. Muneeb Shah",
+   "followers": 1600000,
+   "verified": true
+  },
+  {
+   "handle": "theslowpokebeauty",
+   "fullName": "Lindsey | Skincare",
+   "followers": 400000,
+   "verified": false
+  },
+  {
+   "handle": "thecosmeticchemist",
+   "fullName": "Ramon | The Cosmetic Chemist",
+   "followers": 400000,
+   "verified": false
+  },
+  {
+   "handle": "skincarebyalyssa",
+   "fullName": "Alyssa Lovelace",
+   "followers": 300000,
+   "verified": false
+  }
+ ],
+ "Fashion": [
+  {
+   "handle": "voguemagazine",
+   "fullName": "Vogue",
+   "followers": 40000000,
+   "verified": true
+  },
+  {
+   "handle": "chiaraferragni",
+   "fullName": "Chiara Ferragni",
+   "followers": 28000000,
+   "verified": true
+  },
+  {
+   "handle": "camilacoelho",
+   "fullName": "Camila Coelho",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "elleusa",
+   "fullName": "ELLE",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "neginmirsalehi",
+   "fullName": "Negin Mirsalehi",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "aimeesong",
+   "fullName": "Aimee Song",
+   "followers": 6000000,
+   "verified": true
+  },
+  {
+   "handle": "leoniehanne",
+   "fullName": "Leonie Hanne",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "wisdm8",
+   "fullName": "Daniel Simmons",
+   "followers": 3000000,
+   "verified": true
+  }
+ ],
+ "Food and recipes": [
+  {
+   "handle": "cznburak",
+   "fullName": "CZN Burak",
+   "followers": 53000000,
+   "verified": true
+  },
+  {
+   "handle": "buzzfeedtasty",
+   "fullName": "Tasty",
+   "followers": 50000000,
+   "verified": true
+  },
+  {
+   "handle": "gordongram",
+   "fullName": "Gordon Ramsay",
+   "followers": 17000000,
+   "verified": true
+  },
+  {
+   "handle": "jamieoliver",
+   "fullName": "Jamie Oliver",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "nickdigiovanni",
+   "fullName": "Nick DiGiovanni",
+   "followers": 9000000,
+   "verified": true
+  },
+  {
+   "handle": "halfbakedharvest",
+   "fullName": "Tieghan Gerard",
+   "followers": 4500000,
+   "verified": true
+  },
+  {
+   "handle": "thefeedfeed",
+   "fullName": "thefeedfeed",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "pinchofyum",
+   "fullName": "Pinch of Yum",
+   "followers": 1100000,
+   "verified": true
+  }
+ ],
+ "Travel": [
+  {
+   "handle": "natgeotravel",
+   "fullName": "National Geographic Travel",
+   "followers": 44700000,
+   "verified": true
+  },
+  {
+   "handle": "beautifuldestinations",
+   "fullName": "Beautiful Destinations",
+   "followers": 21000000,
+   "verified": true
+  },
+  {
+   "handle": "earthpix",
+   "fullName": "EarthPix",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "travelandleisure",
+   "fullName": "Travel + Leisure",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "cntraveler",
+   "fullName": "Condé Nast Traveler",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "lonelyplanet",
+   "fullName": "Lonely Planet",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "doyoutravel",
+   "fullName": "Jack Morris",
+   "followers": 2900000,
+   "verified": true
+  }
+ ],
+ "Parenting": [
+  {
+   "handle": "biglittlefeelings",
+   "fullName": "Big Little Feelings",
+   "followers": 4200000,
+   "verified": true
+  },
+  {
+   "handle": "drbeckyatgoodinside",
+   "fullName": "Dr. Becky Kennedy",
+   "followers": 3500000,
+   "verified": true
+  }
+ ],
+ "Education": [
+  {
+   "handle": "natgeo",
+   "fullName": "National Geographic",
+   "followers": 280000000,
+   "verified": true
+  },
+  {
+   "handle": "nasa",
+   "fullName": "NASA",
+   "followers": 97000000,
+   "verified": true
+  },
+  {
+   "handle": "tedtalks",
+   "fullName": "TED",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "khanacademy",
+   "fullName": "Khan Academy",
+   "followers": 700000,
+   "verified": true
+  }
+ ],
+ "Language learning": [
+  {
+   "handle": "duolingo",
+   "fullName": "Duolingo",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "bbclearningenglish",
+   "fullName": "BBC Learning English",
+   "followers": 3600000,
+   "verified": true
+  },
+  {
+   "handle": "englishwithlucy",
+   "fullName": "Lucy | English with Lucy",
+   "followers": 1500000,
+   "verified": true
+  }
+ ],
+ "Career advice": [
+  {
+   "handle": "garyvee",
+   "fullName": "Gary Vaynerchuk",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "melrobbins",
+   "fullName": "Mel Robbins",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "thefinancialdiet",
+   "fullName": "The Financial Diet",
+   "followers": 600000,
+   "verified": true
+  }
+ ],
+ "Self-improvement": [
+  {
+   "handle": "jayshetty",
+   "fullName": "Jay Shetty",
+   "followers": 18000000,
+   "verified": true
+  },
+  {
+   "handle": "melrobbins",
+   "fullName": "Mel Robbins",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "garyvee",
+   "fullName": "Gary Vaynerchuk",
+   "followers": 11000000,
+   "verified": true
+  },
+  {
+   "handle": "hubermanlab",
+   "fullName": "Andrew Huberman",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "thegoodquote",
+   "fullName": "The Good Quote",
+   "followers": 7000000,
+   "verified": true
+  }
+ ],
+ "Relationships": [
+  {
+   "handle": "jayshetty",
+   "fullName": "Jay Shetty",
+   "followers": 15000000,
+   "verified": true
+  },
+  {
+   "handle": "the.holistic.psychologist",
+   "fullName": "Dr. Nicole LePera",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "drjuliesmith",
+   "fullName": "Dr Julie Smith",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "mattandabby",
+   "fullName": "Matt & Abby",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "mattisonbaby",
+   "fullName": "Mattison",
+   "followers": 2000000,
+   "verified": false
+  },
+  {
+   "handle": "estherperelofficial",
+   "fullName": "Esther Perel",
+   "followers": 1900000,
+   "verified": true
+  },
+  {
+   "handle": "mattheweshussey",
+   "fullName": "Matthew Hussey",
+   "followers": 1300000,
+   "verified": true
+  },
+  {
+   "handle": "thegottmaninstitute",
+   "fullName": "The Gottman Institute",
+   "followers": 1100000,
+   "verified": true
+  },
+  {
+   "handle": "lovebombofficial",
+   "fullName": "Love Bomb",
+   "followers": 800000,
+   "verified": false
+  },
+  {
+   "handle": "themarriagetherapist",
+   "fullName": "The Marriage Therapist",
+   "followers": 500000,
+   "verified": false
+  }
+ ],
+ "Home and DIY": [
+  {
+   "handle": "joannagaines",
+   "fullName": "Joanna Gaines",
+   "followers": 13000000,
+   "verified": true
+  },
+  {
+   "handle": "architecturaldigest",
+   "fullName": "Architectural Digest",
+   "followers": 9000000,
+   "verified": true
+  },
+  {
+   "handle": "thehomeedit",
+   "fullName": "The Home Edit",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "hgtv",
+   "fullName": "HGTV",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "5.min.crafts",
+   "fullName": "5-Minute Crafts",
+   "followers": 5000000,
+   "verified": true
+  },
+  {
+   "handle": "marthastewart",
+   "fullName": "Martha Stewart",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "thisoldhouse",
+   "fullName": "This Old House",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "diyhomedecorideas",
+   "fullName": "DIY Home Decor",
+   "followers": 600000,
+   "verified": false
+  }
+ ],
+ "Pets": [
+  {
+   "handle": "cats_of_instagram",
+   "fullName": "Cats of Instagram",
+   "followers": 12000000,
+   "verified": false
+  },
+  {
+   "handle": "jiffpom",
+   "fullName": "Jiff Pom",
+   "followers": 9500000,
+   "verified": true
+  },
+  {
+   "handle": "thedodo",
+   "fullName": "The Dodo",
+   "followers": 7000000,
+   "verified": true
+  },
+  {
+   "handle": "dogsofinstagram",
+   "fullName": "Dogs of Instagram",
+   "followers": 5000000,
+   "verified": false
+  },
+  {
+   "handle": "nala_cat",
+   "fullName": "Nala Cat",
+   "followers": 4400000,
+   "verified": true
+  },
+  {
+   "handle": "weratedogs",
+   "fullName": "WeRateDogs",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "itsdougthepug",
+   "fullName": "Doug The Pug",
+   "followers": 3700000,
+   "verified": true
+  },
+  {
+   "handle": "tuckerbudzyn",
+   "fullName": "Tucker Budzyn",
+   "followers": 3500000,
+   "verified": true
+  },
+  {
+   "handle": "marutaro",
+   "fullName": "Shinjiro Ono (Maru)",
+   "followers": 2500000,
+   "verified": true
+  }
+ ],
+ "Music": [
+  {
+   "handle": "spotify",
+   "fullName": "Spotify",
+   "followers": 15000000,
+   "verified": true
+  },
+  {
+   "handle": "billboard",
+   "fullName": "Billboard",
+   "followers": 6500000,
+   "verified": true
+  },
+  {
+   "handle": "rollingstone",
+   "fullName": "Rolling Stone",
+   "followers": 5500000,
+   "verified": true
+  },
+  {
+   "handle": "genius",
+   "fullName": "Genius",
+   "followers": 4500000,
+   "verified": true
+  },
+  {
+   "handle": "pitchfork",
+   "fullName": "Pitchfork",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "nprmusic",
+   "fullName": "NPR Music",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "colorsxstudios",
+   "fullName": "COLORS",
+   "followers": 1500000,
+   "verified": true
+  },
+  {
+   "handle": "complexmusic",
+   "fullName": "Complex Music",
+   "followers": 1200000,
+   "verified": true
+  }
+ ],
+ "Photography": [
+  {
+   "handle": "natgeo",
+   "fullName": "National Geographic",
+   "followers": 280000000,
+   "verified": true
+  },
+  {
+   "handle": "natgeotravel",
+   "fullName": "National Geographic Travel",
+   "followers": 40000000,
+   "verified": true
+  },
+  {
+   "handle": "humansofny",
+   "fullName": "Humans of New York",
+   "followers": 12000000,
+   "verified": true
+  },
+  {
+   "handle": "paulnicklen",
+   "fullName": "Paul Nicklen",
+   "followers": 7500000,
+   "verified": true
+  },
+  {
+   "handle": "chrisburkard",
+   "fullName": "Chris Burkard",
+   "followers": 3800000,
+   "verified": true
+  },
+  {
+   "handle": "petermckinnon",
+   "fullName": "Peter McKinnon",
+   "followers": 3000000,
+   "verified": true
+  },
+  {
+   "handle": "brandonwoelfel",
+   "fullName": "Brandon Woelfel",
+   "followers": 2700000,
+   "verified": true
+  },
+  {
+   "handle": "peterlik",
+   "fullName": "Peter Lik",
+   "followers": 1000000,
+   "verified": true
+  },
+  {
+   "handle": "jordanhammond",
+   "fullName": "Jordan Hammond",
+   "followers": 500000,
+   "verified": false
+  }
+ ],
+ "Comedy": [
+  {
+   "handle": "khaby00",
+   "fullName": "Khabane Lame",
+   "followers": 80000000,
+   "verified": true
+  },
+  {
+   "handle": "9gag",
+   "fullName": "9GAG",
+   "followers": 56000000,
+   "verified": true
+  },
+  {
+   "handle": "lelepons",
+   "fullName": "Lele Pons",
+   "followers": 55000000,
+   "verified": true
+  },
+  {
+   "handle": "pubity",
+   "fullName": "Pubity",
+   "followers": 35000000,
+   "verified": true
+  },
+  {
+   "handle": "theshaderoom",
+   "fullName": "The Shade Room",
+   "followers": 30000000,
+   "verified": true
+  },
+  {
+   "handle": "zachking",
+   "fullName": "Zach King",
+   "followers": 30000000,
+   "verified": true
+  },
+  {
+   "handle": "memezar",
+   "fullName": "Memezar",
+   "followers": 20000000,
+   "verified": false
+  },
+  {
+   "handle": "thefatjewish",
+   "fullName": "Josh Ostrovsky",
+   "followers": 10000000,
+   "verified": true
+  },
+  {
+   "handle": "snl",
+   "fullName": "Saturday Night Live",
+   "followers": 5000000,
+   "verified": true
+  }
+ ],
+ "Sports": [
+  {
+   "handle": "championsleague",
+   "fullName": "UEFA Champions League",
+   "followers": 115000000,
+   "verified": true
+  },
+  {
+   "handle": "nba",
+   "fullName": "NBA",
+   "followers": 90000000,
+   "verified": true
+  },
+  {
+   "handle": "433",
+   "fullName": "433",
+   "followers": 75000000,
+   "verified": true
+  },
+  {
+   "handle": "brfootball",
+   "fullName": "B/R Football",
+   "followers": 40000000,
+   "verified": true
+  },
+  {
+   "handle": "ufc",
+   "fullName": "UFC",
+   "followers": 40000000,
+   "verified": true
+  },
+  {
+   "handle": "sportscenter",
+   "fullName": "SportsCenter",
+   "followers": 38000000,
+   "verified": true
+  },
+  {
+   "handle": "nfl",
+   "fullName": "NFL",
+   "followers": 31000000,
+   "verified": true
+  },
+  {
+   "handle": "f1",
+   "fullName": "Formula 1",
+   "followers": 30000000,
+   "verified": true
+  },
+  {
+   "handle": "espn",
+   "fullName": "ESPN",
+   "followers": 28000000,
+   "verified": true
+  },
+  {
+   "handle": "bleacherreport",
+   "fullName": "Bleacher Report",
+   "followers": 25000000,
+   "verified": true
+  }
+ ],
+ "Cars": [
+  {
+   "handle": "bmw",
+   "fullName": "BMW",
+   "followers": 40000000,
+   "verified": true
+  },
+  {
+   "handle": "lamborghini",
+   "fullName": "Lamborghini",
+   "followers": 36900000,
+   "verified": true
+  },
+  {
+   "handle": "porsche",
+   "fullName": "Porsche",
+   "followers": 33400000,
+   "verified": true
+  },
+  {
+   "handle": "ferrari",
+   "fullName": "Ferrari",
+   "followers": 30000000,
+   "verified": true
+  },
+  {
+   "handle": "supercarblondie",
+   "fullName": "Supercar Blondie",
+   "followers": 18000000,
+   "verified": true
+  },
+  {
+   "handle": "topgear",
+   "fullName": "Top Gear",
+   "followers": 6000000,
+   "verified": true
+  },
+  {
+   "handle": "carthrottle",
+   "fullName": "Car Throttle",
+   "followers": 4000000,
+   "verified": true
+  },
+  {
+   "handle": "mrbossftw",
+   "fullName": "Mr. BossFTW",
+   "followers": 2500000,
+   "verified": true
+  },
+  {
+   "handle": "cleetusmcfarland",
+   "fullName": "Cleetus McFarland",
+   "followers": 2000000,
+   "verified": true
+  },
+  {
+   "handle": "donutmedia",
+   "fullName": "Donut",
+   "followers": 2000000,
+   "verified": true
+  }
+ ],
+ "Sustainability": [
+  {
+   "handle": "going.zero.waste",
+   "fullName": "Kathryn Kellogg",
+   "followers": 700000,
+   "verified": true
+  },
+  {
+   "handle": "fitgreenmind",
+   "fullName": "Maya Leinbach",
+   "followers": 600000,
+   "verified": false
+  },
+  {
+   "handle": "trashisfortossers",
+   "fullName": "Lauren Singer",
+   "followers": 400000,
+   "verified": true
+  },
+  {
+   "handle": "zerowastechef",
+   "fullName": "Anne-Marie Bonneau",
+   "followers": 350000,
+   "verified": false
+  },
+  {
+   "handle": "zero.waste.collective",
+   "fullName": "Zero Waste Collective",
+   "followers": 335000,
+   "verified": false
+  },
+  {
+   "handle": "zerowastehome",
+   "fullName": "Bea Johnson",
+   "followers": 250000,
+   "verified": false
+  },
+  {
+   "handle": "sustainably_vegan",
+   "fullName": "Immy Lucas",
+   "followers": 200000,
+   "verified": false
+  },
+  {
+   "handle": "madeleineolivia",
+   "fullName": "Madeleine Olivia",
+   "followers": 200000,
+   "verified": false
+  }
+ ]
+}
