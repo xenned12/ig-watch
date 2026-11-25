@@ -1,0 +1,624 @@
+<title>Reel Intel Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Fira+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: app shell — sidebar + scrolling work area; modals for transcripts and scripts. Blue = competitors / primary, amber = client. */
+:root{
+  --bg:#F5F7FB;--surface:#FFFFFF;--sunk:#EBEFF6;--fg:#0F1B3D;--muted:#52607A;--line:#DCE3EE;--line-strong:#C3CDDD;
+  --primary:#1E40AF;--primary-hover:#1A378F;--primary-soft:#DFE8FB;--on-primary:#FFFFFF;
+  --client:#B45309;--client-soft:#FDF0D5;
+  --ok:#15803D;--ok-soft:#DCF3E4;--bad:#B91C1C;--bad-soft:#FBE3E3;
+  --scrim:rgba(15,27,61,.5);
+  --f-sans:'Fira Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'Fira Code',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  --r:8px;--r-lg:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1120;--surface:#131B2E;--sunk:#0E1526;--fg:#E6ECF7;--muted:#9AA8C2;--line:#233050;--line-strong:#33446A;
+  --primary:#8DB4FF;--primary-hover:#A9C6FF;--primary-soft:#1B2C55;--on-primary:#0B1120;
+  --client:#F5B94A;--client-soft:#3D2A0C;--ok:#5FD08A;--ok-soft:#123222;--bad:#F28B8B;--bad-soft:#3A1616;--scrim:rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1120;--surface:#131B2E;--sunk:#0E1526;--fg:#E6ECF7;--muted:#9AA8C2;--line:#233050;--line-strong:#33446A;
+  --primary:#8DB4FF;--primary-hover:#A9C6FF;--primary-soft:#1B2C55;--on-primary:#0B1120;
+  --client:#F5B94A;--client-soft:#3D2A0C;--ok:#5FD08A;--ok-soft:#123222;--bad:#F28B8B;--bad-soft:#3A1616;--scrim:rgba(0,0,0,.6);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-sans);font-size:15px;line-height:1.5}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:600}
+h1{font-size:22px}h2{font-size:17px}h3{font-size:15px}
+p{margin:0}
+a{color:var(--primary)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.muted{color:var(--muted)}.small{font-size:13px}.xs{font-size:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--surface);cursor:pointer;transition:background .15s,border-color .15s;text-decoration:none;color:var(--fg)}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--sunk)}
+.btn.sm{min-height:32px;padding:0 10px;font-size:13px}
+.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
+.linkbtn{background:none;border:0;padding:0;color:var(--primary);cursor:pointer;text-decoration:underline;text-underline-offset:2px;font-size:13px;text-align:left}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:500}
+.input{min-height:42px;padding:0 12px;border-radius:var(--r);border:1px solid var(--line-strong);background:var(--surface);width:100%}
+.input[aria-invalid="true"]{border-color:var(--bad)}
+.err{color:var(--bad);font-size:13px;display:flex;gap:6px;align-items:center}
+.help{color:var(--muted);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 9px;border-radius:999px;white-space:nowrap;font-weight:500}
+.pill.blue{background:var(--primary-soft);color:var(--primary)}
+.pill.amber{background:var(--client-soft);color:var(--client)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.grey{background:var(--sunk);color:var(--muted)}
+.ico{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:15px;height:15px}
+
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.side{border-right:1px solid var(--line);background:var(--surface);padding:20px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brand{font-family:var(--f-mono);font-weight:500;color:var(--primary);font-size:16px;padding:4px 10px 18px;display:flex;align-items:center;gap:8px}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:var(--r);color:var(--muted);text-decoration:none;font-size:14px;white-space:nowrap}
+.nav:hover{background:var(--sunk);color:var(--fg)}
+.nav[aria-current="page"]{background:var(--primary-soft);color:var(--primary);font-weight:500}
+.side-sec{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:18px 10px 6px}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding:12px 10px 0}
+.main{padding-block:24px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));min-width:0}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.mobilebar{display:none}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{display:none}
+  .mobilebar{display:flex;gap:4px;overflow-x:auto;padding:10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+  .main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.eyebrow{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+
+.form-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.form-grid{grid-template-columns:1fr}}
+.tags{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;padding:6px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--surface)}
+.tags:focus-within{outline:2px solid var(--primary);outline-offset:1px}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--primary-soft);color:var(--primary);border-radius:6px;padding:4px 4px 4px 9px;font-size:13px;font-family:var(--f-mono)}
+.tag button{border:0;background:transparent;color:inherit;cursor:pointer;width:24px;height:24px;border-radius:4px;display:grid;place-items:center}
+.tag button:hover{background:rgba(127,127,127,.18)}
+.tags input{border:0;outline:0;flex:1;min-width:140px;background:transparent;min-height:32px;padding:0 6px;font-family:var(--f-mono);font-size:13px}
+.segs{display:flex;flex-wrap:wrap;gap:6px}
+.seg{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:13px;min-height:36px}
+.seg[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.summary-list{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.summary-list div{display:flex;justify-content:space-between;gap:10px}
+
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:start;padding:14px 0;border-top:1px solid var(--line)}
+.step:first-child{border-top:0}
+.dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line-strong);color:var(--muted);font-size:12px;font-family:var(--f-mono)}
+.step.done .dot{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.step.active .dot{border-color:var(--primary);color:var(--primary)}
+.step.active .dot::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--primary);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(.55);opacity:.5}}
+.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden;margin-top:8px}
+.bar>i{display:block;height:100%;background:var(--primary);border-radius:99px;transition:width .3s}
+.log{font-family:var(--f-mono);font-size:12px;color:var(--muted);background:var(--sunk);border-radius:var(--r);padding:12px;height:170px;overflow:auto;display:flex;flex-direction:column;gap:3px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:820px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px}
+.kpi .v{font-family:var(--f-mono);font-size:22px;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .cmp{font-size:12px;margin-top:2px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;color:var(--muted);font-size:14px;white-space:nowrap;min-height:44px}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--primary);font-weight:500}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+.list-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.cmpbar{display:grid;grid-template-columns:118px minmax(0,1fr) 54px;gap:10px;align-items:center;font-size:13px;padding:5px 0}
+.cmpbar .track{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.cmpbar .track i{display:block;height:100%;background:var(--primary);border-radius:99px}
+.cmpbar.client .track i{background:var(--client)}
+.pat{display:grid;grid-template-columns:minmax(0,1fr) 72px 72px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.pat.head{border-top:0;font-size:12px;color:var(--muted);padding-top:0}
+.mini{display:block;height:6px;background:var(--sunk);border-radius:99px;overflow:hidden;margin-top:4px}
+.mini i{display:block;height:100%;border-radius:99px}
+.rec{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.recn{width:24px;height:24px;border-radius:6px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-family:var(--f-mono);font-size:12px}
+.notice{display:flex;gap:10px;align-items:flex-start;background:var(--client-soft);color:var(--fg);border-radius:var(--r);padding:10px 12px;font-size:13px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;min-height:34px;display:inline-flex;gap:6px;align-items:center}
+.chip[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.chip.client[aria-pressed="true"]{background:var(--client-soft);border-color:var(--client);color:var(--client)}
+.search{position:relative;flex:1;min-width:200px}
+.search .ico{position:absolute;left:12px;top:12px;color:var(--muted)}
+.search input{padding-left:38px}
+.posts{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.prow{display:grid;grid-template-columns:36px minmax(0,1fr) 92px 92px;gap:14px;align-items:center;padding:12px 16px;border:0;border-top:1px solid var(--line);cursor:pointer;background:transparent;width:100%;text-align:left;transition:background .12s}
+.prow:first-child{border-top:0}
+.prow:hover{background:var(--sunk)}
+.prow .rank{font-family:var(--f-mono);color:var(--muted);font-size:13px}
+.prow .who{font-weight:500;font-size:14px}
+.prow .who.client{color:var(--client)}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);font-size:13px;margin-top:3px}
+.prow .views{text-align:right;font-family:var(--f-mono);font-size:14px}
+.prow .open{justify-self:end;color:var(--primary);font-size:13px;display:flex;align-items:center;gap:4px}
+@media (max-width:640px){.prow{grid-template-columns:28px minmax(0,1fr) 64px}.prow .open{display:none}}
+mark{background:var(--client-soft);color:var(--client);border-radius:3px;padding:0 1px}
+.empty{padding:36px 16px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.scripts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.scripts{grid-template-columns:1fr}}
+.scard{text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:border-color .15s;font:inherit;color:inherit}
+.scard:hover{border-color:var(--primary)}
+.scard .hook{font-size:16px;font-weight:500;line-height:1.4}
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:680px}
+th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--line)}
+td{padding:12px 16px;border-top:1px solid var(--line);vertical-align:top}
+tr.click{cursor:pointer}tr.click:hover td{background:var(--sunk)}
+
+.scrim{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-start;justify-content:center;z-index:50;overflow-y:auto;padding:max(48px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));animation:fade .15s ease-out}
+.modal{background:var(--surface);border-radius:14px;border:1px solid var(--line);width:100%;max-width:640px;display:flex;flex-direction:column;animation:rise .18s ease-out}
+.mhead{display:flex;justify-content:space-between;gap:12px;padding:18px 20px 12px;border-bottom:1px solid var(--line)}
+.mbody{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.mfoot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:12px 20px 18px;border-top:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--sunk);border-radius:var(--r);padding:8px 10px}
+.stat .num{font-size:15px;margin-top:2px}
+.transcript{background:var(--sunk);border-radius:var(--r);padding:14px 16px;line-height:1.7;max-width:65ch;font-size:15px}
+.ts{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-right:8px}
+.sec-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+@keyframes fade{from{opacity:0}}@keyframes rise{from{transform:translateY(8px);opacity:0}}
+.toast{position:fixed;bottom:max(20px,env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:var(--r);font-size:14px;z-index:60}
+.demo-flag{font-size:11px;letter-spacing:.05em;text-transform:uppercase;background:var(--client-soft);color:var(--client);padding:2px 8px;border-radius:999px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M13 15h4M7 11h10"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m10 8 6 4-6 4Z"/></symbol>
+</svg>
+
+<div id="root"></div>
+
+<script>
+/* ---------- demo data (all invented) ---------- */
+const ACC=[
+  {h:'promptpilot',base:612,client:false,found:34},
+  {h:'aitoolsdaily',base:401,client:false,found:26},
+  {h:'futurestack',base:288,client:false,found:22},
+  {h:'clientbrand',base:41,client:true,found:17}
+];
+const HOOKS=["This free AI tool replaced my $200/month editor.","Stop using ChatGPT like this.","I built a full app in 9 minutes with AI.","3 AI tools that feel illegal to know.","Your resume is getting rejected by AI. Here's why.","This prompt writes better than a copywriter.","Google just shipped something huge for creators.","I tested 12 AI note takers so you don't have to.","The AI trick nobody's talking about.","Delete these apps. AI does it better now.","AI just made thumbnails a 10-second job.","You're paying for 5 AI tools. You need one."];
+const BODIES=["Watch. I drop in the raw footage, type one prompt, and it cuts, captions and adds b-roll in about forty seconds. Here's the before. Here's the after.","Most people type one vague sentence and get generic output. Give it a role, an example and a format instead. Look at the difference on screen.","No code. I described the app, it wrote the screens, I fixed two bugs and it's live. Here it is working on my phone.","Number one handles your inbox. Number two turns a voice memo into a full blog post. Number three, and this is the one people miss, builds your slides from a doc."];
+const CTAS=['Comment "EDIT" and I\'ll send you the link.',"Save this so you don't lose it.","Follow for one AI tool a day.",'Comment "PROMPT" and I\'ll DM you the template.'];
+const CHOOKS=["Hey guys, today I want to talk about AI and my journey with it.","So a lot of you asked me about my morning routine with AI.","Okay, quick story about how I almost quit my business.","Hey everyone, let's talk about prompts for a second.","Welcome back! Today we're looking at a new tool.","I want to share something personal about burnout.","Hi guys, here are some thoughts on automation.","So, this week I tried something a bit different.","Let me tell you about my very first client.","Hey, quick update on what I'm building."];
+const CBODY="So basically what happened was I spent a few months trying different things and honestly it was a lot. I learned a ton about myself and about what clients actually want, and I think the biggest lesson is just being consistent and showing up even when it's hard.";
+const POSTS=[];let pid=0;
+ACC.forEach((a,ai)=>{
+  for(let i=0;i<10;i++){
+    const views=Math.round(a.base*1000*(1-i*0.075)*(0.88+((i*7+ai*3)%5)*0.05));
+    const noViews=(a.h==='futurestack'&&i===9);
+    const d=new Date(2026,10,22-((i*9+ai*5)%86));
+    POSTS.push({id:++pid,h:a.h,client:a.client,views:noViews?null:views,
+      likes:Math.round(views*(0.045+(i%3)*0.01)),comments:Math.round(views*0.004),
+      dur:a.client?46+((i*7)%24):21+((i*5)%15),date:d,
+      src:(!a.client&&i===6&&ai===1)?'caption':'whisper',
+      hook:a.client?CHOOKS[i]:HOOKS[(i+ai*4)%HOOKS.length],
+      body:a.client?CBODY:BODIES[(i+ai)%BODIES.length],
+      cta:a.client?CTAS[2]:CTAS[(i+ai)%CTAS.length]});
+  }
+});
+const RUNS=[
+  {id:'r1',niche:'AI',client:'clientbrand',comp:['promptpilot','aitoolsdaily','futurestack'],status:'done',date:'Nov 25, 2026',posts:40},
+  {id:'r2',niche:'Finance',client:'moneymindset.co',comp:['stackthecash','budgetbro','fi.daily','wealthwithjo'],status:'done',date:'Nov 18, 2026',posts:50},
+  {id:'r3',niche:'Crypto',client:'chainclarity',comp:['onchainlena','satsdaily','cryptokai'],status:'failed',date:'Nov 12, 2026',posts:0,err:'Apify credits ran out during fetch.'},
+  {id:'r4',niche:'Gaming',client:'pixelpushers',comp:['clutchcam','speedrunsam','lootlab'],status:'done',date:'Oct 30, 2026',posts:38}
+];
+const RECS=[
+  {t:'Cut the intro. Say the result in the first line.',why:'9 of 10 top competitor reels open with a claim. 9 of 10 of yours open with a greeting.',src:1},
+  {t:'Show the tool on screen within 5 seconds.',why:'Demo reels average 2.4× the views of talking-head reels in this set.',src:12},
+  {t:'Keep reels under 35 seconds.',why:'Competitor top reels average 26s. Yours average 56s.',src:2},
+  {t:'End with a "comment X" call to action.',why:'6 of 10 top competitor reels use one, and they get the most comments.',src:21},
+  {t:'Keep your personal story angle, but put the payoff first.',why:'It is your clearest strength: 8 of 10 of your reels use it, against 3 of 10 for competitors.',src:31}
+];
+const PATTERNS=[
+  {p:'Bold claim in the first 2 seconds',c:9,k:1},
+  {p:'Tool shown on screen (demo)',c:7,k:0},
+  {p:'Under 35 seconds',c:8,k:2},
+  {p:'"Comment X" call to action',c:6,k:3},
+  {p:'Numbered list ("3 tools…")',c:5,k:0},
+  {p:'Personal story angle',c:3,k:8}
+];
+const DIFFS=[
+  {t:'Opens with a greeting ("Hey guys, today…")',tag:'Gap'},
+  {t:'Talking head, no screen demo',tag:'Gap'},
+  {t:'Reels run about twice as long',tag:'Gap'},
+  {t:'Ends with "follow" instead of a comment prompt',tag:'Gap'},
+  {t:'Personal, story-led delivery',tag:'Keep'}
+];
+const SCRIPTS=[
+  {n:'The 3-second AI test',len:'30s',uses:['Bold claim hook','On-screen demo','Comment CTA'],
+   hook:'This free AI tool cut my editing time by 80%.',
+   beats:[['0–3s','Hook to camera, tool already open behind you.'],['3–15s','Screen recording: drop in a raw clip, type one prompt, cuts and captions appear.'],['15–25s','Before/after split screen. One line: "That used to take me two hours."'],['25–30s','Call to action to camera.']],
+   cta:'Comment "EDIT" and I\'ll send you the link.'},
+  {n:'The prompt fix',len:'25s',uses:['Mistake → fix','Under 30s','Save CTA'],
+   hook:"You're prompting ChatGPT wrong. Here's the fix.",
+   beats:[['0–3s','Hook with the bad prompt on screen.'],['3–12s','Show its generic output. "This is what everyone gets."'],['12–22s','Rewrite it live: role, one example, a format. Show the better output side by side.'],['22–25s','Call to action.']],
+   cta:'Save this for your next prompt.'},
+  {n:'7 days of AI running my business',len:'35s',uses:['Your story angle','Payoff first','Fast cuts'],
+   hook:'I let AI run my business for 7 days. Day 3 nearly broke me.',
+   beats:[['0–3s','Hook with the payoff: "It now owns one job for good."'],['3–25s','One quick cut per day: what it handled, what it got wrong, day 3 on screen.'],['25–32s','The one task it keeps, and why.'],['32–35s','Call to action.']],
+   cta:'Comment "DAY 8" for the follow-up.'}
+];
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ico=(n,c='')=>`<svg class="ico ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const fmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n);
+const fd=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const metric=p=>p.views??p.likes;
+const text=p=>`${p.hook} ${p.body} ${p.cta}`;
+const igUrl=p=>`https://www.instagram.com/${p.h}/`;
+function toast(m){const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
+const CLIP={};let clipN=0;
+function clip(s){const k='c'+(++clipN);CLIP[k]=s;return k}
+async function copyKey(k,label){try{await navigator.clipboard.writeText(CLIP[k]);toast(label+' copied')}catch(e){toast('Copy is blocked here. Select the text and copy it instead.')}}
+
+/* ---------- state + routing ---------- */
+const S={tab:'overview',acct:'all',q:'',sort:'views',show:10,list:[],
+  form:{niche:'AI',client:'clientbrand',comp:['promptpilot','aitoolsdaily','futurestack'],err:{}}};
+const ROUTES=['new','run','results','history'];
+function go(r){if(location.hash==='#'+r)route();else location.hash=r}
+function route(){let r=(location.hash||'').slice(1);if(!ROUTES.includes(r))r='results';render(r)}
+addEventListener('hashchange',route);
+
+function shell(active,inner){
+  const nav=[['new','New analysis','plus'],['results','Latest results','chart'],['history','Runs','list']];
+  const navHtml=nav.map(([k,l,i])=>`<a class="nav" href="#${k}" ${active===k?'aria-current="page"':''}>${ico(i)}${l}</a>`).join('');
+  return `<div class="shell">
+  <aside class="side" aria-label="Main">
+    <div class="brand">${ico('play')}reel/intel</div>
+    ${navHtml}
+    <div class="side-sec">Recent runs</div>
+    ${RUNS.slice(0,3).map(r=>`<a class="nav" href="${r.id==='r1'?'#results':'#history'}"><span class="xs mono" style="width:52px">${esc(r.niche)}</span><span class="small" style="overflow:hidden;text-overflow:ellipsis">@${esc(r.client)}</span></a>`).join('')}
+    <p class="side-foot xs muted">Prototype · demo data</p>
+  </aside>
+  <div style="min-width:0">
+    <nav class="mobilebar" aria-label="Main">${navHtml}</nav>
+    <main class="main" id="main"><div class="wrap">${inner}</div></main>
+  </div></div>`;
+}
+let lastRoute='';
+function render(r){
+  closeModal(true);
+  const root=$('#root');
+  if(r==='new')root.innerHTML=shell('new',newView());
+  else if(r==='run'){root.innerHTML=shell('history',runView());startRun()}
+  else if(r==='results')root.innerHTML=shell('results',resultsView());
+  else if(r==='history')root.innerHTML=shell('history',historyView());
+  if(r!==lastRoute){window.scrollTo(0,0);const h=root.querySelector('h1');if(h){h.setAttribute('tabindex','-1');h.focus({preventScroll:true})}}
+  lastRoute=r;
+}
+
+/* ---------- new analysis ---------- */
+const HANDLE=/^[a-z0-9._]{1,30}$/;
+function norm(v){return v.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i,'').replace(/^@/,'').replace(/[/?#].*$/,'').toLowerCase()}
+function newView(){
+  const f=S.form,total=f.comp.length+(f.client?1:0);
+  return `<div class="pagehead"><div><p class="eyebrow">Step 1 of 2</p><h1>New analysis</h1></div></div>
+  <div class="form-grid">
+    <form class="card" id="nf" novalidate style="display:flex;flex-direction:column;gap:20px">
+      <div class="field"><span style="font-size:13px;font-weight:500" id="niche-l">Niche</span>
+        <div class="segs" role="group" aria-labelledby="niche-l">${['AI','Business','Finance','Gaming','Crypto'].map(n=>`<button type="button" class="seg" aria-pressed="${f.niche===n}" onclick="S.form.niche='${n}';rerenderNew(false)">${n}</button>`).join('')}</div></div>
+      <div class="field"><label for="client">Client account</label>
+        <input class="input mono" id="client" value="${esc(f.client?'@'+f.client:'')}" placeholder="@yourbrand" autocomplete="off" aria-describedby="client-msg" ${f.err.client?'aria-invalid="true"':''}>
+        ${f.err.client?`<span class="err" id="client-msg">${ico('alert','sm')}${esc(f.err.client)}</span>`:`<span class="help" id="client-msg">The account you're writing scripts for. It must be public.</span>`}</div>
+      <div class="field"><label for="comp-in">Competitors <span class="muted" style="font-weight:400">(${f.comp.length} added, 3–10 allowed)</span></label>
+        <div class="tags" onclick="if(event.target===this)$('#comp-in').focus()">
+          ${f.comp.map((c,i)=>`<span class="tag">@${esc(c)}<button type="button" aria-label="Remove @${esc(c)}" onclick="removeComp(${i})">${ico('x','sm')}</button></span>`).join('')}
+          <input id="comp-in" placeholder="${f.comp.length>=10?'Limit reached':'Type a handle and press Enter'}" ${f.comp.length>=10?'disabled':''} autocomplete="off" aria-describedby="comp-msg" ${f.err.comp?'aria-invalid="true"':''}>
+        </div>
+        ${f.err.comp?`<span class="err" id="comp-msg">${ico('alert','sm')}${esc(f.err.comp)}</span>`:`<span class="help" id="comp-msg">Paste a handle or profile link. Press Enter or comma to add it.</span>`}</div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn ghost" onclick="S.form={niche:'AI',client:'',comp:[],err:{}};rerenderNew(false)">Clear</button>
+        <button class="btn primary" type="submit">Run analysis</button></div>
+    </form>
+    <aside class="card" style="display:flex;flex-direction:column;gap:14px">
+      <h2>This run</h2>
+      <div class="summary-list">
+        <div><span class="muted">Accounts</span><span class="num">${total} <span class="muted xs">of 4–11</span></span></div>
+        <div><span class="muted">Window</span><span>Last 90 days</span></div>
+        <div><span class="muted">Posts kept</span><span>Top 10 videos each</span></div>
+        <div><span class="muted">Ranked by</span><span>Views, else likes</span></div>
+        <div><span class="muted">Estimated time</span><span class="num">~${Math.max(2,Math.round(total*0.9))} min</span></div>
+      </div>
+      <p class="xs muted" style="border-top:1px solid var(--line);padding-top:12px">Only reels and video posts are fetched. Photos and carousels are skipped because they have no speech to transcribe. Videos aren't saved; each post links back to Instagram.</p>
+    </aside>
+  </div>`;
+}
+function rerenderNew(focusComp){$('#main .wrap').innerHTML=newView();if(focusComp){const i=$('#comp-in');i&&!i.disabled&&i.focus()}}
+function removeComp(i){S.form.comp.splice(i,1);S.form.err.comp='';rerenderNew(true)}
+function addComp(raw){
+  const f=S.form;const parts=raw.split(/[,\s]+/).map(norm).filter(Boolean);let err='';
+  for(const h of parts){
+    if(!HANDLE.test(h)){err=`"${h}" isn't a valid handle. Use letters, numbers, dots or underscores.`;continue}
+    if(h===f.client){err=`@${h} is already the client.`;continue}
+    if(f.comp.includes(h)){err=`@${h} is already in the list.`;continue}
+    if(f.comp.length>=10){err='You can compare up to 10 competitors.';break}
+    f.comp.push(h);
+  }
+  f.err.comp=err;rerenderNew(true);
+}
+function validateClient(v){const f=S.form;const h=norm(v);f.client=h;
+  f.err.client=!h?"Enter the client's Instagram handle.":!HANDLE.test(h)?"That isn't a valid handle. Use letters, numbers, dots or underscores.":f.comp.includes(h)?`@${h} is also in the competitor list. Remove it there first.`:'';}
+
+/* ---------- run progress ---------- */
+const STEPS=[['Fetch','Pulling video posts from the last 90 days'],['Rank','Keeping the top 10 per account by views'],['Transcribe','Turning speech into text with Whisper'],['Analyze','Finding what top competitor reels share'],['Write scripts','Drafting 3 scripts for the client']];
+let runTimer=null;
+function runView(){
+  const f=S.form;
+  return `<div class="pagehead"><div><p class="eyebrow">Step 2 of 2 · ${esc(f.niche)} · last 90 days</p><h1>Analyzing @${esc(f.client||'clientbrand')}</h1></div>
+    <button class="btn" onclick="go('results')">Skip to results (demo)</button></div>
+  <div class="two">
+    <div class="card"><div class="steps" id="steps" aria-live="polite"></div></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <h2>Activity</h2><div class="log" id="log"></div>
+      <p class="xs muted">You can leave this page. The run keeps going and appears under Runs.</p></div>
+  </div>`;
+}
+function startRun(){
+  clearInterval(runTimer);
+  const f=S.form,comps=f.comp.length?f.comp:['promptpilot','aitoolsdaily','futurestack'];
+  const handles=[f.client||'clientbrand',...comps];
+  const total=handles.length*10;let step=0,count=0;const lines=[];
+  const log=m=>{lines.push(m);const el=$('#log');if(el){el.innerHTML=lines.map(l=>`<div>${esc(l)}</div>`).join('');el.scrollTop=1e6}};
+  const draw=()=>{const el=$('#steps');if(!el)return;
+    el.innerHTML=STEPS.map(([n,d],i)=>{const st=i<step?'done':i===step?'active':'';
+      const prog=i===2&&step===2?`<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${count}" aria-label="Transcription progress"><i style="width:${count/total*100}%"></i></div>`:'';
+      const right=i===2?`<span class="num small ${st?'':'muted'}">${step>2?total:step===2?count:0}/${total}</span>`:(i===0&&step>0)?`<span class="num small">${handles.length*24} videos</span>`:'';
+      return `<div class="step ${st}"><span class="dot">${st==='done'?ico('check','sm'):st?'':i+1}</span><div><p style="font-weight:500">${n}</p><p class="small muted">${d}</p>${prog}</div>${right}</div>`}).join('')};
+  log(`Run started for ${handles.length} accounts`);draw();
+  runTimer=setInterval(()=>{
+    if(!$('#steps')){clearInterval(runTimer);return}
+    if(step===0){handles.forEach(h=>log(`Fetched videos for @${h}`));step=1}
+    else if(step===1){log('Kept the top 10 videos per account');step=2}
+    else if(step===2){count=Math.min(total,count+5);log(`Transcribed ${count}/${total}`);if(count>=total)step=3}
+    else if(step===3){log('Found 6 shared patterns');step=4}
+    else{log('3 scripts ready');step=5;draw();clearInterval(runTimer);setTimeout(()=>{if(location.hash==='#run'){toast('Analysis ready');go('results')}},900);return}
+    draw();
+  },650);
+}
+
+/* ---------- results ---------- */
+function med(a){const v=a.map(metric).sort((x,y)=>x-y);return (v[Math.floor((v.length-1)/2)]+v[Math.ceil((v.length-1)/2)])/2}
+function resultsView(){
+  const comp=POSTS.filter(p=>!p.client),cl=POSTS.filter(p=>p.client);
+  const cm=med(comp),km=med(cl);
+  const avg=a=>Math.round(a.reduce((s,p)=>s+p.dur,0)/a.length);
+  return `<div class="pagehead">
+      <div><p class="eyebrow"><span>AI niche</span><span>·</span><span>Nov 25, 2026</span><span>·</span><span>last 90 days</span><span class="demo-flag">Demo data</span></p>
+      <h1>@clientbrand vs 3 competitors</h1></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="go('new')">${ico('retry','sm')}Re-run</button><button class="btn primary" onclick="S.tab='scripts';rerenderResults()">View scripts</button></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><p class="xs muted">Competitor median views</p><p class="v">${fmt(cm)}</p><p class="cmp muted">across 30 top reels</p></div>
+      <div class="kpi"><p class="xs muted">Client median views</p><p class="v" style="color:var(--client)">${fmt(km)}</p><p class="cmp" style="color:var(--bad)">${Math.round((km/cm-1)*100)}% vs competitors</p></div>
+      <div class="kpi"><p class="xs muted">Average reel length</p><p class="v">${avg(comp)}s <span class="muted" style="font-size:14px">vs</span> <span style="color:var(--client)">${avg(cl)}s</span></p><p class="cmp muted">competitors vs client</p></div>
+      <div class="kpi"><p class="xs muted">Bold claim in first 2s</p><p class="v">90% <span class="muted" style="font-size:14px">vs</span> <span style="color:var(--client)">10%</span></p><p class="cmp muted">competitors vs client</p></div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Results">
+      ${[['overview','Overview'],['posts','Posts and transcripts'],['scripts','Scripts']].map(([k,l])=>`<button role="tab" class="tab" id="tab-${k}" aria-controls="panel" aria-selected="${S.tab===k}" tabindex="${S.tab===k?0:-1}" onclick="S.tab='${k}';rerenderResults()">${l}${k==='posts'?` <span class="pill grey num">${POSTS.length}</span>`:''}</button>`).join('')}
+    </div>
+    <div id="panel" role="tabpanel" aria-labelledby="tab-${S.tab}">${S.tab==='overview'?overviewTab():S.tab==='posts'?postsTab():scriptsTab()}</div>`;
+}
+function rerenderResults(keepFocus){
+  const a=document.activeElement&&document.activeElement.id;
+  $('#main .wrap').innerHTML=resultsView();
+  if(keepFocus&&a&&document.getElementById(a)){const el=document.getElementById(a);el.focus();if(el.setSelectionRange&&el.type==='search')el.setSelectionRange(el.value.length,el.value.length)}
+  else if(!keepFocus){const t=$('#tab-'+S.tab);t&&t.focus()}
+}
+function overviewTab(){
+  const per=ACC.map(a=>({...a,med:med(POSTS.filter(p=>p.h===a.h))}));
+  const max=Math.max(...per.map(a=>a.med));
+  return `<div style="display:flex;flex-direction:column;gap:16px;padding-top:4px">
+  <div class="two">
+    <section class="card" aria-labelledby="h-views"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px"><h2 id="h-views">Median views by account</h2><span class="xs muted">top 10 reels each</span></div>
+      ${per.map(a=>`<div class="cmpbar ${a.client?'client':''}"><span class="mono" style="${a.client?'color:var(--client);font-weight:500':''}">@${a.h}</span><span class="track" role="img" aria-label="@${a.h}: ${fmt(a.med)} median views"><i style="width:${Math.max(3,a.med/max*100)}%"></i></span><span class="num" style="text-align:right">${fmt(a.med)}</span></div>`).join('')}
+      <div style="display:flex;gap:14px;margin-top:10px" class="xs muted"><span style="display:flex;gap:6px;align-items:center"><i style="width:10px;height:10px;border-radius:3px;background:var(--primary)"></i>Competitor</span><span style="display:flex;gap:6px;align-items:center"><i style="width:10px;height:10px;border-radius:3px;background:var(--client)"></i>Client</span></div>
+    </section>
+    <section class="card" aria-labelledby="h-diff"><h2 id="h-diff" style="margin-bottom:6px">How @clientbrand differs</h2>
+      ${DIFFS.map(d=>`<div class="list-row"><span style="flex:1">${esc(d.t)}</span><span class="pill ${d.tag==='Gap'?'amber':'ok'}">${d.tag==='Gap'?ico('alert','sm'):ico('check','sm')}${d.tag}</span></div>`).join('')}
+    </section>
+  </div>
+  <section class="card" aria-labelledby="h-pat"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px"><h2 id="h-pat">Similar patterns in top reels</h2><span class="xs muted">how many of each side's top 10 reels show it</span></div>
+    <div class="pat head"><span>Pattern</span><span>Competitors</span><span>Client</span></div>
+    ${PATTERNS.map(p=>`<div class="pat"><span>${esc(p.p)}</span>
+      <span><span class="num small" style="color:var(--primary)">${p.c}/10</span><span class="mini"><i style="width:${p.c*10}%;background:var(--primary)"></i></span></span>
+      <span><span class="num small" style="color:var(--client)">${p.k}/10</span><span class="mini"><i style="width:${Math.max(p.k*10,2)}%;background:var(--client)"></i></span></span></div>`).join('')}
+  </section>
+  <section class="card" aria-labelledby="h-rec"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px"><h2 id="h-rec">Recommendations</h2><span class="xs muted">each one links to the winning post behind it</span></div>
+    ${RECS.map((r,i)=>{const p=POSTS.find(x=>x.id===r.src);return `<div class="rec"><span class="recn">${i+1}</span><div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+      <p style="font-weight:500">${esc(r.t)}</p><p class="small muted">${esc(r.why)}</p>
+      <button class="linkbtn" onclick="openPost(${p.id},'source')">Based on @${p.h} · ${fmt(metric(p))} views · "${esc(p.hook)}"</button></div></div>`}).join('')}
+  </section>
+  <div class="notice">${ico('alert','sm')}<span><strong>Data notes.</strong> @futurestack's #10 reel had no view count, so it was ranked by likes. One @aitoolsdaily reel had no speech, so its caption is used as the transcript.</span></div>
+  </div>`;
+}
+function filtered(){
+  const q=S.q.trim().toLowerCase();
+  const l=POSTS.filter(p=>(S.acct==='all'||(S.acct==='comp'&&!p.client)||p.h===S.acct)&&(!q||text(p).toLowerCase().includes(q)||p.h.includes(q)));
+  l.sort((a,b)=>S.sort==='views'?metric(b)-metric(a):S.sort==='new'?b.date-a.date:b.dur-a.dur);
+  return l;
+}
+function hl(s){const q=S.q.trim();if(!q)return esc(s);const eq=esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return esc(s).replace(new RegExp(eq,'gi'),m=>`<mark>${m}</mark>`)}
+function postsTab(){
+  const l=filtered();S.list=l;
+  const chips=[['all','All accounts',POSTS.length],['comp','Competitors',30],...ACC.map(a=>[a.h,'@'+a.h,10])];
+  return `<div style="display:flex;flex-direction:column;gap:12px;padding-top:4px">
+    <div class="toolbar" role="group" aria-label="Filter by account">${chips.map(([k,lb,n])=>`<button class="chip ${k==='clientbrand'?'client':''}" id="chip-${k}" aria-pressed="${S.acct===k}" onclick="S.acct='${k}';S.show=10;rerenderResults(true)">${esc(lb)} <span class="num xs">${n}</span></button>`).join('')}</div>
+    <div class="toolbar">
+      <div class="search">${ico('search')}<input class="input" id="q" type="search" placeholder="Search transcripts: prompt, editor, comment" value="${esc(S.q)}" aria-label="Search transcripts"></div>
+      <label style="display:flex;align-items:center;gap:8px"><span class="small muted">Sort</span>
+        <select class="input" id="sort" style="width:auto" onchange="S.sort=this.value;rerenderResults(true)">
+          <option value="views" ${S.sort==='views'?'selected':''}>Most views</option><option value="new" ${S.sort==='new'?'selected':''}>Newest</option><option value="len" ${S.sort==='len'?'selected':''}>Longest</option></select></label>
+    </div>
+    <p class="small muted" aria-live="polite">${l.length} of ${POSTS.length} video posts${S.q?` mention "${esc(S.q)}"`:''}. Found in the last 90 days: ${ACC.map(a=>'@'+a.h+' '+a.found).join(', ')}. Only each account's top 10 by views are kept.</p>
+    <div class="posts">${l.length?l.slice(0,S.show).map((p,i)=>`
+      <button class="prow" onclick="openPost(${p.id},'list')" aria-label="Open transcript: @${p.h}, ${fmt(metric(p))} ${p.views==null?'likes':'views'}, ${fd(p.date)}">
+        <span class="rank">${i+1}</span>
+        <span style="min-width:0;display:block"><span class="who ${p.client?'client':''}">@${p.h}</span> <span class="xs muted">· ${fd(p.date)} · ${p.dur}s${p.src==='caption'?' · caption only':''}${p.views==null?' · ranked by likes':''}</span>
+          <span class="clamp">${hl(text(p))}</span></span>
+        <span class="views">${fmt(metric(p))}<br><span class="xs muted" style="font-family:var(--f-sans)">${p.views==null?'likes':'views'}</span></span>
+        <span class="open">Transcript ${ico('right','sm')}</span>
+      </button>`).join(''):`<div class="empty"><p style="font-weight:500">No transcripts mention "${esc(S.q)}"</p><p class="small muted">Try "AI", "prompt" or "comment", or pick a different account.</p><button class="btn sm" onclick="S.q='';rerenderResults()">Clear search</button></div>`}
+    </div>
+    ${l.length>S.show?`<button class="btn" id="more" onclick="S.show+=10;rerenderResults(true)">Show 10 more <span class="muted small">(${l.length-S.show} left)</span></button>`:''}
+  </div>`;
+}
+function scriptsTab(){
+  return `<div style="display:flex;flex-direction:column;gap:12px;padding-top:4px"><p class="small muted">Written in @clientbrand's voice, using the patterns that win in this niche. Open one to see the full script, beat by beat.</p>
+  <div class="scripts">${SCRIPTS.map((s,i)=>`<button class="card scard" onclick="openScript(${i})">
+    <span style="display:flex;justify-content:space-between;width:100%"><span class="mono xs muted">Script ${i+1}</span><span class="pill grey num">${s.len}</span></span>
+    <span style="font-weight:600">${esc(s.n)}</span>
+    <span class="hook">"${esc(s.hook)}"</span>
+    <span style="display:flex;flex-wrap:wrap;gap:6px">${s.uses.map(u=>`<span class="pill blue">${esc(u)}</span>`).join('')}</span>
+    <span class="small" style="color:var(--primary);display:flex;align-items:center;gap:4px;margin-top:auto">Read full script ${ico('right','sm')}</span></button>`).join('')}</div></div>`;
+}
+
+/* ---------- history ---------- */
+function historyView(){
+  return `<div class="pagehead"><div><h1>Runs</h1><p class="muted small" style="margin-top:4px">Every analysis you've started. One run can be in progress at a time.</p></div><button class="btn primary" onclick="go('new')">${ico('plus','sm')}New analysis</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Client</th><th>Niche</th><th>Competitors</th><th>Posts</th><th>Status</th><th>Date</th></tr></thead><tbody>
+  ${RUNS.map(r=>`<tr class="${r.status==='done'?'click':''}" ${r.status==='done'?`tabindex="0" onclick="go('results')" onkeydown="if(event.key==='Enter')go('results')" aria-label="Open results for @${esc(r.client)}"`:''}>
+    <td class="mono" style="color:var(--client)">@${esc(r.client)}</td><td>${esc(r.niche)}</td>
+    <td class="small muted">${r.comp.map(c=>'@'+esc(c)).join(', ')}</td><td class="num">${r.posts||'—'}</td>
+    <td>${r.status==='done'?`<span class="pill ok">${ico('check','sm')}Done</span>`:`<span style="display:flex;flex-direction:column;gap:4px;align-items:flex-start"><span class="pill bad">${ico('alert','sm')}Failed</span><span class="xs muted">${esc(r.err)}</span><button class="linkbtn" onclick="event.stopPropagation();go('run')">Retry the failed step</button></span>`}</td>
+    <td class="small muted" style="white-space:nowrap">${esc(r.date)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- modals ---------- */
+let modalReturn=null;
+function openModal(html){
+  const had=!!$('#scrim');closeModal(true);if(!had)modalReturn=document.activeElement;
+  const s=document.createElement('div');s.className='scrim';s.id='scrim';
+  s.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">${html}</div>`;
+  s.addEventListener('mousedown',e=>{if(e.target===s)closeModal()});
+  document.body.appendChild(s);document.body.style.overflow='hidden';
+  const c=s.querySelector('[data-close]');c&&c.focus();
+}
+function closeModal(silent){const s=$('#scrim');if(!s)return;s.remove();document.body.style.overflow='';if(!silent){if(modalReturn&&document.contains(modalReturn))modalReturn.focus();modalReturn=null}}
+function openPost(id,ctx){
+  const p=POSTS.find(x=>x.id===id);
+  const own=POSTS.filter(x=>x.h===p.h).sort((a,b)=>metric(b)-metric(a));
+  const list=ctx==='list'&&S.list.length?S.list:own;
+  const ix=list.findIndex(x=>x.id===id),prev=list[ix-1],next=list[ix+1];
+  const acctRank=own.findIndex(x=>x.id===id)+1;
+  const t2=Math.round(p.dur*0.85);
+  const html=`
+    <div class="mhead"><div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+      <p class="eyebrow">${ctx==='source'?'<span class="pill blue">Winning post behind a recommendation</span>':''}<span>Post ${ix+1} of ${list.length}${ctx==='list'&&(S.acct!=='all'||S.q)?' in this filter':ctx==='list'?'':' for this account'}</span></p>
+      <h2 id="mtitle" style="font-size:18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="mono" style="${p.client?'color:var(--client)':''}">@${p.h}</span>${p.client?'<span class="pill amber">Client</span>':''}</h2>
+      <p class="small muted">#${acctRank} for this account · ${fd(p.date)}, 2026 · ${p.dur}s reel</p></div>
+      <button class="btn ghost sm" data-close onclick="closeModal()" aria-label="Close">${ico('x')}</button></div>
+    <div class="mbody">
+      <div class="stats">
+        <div class="stat"><p class="xs muted">Views</p><p class="num">${fmt(p.views)}</p></div>
+        <div class="stat"><p class="xs muted">Likes</p><p class="num">${fmt(p.likes)}</p></div>
+        <div class="stat"><p class="xs muted">Comments</p><p class="num">${fmt(p.comments)}</p></div>
+        <div class="stat"><p class="xs muted">Ranked by</p><p class="num">${p.views==null?'likes':'views'}</p></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="sec-label" style="display:flex;align-items:center;gap:6px">${ico(p.src==='whisper'?'mic':'cap','sm')}${p.src==='whisper'?'Transcript · Whisper':'Caption · no speech found'}</span>
+        <button class="btn sm" onclick="copyKey('${clip(text(p))}','Transcript')">${ico('copy','sm')}Copy transcript</button></div>
+      <div class="transcript">
+        <p><span class="ts">0:00</span><strong>${hl(p.hook)}</strong></p>
+        <p style="margin-top:8px"><span class="ts">0:03</span>${hl(p.body)}</p>
+        <p style="margin-top:8px"><span class="ts">0:${String(t2).padStart(2,'0')}</span>${hl(p.cta)}</p>
+      </div>
+      <p class="xs muted">Use ← and → to move between posts. Esc closes.</p>
+    </div>
+    <div class="mfoot">
+      <div style="display:flex;gap:6px">
+        <button class="btn sm" aria-label="Previous post" ${prev?`onclick="openPost(${prev.id},'${ctx}')"`:'aria-disabled="true"'}>${ico('left','sm')}Prev</button>
+        <button class="btn sm" aria-label="Next post" ${next?`onclick="openPost(${next.id},'${ctx}')"`:'aria-disabled="true"'}>Next${ico('right','sm')}</button></div>
+      <a class="btn primary sm" href="${igUrl(p)}" target="_blank" rel="noopener noreferrer">Open on Instagram ${ico('ext','sm')}</a>
+    </div>`;
+  openModal(html);
+  const s=$('#scrim');if(prev)s.dataset.prev=prev.id;if(next)s.dataset.next=next.id;s.dataset.ctx=ctx;
+}
+function openScript(i){
+  const s=SCRIPTS[i];
+  const full=`${s.n} (${s.len})\n\nHOOK: ${s.hook}\n\n${s.beats.map(b=>b[0]+': '+b[1]).join('\n')}\n\nCTA: ${s.cta}`;
+  openModal(`
+    <div class="mhead"><div style="display:flex;flex-direction:column;gap:4px">
+      <p class="eyebrow">Script ${i+1} of 3 · target ${s.len}</p><h2 id="mtitle" style="font-size:18px">${esc(s.n)}</h2>
+      <span style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${s.uses.map(u=>`<span class="pill blue">${esc(u)}</span>`).join('')}</span></div>
+      <button class="btn ghost sm" data-close onclick="closeModal()" aria-label="Close">${ico('x')}</button></div>
+    <div class="mbody">
+      <div><p class="sec-label">Hook · first 3 seconds</p><p style="font-size:18px;font-weight:500;margin-top:6px;line-height:1.4">"${esc(s.hook)}"</p></div>
+      <div><p class="sec-label" style="margin-bottom:4px">Beats</p>${s.beats.map(b=>`<div class="list-row"><span class="mono xs muted" style="width:56px;flex:none">${b[0]}</span><span>${esc(b[1])}</span></div>`).join('')}</div>
+      <div><p class="sec-label">Call to action</p><p style="margin-top:6px">${esc(s.cta)}</p></div>
+    </div>
+    <div class="mfoot"><div style="display:flex;gap:6px">
+      <button class="btn sm" ${i>0?`onclick="openScript(${i-1})"`:'aria-disabled="true"'} aria-label="Previous script">${ico('left','sm')}Prev</button>
+      <button class="btn sm" ${i<2?`onclick="openScript(${i+1})"`:'aria-disabled="true"'} aria-label="Next script">Next${ico('right','sm')}</button></div>
+      <button class="btn primary sm" onclick="copyKey('${clip(full)}','Script')">${ico('copy','sm')}Copy script</button></div>`);
+}
+
+/* ---------- global events ---------- */
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  if(e.target.id==='nf'){
+    const f=S.form;const pending=$('#comp-in')&&$('#comp-in').value.trim();
+    validateClient(($('#client')||{}).value||'');
+    if(pending){addComp(pending)}
+    if(f.comp.length<3)f.err.comp=`Add ${3-f.comp.length} more competitor${3-f.comp.length===1?'':'s'}. You need 3 to 10.`;
+    if(f.err.client||f.err.comp){rerenderNew(false);(f.err.client?$('#client'):$('#comp-in')).focus();return}
+    go('run');
+  }
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){S.q=e.target.value;S.show=10;clearTimeout(window.__qt);window.__qt=setTimeout(()=>rerenderResults(true),180)}
+});
+document.addEventListener('focusout',e=>{
+  if(e.target.id==='client'&&!e.relatedTarget?.closest?.('.tag')){validateClient(e.target.value);const next=e.relatedTarget&&e.relatedTarget.id;rerenderNew(false);if(next&&document.getElementById(next))document.getElementById(next).focus()}
+});
+document.addEventListener('paste',e=>{if(e.target.id==='comp-in'){const t=e.clipboardData?e.clipboardData.getData('text'):'';if(/[,\s]/.test(t.trim())){e.preventDefault();addComp(t)}}});
+document.addEventListener('keydown',e=>{
+  const s=$('#scrim');
+  if(s){
+    if(e.key==='Escape'){e.preventDefault();closeModal();return}
+    if(e.key==='ArrowRight'&&s.dataset.next){openPost(+s.dataset.next,s.dataset.ctx);return}
+    if(e.key==='ArrowLeft'&&s.dataset.prev){openPost(+s.dataset.prev,s.dataset.ctx);return}
+    if(e.key==='Tab'){const f=[...s.querySelectorAll('button:not([aria-disabled="true"]),a[href]')];const a=f[0],z=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
+    return;
+  }
+  if(e.target.id==='comp-in'){
+    if((e.key==='Enter'||e.key===',')&&e.target.value.trim()){e.preventDefault();addComp(e.target.value)}
+    else if(e.key==='Enter')e.preventDefault();
+    else if(e.key==='Backspace'&&!e.target.value&&S.form.comp.length){S.form.comp.pop();rerenderNew(true)}
+  }
+  if(e.target.classList&&e.target.classList.contains('tab')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){
+    const k=['overview','posts','scripts'];const i=k.indexOf(S.tab)+(e.key==='ArrowRight'?1:-1);S.tab=k[(i+3)%3];rerenderResults()}
+});
+
+route();
+</script>

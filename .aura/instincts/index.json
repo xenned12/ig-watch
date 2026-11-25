@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "updated": "2026-11-25T00:42:56.919Z",
+  "patterns": [
+    {
+      "id": "pattern-002",
+      "category": "test",
+      "language": "unknown",
+      "description": "2026-11-25-ig-competitor-analyzer-design.md — test 패턴 (unknown)",
+      "score": 59,
+      "success_count": 4,
+      "failure_count": 0,
+      "tags": [
+        "test"
+      ],
+      "created": "2026-11-25T00:10:35.563Z",
+      "updated": "2026-11-25T00:29:35.639Z"
+    },
+    {
+      "id": "pattern-001",
+      "category": "auth",
+      "language": "unknown",
+      "description": "2026-11-25-ig-competitor-analyzer-design.md — auth 패턴 (unknown)",
+      "score": 56,
+      "success_count": 3,
+      "failure_count": 0,
+      "tags": [
+        "auth",
+        "cookie"
+      ],
+      "created": "2026-11-25T00:04:05.417Z",
+      "updated": "2026-11-25T00:29:30.033Z"
+    },
+    {
+      "id": "pattern-003",
+      "category": "api",
+      "language": "unknown",
+      "description": "2026-11-25-ig-competitor-analyzer-design.md — api 패턴 (unknown)",
+      "score": 50,
+      "success_count": 1,
+      "failure_count": 0,
+      "tags": [
+        "api"
+      ],
+      "created": "2026-11-25T00:10:35.855Z",
+      "updated": "2026-11-25T00:10:35.857Z"
+    },
+    {
+      "id": "pattern-004",
+      "category": "auth",
+      "language": "unknown",
+      "description": "reel-intel-prototype.html — auth 패턴 (unknown)",
+      "score": 50,
+      "success_count": 1,
+      "failure_count": 0,
+      "tags": [
+        "auth",
+        "next-auth"
+      ],
+      "created": "2026-11-25T00:23:04.430Z",
+      "updated": "2026-11-25T00:23:04.438Z"
+    },
+    {
+      "id": "pattern-005",
+      "category": "general",
+      "language": "unknown",
+      "description": "reel-intel-prototype.html — general 패턴 (unknown)",
+      "score": 50,
+      "success_count": 1,
+      "failure_count": 0,
+      "tags": [],
+      "created": "2026-11-25T00:30:21.118Z",
+      "updated": "2026-11-25T00:30:21.119Z"
+    },
+    {
+      "id": "pattern-006",
+      "category": "auth",
+      "language": "unknown",
+      "description": "2026-11-25-reel-intel.md — auth 패턴 (unknown)",
+      "score": 50,
+      "success_count": 1,
+      "failure_count": 0,
+      "tags": [
+        "auth",
+        "zod"
+      ],
+      "created": "2026-11-25T00:42:56.917Z",
+      "updated": "2026-11-25T00:42:56.918Z"
+    }
+  ],
+  "anti_patterns": []
+}
