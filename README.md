@@ -77,7 +77,7 @@ npm run build
    2. `supabase/migrations/0002_single_active_run.sql`
    3. `supabase/migrations/0003_run_started_at.sql`
 2. **Check Realtime.** Progress updates use public broadcast channels (`run:<id>`). In Supabase, Realtime must stay on and its "Allow public access" setting must stay enabled. If public access is off, the run page cannot join the channel and falls back to refetching every 15 seconds.
-3. **Set every env var in Vercel** (all required variables from the table above). Set `NEXT_PUBLIC_APP_URL` to the production URL. Keep Fluid compute on (the default for new Vercel projects): the analyze job needs up to 300 seconds. Then deploy.
+3. **Set every env var in Vercel** (all required variables from the table above). Take the three Supabase values from the hosted project (Project Settings > API Keys; use the legacy `anon` and `service_role` keys, or the new publishable and secret keys, but not a mix). Set `NEXT_PUBLIC_APP_URL` to the production URL with no trailing slash, and keep `SCRAPER=apify` (Instaloader cannot run on Vercel). Keep Fluid compute on (the default for new Vercel projects): the analyze job needs up to 300 seconds. Then deploy. `vercel.json` pins the Next.js framework, so the build does not depend on the project's Framework Preset. Env var changes only apply to new deployments, so redeploy after changing them.
 4. **Optional: Deployment Protection.** See "Deployment Protection" below. If you turn it on, set `VERCEL_AUTOMATION_BYPASS_SECRET` too, or the pipeline stops after the fetch step.
 5. **Run one real analysis** with 4 public accounts in the same niche (for example AI).
    - Progress steps should update live.
