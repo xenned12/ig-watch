@@ -8,7 +8,9 @@ export function Skel({ w = '100%', h = 14, r, style }: { w?: number | string; h?
 /** Wraps a skeleton screen so screen readers hear one "Loading" status. */
 export function SkeletonScreen({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div role="status" aria-busy="true" aria-live="polite">
+    // display: contents lets the page layout (e.g. .wrap's 16px gap) space the
+    // skeleton's sections exactly like the loaded page.
+    <div role="status" aria-busy="true" aria-live="polite" style={{ display: 'contents' }}>
       <span className="sr-only">{label}</span>
       {children}
     </div>
