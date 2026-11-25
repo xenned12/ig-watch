@@ -1,4 +1,5 @@
 import { makeDeps } from '@/lib/pipeline/deps';
+import { runList } from '@/lib/pipeline/read';
 import { startRun } from '@/lib/pipeline/start';
 import { hashIp } from '@/lib/security';
 
@@ -10,6 +11,14 @@ export async function POST(req: Request): Promise<Response> {
     const body: unknown = await req.json().catch(() => null);
     const { status, ...rest } = await startRun(makeDeps(), body, hashIp(ip));
     return Response.json(rest, { status });
+  } catch {
+    return Response.json({ error: 'Something went wrong. Try again.' }, { status: 500 });
+  }
+}
+
+export async function GET(): Promise<Response> {
+  try {
+    return Response.json({ runs: await runList(makeDeps().store) });
   } catch {
     return Response.json({ error: 'Something went wrong. Try again.' }, { status: 500 });
   }
