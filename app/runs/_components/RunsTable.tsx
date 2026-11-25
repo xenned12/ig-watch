@@ -7,7 +7,7 @@ import type { RunListItem } from '@/lib/pipeline/read';
 import { RetryButton } from './RetryButton';
 
 // Fetch failures caused by the chosen accounts: retrying would fail the same way, so edit instead.
-const INPUT_PROBLEMS = ['Not enough usable accounts', 'Your client'];
+const INPUT_PROBLEMS = ['No competitor could be fetched', 'Not enough usable accounts', 'Your client'];
 const needsEdit = (error: string | null) => INPUT_PROBLEMS.some((p) => error?.startsWith(p) ?? false);
 
 const fmtDate = (iso: string) =>

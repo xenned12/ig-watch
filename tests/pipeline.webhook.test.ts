@@ -56,14 +56,26 @@ describe('handleApifyDone', () => {
     expect(await d.store.listPosts(runId)).toHaveLength(19);
   });
 
-  it('fails at fetch when fewer than 3 competitors are usable', async () => {
+  it('continues with the usable competitors and notes the skipped ones', async () => {
     const { d, runId } = await setup('me', ['alpha', 'gamma', 'zeta']);
+    await handleApifyDone(d, p(runId));
+    const run = await d.store.getRun(runId);
+    expect(run?.status).toBe('transcribing');
+    expect(run?.skipped.map((x) => x.handle).sort()).toEqual(['gamma', 'zeta']);
+    expect(d.sent.length).toBeGreaterThan(0);
+    expect(d.events.map((e) => e.message)).toContain(
+      'Skipped @gamma (Account not found or private), @zeta (No video posts in the last 90 days). Continuing with the other accounts.',
+    );
+  });
+
+  it('fails at fetch when no competitor is usable', async () => {
+    const { d, runId } = await setup('me', ['gamma', 'zeta']);
     await handleApifyDone(d, p(runId));
     expect(await d.store.getRun(runId)).toMatchObject({
       status: 'failed',
       failedStep: 'fetch',
       error:
-        'Not enough usable accounts. Skipped: @gamma (Account not found or private), @zeta (No video posts in the last 90 days). Add other competitors and try again.',
+        'No competitor could be fetched. Skipped: @gamma (Account not found or private), @zeta (No video posts in the last 90 days). Add other competitors and try again.',
     });
     expect(d.sent).toHaveLength(0);
     expect(d.events.at(-1)?.step).toBe('failed');

@@ -10,7 +10,6 @@ const PayloadSchema = z.object({
 
 const FETCH_FAILED = 'Fetching posts from Instagram failed. Retry the failed step.';
 const JOBS_PARTIAL = 'Some transcription jobs could not be started. If progress stops, the run will be marked failed after 30 minutes and you can retry it.';
-const MIN_COMPETITORS = 3;
 
 class FetchError extends Error {}
 
@@ -28,13 +27,16 @@ function usabilityError(
     if (reason && !reason.startsWith('No video posts')) return `Your client @${client} could not be fetched: ${reason}.`;
     return `Your client @${client} has no video posts in the last 90 days.`;
   }
-  const usable = competitors.filter((h) => (videosFound[h] ?? 0) > 0);
-  if (usable.length >= MIN_COMPETITORS) return null;
-  const skippedCompetitors = skipped
+  // Carry on with whichever competitors worked; fail only when none did.
+  if (competitors.some((h) => (videosFound[h] ?? 0) > 0)) return null;
+  return `No competitor could be fetched. Skipped: ${skippedList(competitors, skipped)}. Add other competitors and try again.`;
+}
+
+function skippedList(competitors: string[], skipped: Skipped[]): string {
+  return skipped
     .filter((s) => competitors.includes(s.handle))
     .map((s) => `@${s.handle} (${s.reason})`)
     .join(', ');
-  return `Not enough usable accounts. Skipped: ${skippedCompetitors}. Add other competitors and try again.`;
 }
 
 async function runPipeline(deps: Deps, runId: string, eventType: string, apifyRunId: string) {
@@ -62,6 +64,13 @@ async function runPipeline(deps: Deps, runId: string, eventType: string, apifyRu
     step: 'fetch',
     message: `Fetched posts for ${Object.keys(videosFound).length} accounts`,
   });
+  const missed = skippedList(run.competitorHandles, skipped);
+  if (missed) {
+    await progress.emit(runId, {
+      step: 'fetch',
+      message: `Skipped ${missed}. Continuing with the other accounts.`,
+    });
+  }
   await progress.emit(runId, {
     step: 'rank',
     message: 'Kept the top 10 videos per account',
