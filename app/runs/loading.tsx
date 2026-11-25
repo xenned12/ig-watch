@@ -12,18 +12,35 @@ export default function RunsLoading() {
           </div>
           <Skel w={140} h={40} r={10} />
         </div>
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <Skel w={32} h={32} r={16} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <Skel w="30%" h={13} />
-                <Skel w="50%" h={11} />
-              </div>
-              <Skel w={72} h={22} r={11} />
-              <Skel w={90} h={12} />
-            </div>
-          ))}
+        {/* Same table, headers and widths as RunsTable, with placeholder cells. */}
+        <div className="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Client</th><th>Niche</th><th>Competitors</th><th>Posts</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <tr key={i}>
+                  <td><Skel w={[150, 110, 130][i % 3]} h={14} /></td>
+                  <td><Skel w={[30, 90, 60][i % 3]} h={14} /></td>
+                  <td>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <Skel w={150} h={11} />
+                      <Skel w={110} h={11} />
+                    </div>
+                  </td>
+                  <td><Skel w={22} h={14} /></td>
+                  <td>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <Skel w={64} h={22} r={11} />
+                      {i % 3 === 2 && <Skel w={170} h={11} />}
+                    </div>
+                  </td>
+                  <td><Skel w={80} h={12} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </SkeletonScreen>
     </Shell>
