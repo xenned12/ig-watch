@@ -5,5 +5,5 @@ export function LogoutButton() {
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => null);
     window.location.assign('/login');
   }
-  return <button type="button" className="nav" onClick={logout}>Sign out</button>;
+  return <button type="button" className="nav nav-btn" onClick={logout}>Sign out</button>;
 }

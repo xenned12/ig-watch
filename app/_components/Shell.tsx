@@ -35,8 +35,9 @@ export function Shell({ active, recent, children }: { active: Active; /** `null`
         <NavLinks active={active} />
         <div className="side-sec">Recent runs</div>
         <RecentRuns recent={recent} />
-        <LogoutButton />
-        <p className="side-foot xs muted">Reel Intel</p>
+        <div className="side-foot">
+          <LogoutButton />
+        </div>
       </aside>
       <div style={{ minWidth: 0 }}>
         <nav className="mobilebar" aria-label="Main">
