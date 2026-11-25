@@ -109,3 +109,16 @@ export async function handleApifyDone(deps: Deps, payload: unknown): Promise<voi
     await fail(deps, runId, err instanceof FetchError ? err.message : FETCH_FAILED);
   }
 }
+
+/**
+ * Fallback for when Apify's webhook cannot reach the app (local dev): asks the
+ * scraper whether the scrape has finished and, if so, handles it like the webhook.
+ * Safe alongside the webhook: handleApifyDone claims the run only once.
+ */
+export async function pollScrape(deps: Deps, runId: string): Promise<void> {
+  const run = await deps.store.getRun(runId);
+  if (!run || run.status !== 'fetching' || !run.apifyRunId || !deps.apify.status) return;
+  const eventType = await deps.apify.status(run.apifyRunId);
+  if (!eventType) return;
+  await handleApifyDone(deps, { runId, eventType, apifyRunId: run.apifyRunId });
+}

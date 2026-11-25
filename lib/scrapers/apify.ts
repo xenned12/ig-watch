@@ -5,6 +5,13 @@ import { callbackHeaders } from '@/lib/jobs';
 import type { AccountSearch } from '@/lib/pipeline/deps';
 import type { Scraper } from './types';
 
+const FINISHED: Record<string, string> = {
+  SUCCEEDED: 'ACTOR.RUN.SUCCEEDED',
+  FAILED: 'ACTOR.RUN.FAILED',
+  'TIMED-OUT': 'ACTOR.RUN.TIMED_OUT',
+  ABORTED: 'ACTOR.RUN.ABORTED',
+};
+
 // Apify's hosted instagram-scraper; Apify calls our webhook when the run ends.
 export function apifyScraper(env: ServerEnv): Scraper {
   const client = new ApifyClient({ token: env.APIFY_TOKEN });
@@ -33,6 +40,11 @@ export function apifyScraper(env: ServerEnv): Scraper {
     async items(apifyRunId) {
       const { items } = await client.run(apifyRunId).dataset().listItems();
       return items;
+    },
+    async status(apifyRunId) {
+      const run = await client.run(apifyRunId).get();
+      if (!run || run.status === 'READY' || run.status === 'RUNNING') return null;
+      return FINISHED[run.status] ?? 'ACTOR.RUN.FAILED';
     },
   };
 }

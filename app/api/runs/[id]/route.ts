@@ -1,6 +1,9 @@
 import { z } from 'zod';
+import { after } from 'next/server';
+import { background } from '@/lib/pipeline/background';
 import { makeDeps } from '@/lib/pipeline/deps';
 import { runDetail } from '@/lib/pipeline/read';
+import { pollScrape } from '@/lib/pipeline/webhook';
 
 export async function GET(
   _req: Request,
@@ -11,8 +14,11 @@ export async function GET(
     if (!z.string().uuid().safeParse(id).success) {
       return Response.json({ error: 'Run not found.' }, { status: 404 });
     }
-    const detail = await runDetail(makeDeps().store, id);
+    const deps = makeDeps();
+    const detail = await runDetail(deps.store, id);
     if (!detail) return Response.json({ error: 'Run not found.' }, { status: 404 });
+    // The page polls this route, so it doubles as a webhook fallback.
+    if (detail.run.status === 'fetching') after(background(() => pollScrape(deps, id)));
     return Response.json(detail);
   } catch {
     return Response.json({ error: 'Something went wrong. Try again.' }, { status: 500 });
