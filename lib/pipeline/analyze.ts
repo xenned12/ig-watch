@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod';
+import { ZodError, type ZodType } from 'zod';
 import type { Deps } from '@/lib/pipeline/deps';
 import {
   COMPARE_SYSTEM,
@@ -89,7 +89,10 @@ export async function analyzeRun(deps: Deps, runId: string): Promise<void> {
     });
     const moved = await store.transitionRun(runId, 'analyzing', { status: 'done' });
     if (moved) await progress.emit(runId, { step: 'done', message: '3 scripts ready' });
-  } catch {
+  } catch (err) {
+    // Surface the cause in the server logs; the user only sees the generic message.
+    const detail = err instanceof ZodError ? JSON.stringify(err.issues).slice(0, 2000) : String(err);
+    console.error(`[analyze] run ${runId} failed: ${detail}`);
     await fail(deps, runId);
   }
 }
