@@ -2,12 +2,14 @@ import { z } from 'zod';
 
 export const ApifyItemSchema = z
   .object({
-    inputUrl: z.string().optional(),
-    ownerUsername: z.string().optional(),
-    type: z.enum(['Video', 'Image', 'Sidecar']).optional(),
-    productType: z.string().optional(),
-    url: z.string().optional(),
-    timestamp: z.string().optional(),
+    // Real Apify items send null for absent values and may add new post types,
+    // so every field accepts null and `type` is any string.
+    inputUrl: z.string().nullish(),
+    ownerUsername: z.string().nullish(),
+    type: z.string().nullish(),
+    productType: z.string().nullish(),
+    url: z.string().nullish(),
+    timestamp: z.string().nullish(),
     videoViewCount: z.number().nullish(),
     videoPlayCount: z.number().nullish(),
     likesCount: z.number().nullish(),
@@ -15,8 +17,8 @@ export const ApifyItemSchema = z
     videoDuration: z.number().nullish(),
     videoUrl: z.string().nullish(),
     caption: z.string().nullish(),
-    error: z.string().optional(),
-    errorDescription: z.string().optional(),
+    error: z.string().nullish(),
+    errorDescription: z.string().nullish(),
   })
   .passthrough();
 

@@ -26,4 +26,28 @@ describe('rankItems', () => {
     expect(r.posts.filter((p) => p.isClient).map((p) => p.handle)).toEqual(['me', 'me']));
   it('ignores unparseable items', () =>
     expect(rankItems([null, 5, { timestamp: 3 }], { client: 'me', competitors: [] }, now).posts).toEqual([]));
+  it('keeps real-world items whose optional fields are null or have other type values', () => {
+    const real = {
+      inputUrl: 'https://www.instagram.com/me/',
+      ownerUsername: 'me',
+      type: 'Video',
+      productType: null,
+      url: 'https://www.instagram.com/p/abc/',
+      timestamp: '2026-11-20T10:00:00.000Z',
+      videoViewCount: 1200,
+      videoPlayCount: null,
+      likesCount: 80,
+      commentsCount: null,
+      videoDuration: 31.4,
+      videoUrl: 'https://cdn.example/v.mp4',
+      caption: null,
+      error: null,
+      errorDescription: null,
+    };
+    const clip = { ...real, url: 'https://www.instagram.com/reel/def/', type: 'Clip', productType: 'clips', videoViewCount: 900 };
+    const res = rankItems([real, clip], { client: 'me', competitors: [] }, now);
+    expect(res.posts.map((p) => p.igUrl)).toEqual(['https://www.instagram.com/p/abc/', 'https://www.instagram.com/reel/def/']);
+    expect(res.posts[0]).toMatchObject({ views: 1200, comments: 0, caption: '', durationS: 31 });
+    expect(res.videosFound).toMatchObject({ me: 2 });
+  });
 });
