@@ -23,6 +23,7 @@ export function memoryStore(): Store {
   return {
     async createRun(r: NewRun) {
       if ([...runs.values()].some(isActive)) throw new ActiveRunExistsError();
+      const now = new Date().toISOString();
       const run: Run = {
         id: crypto.randomUUID(),
         niche: r.niche,
@@ -35,7 +36,8 @@ export function memoryStore(): Store {
         videosFound: {},
         remaining: 0,
         apifyRunId: null,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
+        startedAt: now,
       };
       runs.set(run.id, run);
       return { ...run };
@@ -57,7 +59,7 @@ export function memoryStore(): Store {
     async failStaleRuns(beforeIso) {
       let n = 0;
       for (const [id, r] of runs) {
-        if (!isActive(r) || r.createdAt >= beforeIso) continue;
+        if (!isActive(r) || r.startedAt >= beforeIso) continue;
         runs.set(id, { ...r, status: 'failed', failedStep: STALE_STEP[r.status], error: STALE_ERROR });
         n += 1;
       }

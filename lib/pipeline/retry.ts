@@ -19,7 +19,7 @@ const CLEARED = { failedStep: null, error: null } as const;
 
 async function retryFetch(deps: Deps, run: Run): Promise<RetryResult> {
   const { store, progress, apify } = deps;
-  if (!(await store.transitionRun(run.id, 'failed', { status: 'fetching', ...CLEARED }))) {
+  if (!(await store.transitionRun(run.id, 'failed', { status: 'fetching', startedAt: deps.now().toISOString(), ...CLEARED }))) {
     return NOT_FAILED;
   }
   try {
@@ -35,7 +35,7 @@ async function retryFetch(deps: Deps, run: Run): Promise<RetryResult> {
 }
 
 async function retryAnalyze(deps: Deps, run: Run, remaining?: number): Promise<RetryResult> {
-  const patch = { status: 'analyzing', ...CLEARED, ...(remaining === undefined ? {} : { remaining }) } as const;
+  const patch = { status: 'analyzing', startedAt: deps.now().toISOString(), ...CLEARED, ...(remaining === undefined ? {} : { remaining }) } as const;
   if (!(await deps.store.transitionRun(run.id, 'failed', patch))) return NOT_FAILED;
   await deps.progress.emit(run.id, { step: 'analyze', message: 'Retrying: comparing transcripts' });
   try {
@@ -55,7 +55,12 @@ async function retryTranscribe(deps: Deps, run: Run): Promise<RetryResult> {
   const missing = posts.filter((p) => !done.has(p.id));
   if (missing.length === 0) return retryAnalyze(deps, run, 0);
 
-  const patch = { status: 'transcribing', remaining: missing.length, ...CLEARED } as const;
+  const patch = {
+    status: 'transcribing',
+    startedAt: deps.now().toISOString(),
+    remaining: missing.length,
+    ...CLEARED,
+  } as const;
   if (!(await store.transitionRun(run.id, 'failed', patch))) return NOT_FAILED;
   await progress.emit(run.id, {
     step: 'transcribe',

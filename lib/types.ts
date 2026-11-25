@@ -16,6 +16,7 @@ export type Run = {
   remaining: number;
   apifyRunId: string | null;
   createdAt: string;
+  startedAt: string;
 };
 
 export type Post = {

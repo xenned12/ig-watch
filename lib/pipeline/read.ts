@@ -7,7 +7,7 @@ export type RunListItem = Pick<
 > & { postCount: number };
 
 export type RunDetail = {
-  run: Omit<Run, 'apifyRunId'>;
+  run: Omit<Run, 'apifyRunId' | 'startedAt'>;
   posts: (Post & { transcript: Transcript | null })[];
   analysis: Analysis | null;
   events: { at: string; message: string }[];

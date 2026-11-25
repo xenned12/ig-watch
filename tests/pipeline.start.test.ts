@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { retryRun } from '@/lib/pipeline/retry';
 import { startRun } from '@/lib/pipeline/start';
 import { fakeDeps } from './fakes';
 
@@ -73,9 +74,26 @@ describe('startRun', () => {
     const d = fakeDeps();
     const old = await d.store.createRun({ niche: 'AI', clientHandle: 'x', competitorHandles: ['a', 'b', 'c'] });
     await d.store.updateRun(old.id, {
-      createdAt: new Date(d.now().getTime() - 31 * 60_000).toISOString(),
+      startedAt: new Date(d.now().getTime() - 31 * 60_000).toISOString(),
     });
     expect((await startRun(d, ok, 'ip1')).status).toBe(201);
     expect(await d.store.getRun(old.id)).toMatchObject({ status: 'failed', failedStep: 'fetch' });
+  });
+
+  it('a run created 2 hours ago but retried now is not swept as stale', async () => {
+    const d = fakeDeps();
+    const run = await d.store.createRun({ niche: 'AI', clientHandle: 'x', competitorHandles: ['a', 'b', 'c'] });
+    await d.store.updateRun(run.id, {
+      status: 'failed',
+      failedStep: 'analyze',
+      createdAt: new Date(d.now().getTime() - 120 * 60_000).toISOString(),
+      startedAt: new Date(d.now().getTime() - 120 * 60_000).toISOString(),
+    });
+    expect(await retryRun(d, run.id)).toEqual({ status: 202 });
+    expect(await startRun(d, ok, 'ip1')).toEqual({
+      status: 409,
+      error: 'Another analysis is already running. Try again when it finishes.',
+    });
+    expect((await d.store.getRun(run.id))?.status).toBe('analyzing');
   });
 });

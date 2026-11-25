@@ -205,7 +205,7 @@ describe('retryRun', () => {
     const { d, runId } = await failedRun('analyze', 1, 1);
     await d.store.updateRun(runId, {
       status: 'analyzing',
-      createdAt: new Date(d.now().getTime() - 31 * 60_000).toISOString(),
+      startedAt: new Date(d.now().getTime() - 31 * 60_000).toISOString(),
     });
     expect(await retryRun(d, runId)).toEqual({ status: 202 });
     expect(await d.store.getRun(runId)).toMatchObject({ status: 'analyzing', failedStep: null });

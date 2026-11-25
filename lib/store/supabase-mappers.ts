@@ -21,6 +21,7 @@ export function runFromRow(r: Row): Run {
     remaining: r.remaining as number,
     apifyRunId: (r.apify_run_id as string | null) ?? null,
     createdAt: r.created_at as string,
+    startedAt: r.started_at as string,
   };
 }
 
@@ -38,6 +39,7 @@ export function runPatchToRow(p: Partial<Run>): Row {
     remaining: 'remaining',
     apifyRunId: 'apify_run_id',
     createdAt: 'created_at',
+    startedAt: 'started_at',
   };
   const row: Row = {};
   for (const key of Object.keys(p) as (keyof Run)[]) {

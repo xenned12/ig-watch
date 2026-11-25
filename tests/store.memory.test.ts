@@ -97,9 +97,9 @@ describe('memoryStore', () => {
   it('failStaleRuns fails only old active runs, with the step from their status', async () => {
     const s = memoryStore();
     const done = await s.createRun(input);
-    await s.updateRun(done.id, { status: 'done', createdAt: '2026-01-01T00:00:00.000Z' });
+    await s.updateRun(done.id, { status: 'done', startedAt: '2026-01-01T00:00:00.000Z' });
     const old = await s.createRun(input);
-    await s.updateRun(old.id, { status: 'transcribing', createdAt: '2026-01-01T00:00:00.000Z' });
+    await s.updateRun(old.id, { status: 'transcribing', startedAt: '2026-01-01T00:00:00.000Z' });
     expect(await s.failStaleRuns('2026-06-01T00:00:00.000Z')).toBe(1);
     expect(await s.getRun(old.id)).toMatchObject({
       status: 'failed',

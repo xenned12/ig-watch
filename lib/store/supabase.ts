@@ -81,7 +81,7 @@ export function supabaseStore(): Store {
             }),
           )
           .eq('status', status)
-          .lt('created_at', beforeIso)
+          .lt('started_at', beforeIso)
           .select('id');
         check(error, 'failStaleRuns');
         n += (data ?? []).length;
