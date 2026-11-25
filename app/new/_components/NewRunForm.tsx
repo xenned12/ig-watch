@@ -48,7 +48,7 @@ export function NewRunForm({ initial }: { initial?: NewRunInitial }) {
   const compRef = useRef<HTMLInputElement>(null);
   const clientRef = useRef<HTMLInputElement>(null);
   const nicheRef = useRef<HTMLInputElement>(null);
-  const [niche, setNiche] = useState<Niche>(initial?.niche ?? 'AI');
+  const [niche, setNiche] = useState<Niche>(initial?.niche ?? '');
   const [clientText, setClientText] = useState(initial?.client ? '@' + initial.client : '');
   const [comps, setComps] = useState<string[]>(initial?.competitors ?? []);
   const [draft, setDraft] = useState('');

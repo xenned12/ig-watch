@@ -62,6 +62,7 @@ describe('NewRunForm', () => {
 
   it('focuses the competitor input when too few competitors are added', async () => {
     render(<NewRunForm />);
+    await userEvent.type(screen.getByLabelText('Niche'), 'AI');
     await userEvent.type(screen.getByLabelText('Client account'), 'me');
     await userEvent.type(compInput(), 'one,');
     await userEvent.click(screen.getByRole('button', { name: 'Run analysis' }));
@@ -71,6 +72,7 @@ describe('NewRunForm', () => {
   });
 
   async function fillValid() {
+    await userEvent.type(screen.getByLabelText('Niche'), 'AI');
     await userEvent.type(screen.getByLabelText('Client account'), 'me');
     await userEvent.type(compInput(), 'a,b,c,');
   }
